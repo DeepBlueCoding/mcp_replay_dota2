@@ -1,58 +1,97 @@
 # MCP Dota 2 Match Analysis Server
 
-> Model Context Protocol server for Dota 2 match analysis using replay files
+A Model Context Protocol (MCP) server that gives LLMs the ability to analyze Dota 2 matches by parsing replay files and querying the OpenDota API.
 
-[![Build Status](https://github.com/DeepBlueCoding/mcp_replay_dota2/actions/workflows/test.yml/badge.svg)](https://github.com/DeepBlueCoding/mcp_replay_dota2/actions/workflows/test.yml)
-[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+## What This Does
 
-A FastMCP server that provides MCP tools and resources for analyzing Dota 2 matches using replay files and the OpenDota API.
+This server exposes **tools** and **resources** that an LLM can call to answer questions about Dota 2 matches:
 
-## Features
+- "Why did we lose the teamfight at 25 minutes?"
+- "How did the enemy Anti-Mage get such a fast Battle Fury?"
+- "When did Roshan die and who took the Aegis?"
+- "Show me what happened when I died at minute 12"
 
-- **MCP Resources** - Expose Dota 2 data through standardized MCP resource URIs
-- **Match Analysis Tools** - Comprehensive tools for analyzing match replays
-- **Combat Log Parsing** - Extract hero deaths, item purchases, objective kills
-- **Timeline Analysis** - Track player stats throughout the match
-- **Map Data** - Tower positions, neutral camps, rune spawns, landmarks
+The LLM reads the replay data and provides analysis based on actual game events, not guesswork.
+
+## How MCP Works
+
+```
+┌─────────────────┐         ┌─────────────────┐         ┌─────────────────┐
+│   LLM Client    │ ──MCP── │   This Server   │ ──────▸ │  Replay Parser  │
+│ (Claude, GPT)   │         │                 │         │  OpenDota API   │
+└─────────────────┘         └─────────────────┘         └─────────────────┘
+         │                           │
+         │   "Analyze match 123"     │
+         │ ─────────────────────────▸│
+         │                           │
+         │                           │── calls get_hero_deaths(123)
+         │                           │── calls get_combat_log(123, ...)
+         │                           │── calls get_objective_kills(123)
+         │                           │
+         │   structured JSON data    │
+         │ ◂─────────────────────────│
+         │                           │
+         ▼                           ▼
+   LLM synthesizes response: "The fight was lost because..."
+```
+
+**Resources** = Static data the LLM can reference (hero list, map positions)
+**Tools** = Functions the LLM can call with parameters (get deaths, get combat log)
 
 ## Quick Start
 
-```python
-# Configure your MCP client to connect to this server
-# The server exposes resources and tools via the MCP protocol
+### 1. Install
 
-# Resources available:
-# - dota2://heroes/all - All Dota 2 heroes
-# - dota2://map - Map positions and landmarks
-# - dota2://match/{match_id}/heroes - Heroes in a specific match
-# - dota2://match/{match_id}/players - Players in a specific match
-
-# Tools available:
-# - get_match_timeline - Time-series data for a match
-# - get_stats_at_minute - Player stats at a specific minute
-# - get_hero_deaths - All hero death events
-# - get_combat_log - Filtered combat log events
-# - get_fight_combat_log - Combat events around a fight
-# - get_item_purchases - Item purchase timings
-# - get_courier_kills - Courier kill events
-# - get_objective_kills - Roshan, tower, barracks kills
+```bash
+git clone https://github.com/DeepBlueCoding/mcp_replay_dota2.git
+cd mcp_replay_dota2
+uv sync
 ```
 
-## Architecture
+### 2. Connect to Your LLM
 
-```
-MCP Server (dota_match_mcp_server.py)
-    ↓
-Resources Layer (src/resources/)
-    ↓
-Utilities Layer (src/utils/)
-    ↓
-External APIs (OpenDota, dotaconstants, python_manta)
-```
+See [Configuration](getting-started/configuration.md) for setup with:
 
-## Links
+- Claude Desktop
+- Claude Code CLI
+- OpenAI + LangChain
+- Custom Python clients
 
-- [GitHub Repository](https://github.com/DeepBlueCoding/mcp_replay_dota2)
-- [OpenDota API Docs](https://docs.opendota.com/)
-- [MCP Specification](https://modelcontextprotocol.io/)
+### 3. Ask Questions
+
+Once connected, just ask naturally:
+
+> "Analyze match 8461956309. Why did Radiant lose?"
+
+The LLM will automatically call the appropriate tools and synthesize an analysis.
+
+## Available Tools
+
+| Tool | What It Does |
+|------|--------------|
+| `get_hero_deaths` | All deaths with killer, victim, ability used |
+| `get_combat_log` | Damage events, abilities, modifiers in a time range |
+| `get_fight_combat_log` | Auto-detects fight boundaries around a death |
+| `get_item_purchases` | When each item was bought |
+| `get_objective_kills` | Roshan, towers, barracks timings |
+| `get_match_timeline` | Net worth, XP, KDA over time |
+| `get_stats_at_minute` | Snapshot of all players at a specific minute |
+| `get_courier_kills` | Courier snipes with position |
+
+## Available Resources
+
+| URI | Data |
+|-----|------|
+| `dota2://heroes/all` | All 124 heroes with attributes |
+| `dota2://map` | Tower, camp, rune, landmark positions |
+| `dota2://match/{id}/heroes` | 10 heroes in match with stats |
+| `dota2://match/{id}/players` | 10 players with names and heroes |
+
+## Example Conversations
+
+See [Use Cases](examples/use-cases.md) for detailed examples:
+
+- Analyzing why a teamfight was lost
+- Tracking a carry's item timings
+- Understanding a gank that went wrong
+- Comparing laning phase performance

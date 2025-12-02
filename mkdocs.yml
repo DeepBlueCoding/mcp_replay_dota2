@@ -1,5 +1,5 @@
-site_name: MCP Dota 2 Match Analysis Server
-site_description: Model Context Protocol server for Dota 2 match analysis using replay files
+site_name: MCP Dota 2 Server
+site_description: Give your LLM the ability to analyze Dota 2 matches
 site_url: https://deepbluecoding.github.io/mcp_replay_dota2/
 repo_name: DeepBlueCoding/mcp_replay_dota2
 repo_url: https://github.com/DeepBlueCoding/mcp_replay_dota2
@@ -23,19 +23,12 @@ theme:
     - navigation.instant
     - navigation.tabs
     - navigation.sections
-    - navigation.expand
     - navigation.top
     - search.highlight
     - content.code.copy
 
 plugins:
   - search
-  - mkdocstrings:
-      handlers:
-        python:
-          options:
-            show_source: true
-            show_root_heading: true
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -51,18 +44,11 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Getting Started:
+  - Setup:
       - Installation: getting-started/installation.md
-      - Configuration: getting-started/configuration.md
+      - Connecting to LLMs: getting-started/configuration.md
+  - Use Cases: examples/use-cases.md
   - API Reference:
-      - Resources: api/resources.md
       - Tools: api/tools.md
-      - Models: api/models.md
-  - Examples:
-      - Basic Usage: examples/basic.md
-      - Match Analysis: examples/match-analysis.md
+      - Resources: api/resources.md
   - Changelog: changelog.md
-
-extra:
-  version:
-    provider: mike

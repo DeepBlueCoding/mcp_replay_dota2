@@ -1,172 +1,238 @@
-# MCP Tools
+# Tools Reference
 
-Tools are model-controlled functions that the AI can autonomously decide to call based on the conversation context. They return structured data that the model can use to formulate responses.
-
-## get_match_timeline
-
-Get time-series data for a Dota 2 match.
-
-**Parameters:**
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `match_id` | int | Yes | The Dota 2 match ID |
-
-**Returns per player:**
-
-- `net_worth`: Array of net worth values (sampled every 30 seconds)
-- `hero_damage`: Array of cumulative hero damage
-- `kda_timeline`: Array of {game_time, kills, deaths, assists, level} snapshots
-
-Also returns team-level graphs for experience and gold.
-
----
-
-## get_stats_at_minute
-
-Get player stats at a specific minute in a Dota 2 match.
-
-**Parameters:**
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `match_id` | int | Yes | The Dota 2 match ID |
-| `minute` | int | Yes | Game minute to get stats for (0-based) |
-
-**Returns per player:**
-
-- `net_worth`: Net worth at that minute
-- `hero_damage`: Cumulative hero damage at that minute
-- `kills`, `deaths`, `assists`: KDA at that minute
-- `level`: Hero level at that minute
-
----
+Tools are functions the LLM can call. All tools take `match_id` as required parameter.
 
 ## get_hero_deaths
 
-Get all hero deaths in a Dota 2 match.
+All hero deaths in the match.
 
-**Parameters:**
+```python
+get_hero_deaths(match_id=8461956309)
+```
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `match_id` | int | Yes | The Dota 2 match ID |
-
-**Returns list of death events:**
-
-- `game_time`: Seconds since game start
-- `game_time_str`: Formatted as M:SS
-- `killer`: Hero or unit that got the kill
-- `victim`: Hero that died
-- `killer_is_hero`: Whether the killer was a hero
-- `ability`: Ability or item that dealt the killing blow (if available)
+**Returns:**
+```json
+{
+  "total_deaths": 45,
+  "deaths": [
+    {
+      "game_time": 288,
+      "game_time_str": "4:48",
+      "victim": "earthshaker",
+      "killer": "disruptor",
+      "killer_is_hero": true,
+      "ability": "disruptor_thunder_strike",
+      "position": {"x": 4200, "y": 1800, "region": "dire_safelane", "location": "Dire safelane near tower"}
+    }
+  ]
+}
+```
 
 ---
 
 ## get_combat_log
 
-Get combat log events from a Dota 2 match with optional filters.
+Raw combat events with optional filters.
 
-**Parameters:**
+```python
+get_combat_log(
+    match_id=8461956309,
+    start_time=280,      # optional: filter by time range
+    end_time=300,
+    hero_filter="earthshaker"  # optional: only events involving this hero
+)
+```
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `match_id` | int | Yes | The Dota 2 match ID |
-| `start_time` | float | No | Filter events after this game time in seconds |
-| `end_time` | float | No | Filter events before this game time in seconds |
-| `hero_filter` | str | No | Only include events involving this hero, e.g. "earthshaker" |
+**Returns:**
+```json
+{
+  "events": [
+    {
+      "type": "DAMAGE",
+      "game_time": 285,
+      "game_time_str": "4:45",
+      "attacker": "disruptor",
+      "attacker_is_hero": true,
+      "target": "earthshaker",
+      "target_is_hero": true,
+      "ability": "disruptor_thunder_strike",
+      "value": 160
+    }
+  ]
+}
+```
 
-**Returns combat events:**
-
-- `type`: DAMAGE, MODIFIER_ADD, ABILITY, DEATH, etc.
-- `game_time`: Seconds since game start
-- `game_time_str`: Formatted as M:SS
-- `attacker`: Source of the event (hero name without prefix)
-- `attacker_is_hero`: Whether attacker is a hero
-- `target`: Target of the event
-- `target_is_hero`: Whether target is a hero
-- `ability`: Ability or item involved (if any)
-- `value`: Damage amount or other numeric value
+Event types: `DAMAGE`, `MODIFIER_ADD`, `MODIFIER_REMOVE`, `ABILITY`, `ITEM`, `DEATH`, `HEAL`
 
 ---
 
 ## get_fight_combat_log
 
-Get combat log for a fight leading up to a specific moment (e.g., a death).
+Auto-detects fight boundaries around a reference time. Use this to analyze what happened leading up to a death.
 
-Automatically detects fight boundaries by analyzing combat activity and participant connectivity. Separate skirmishes happening simultaneously in different lanes are correctly identified as distinct fights.
-
-**Parameters:**
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `match_id` | int | Yes | The Dota 2 match ID |
-| `reference_time` | float | Yes | Reference game time in seconds (e.g., death time) |
-| `hero` | str | No | Optional hero name to anchor fight detection |
+```python
+get_fight_combat_log(
+    match_id=8461956309,
+    reference_time=288,    # e.g., death time
+    hero="earthshaker"     # optional: anchor detection to this hero
+)
+```
 
 **Returns:**
-
-- `fight_start`, `fight_end`: Fight boundaries in seconds
-- `fight_start_str`, `fight_end_str`: Formatted as M:SS
-- `duration`: Fight duration in seconds
-- `participants`: List of heroes involved in the fight
-- `events`: Combat log events within the fight
+```json
+{
+  "fight_start": 280,
+  "fight_end": 295,
+  "fight_start_str": "4:40",
+  "fight_end_str": "4:55",
+  "duration": 15,
+  "participants": ["earthshaker", "disruptor", "naga_siren", "medusa"],
+  "total_events": 47,
+  "events": [...]
+}
+```
 
 ---
 
 ## get_item_purchases
 
-Get item purchase timings for heroes in a Dota 2 match.
+When items were bought.
 
-**Parameters:**
+```python
+get_item_purchases(
+    match_id=8461956309,
+    hero_filter="antimage"  # optional
+)
+```
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `match_id` | int | Yes | The Dota 2 match ID |
-| `hero_filter` | str | No | Only include purchases by this hero |
+**Returns:**
+```json
+{
+  "purchases": [
+    {"game_time": -89, "game_time_str": "-1:29", "hero": "antimage", "item": "item_tango"},
+    {"game_time": 540, "game_time_str": "9:00", "hero": "antimage", "item": "item_bfury"}
+  ]
+}
+```
 
-**Returns list of purchases:**
-
-- `game_time`: Seconds since game start (can be negative for pre-horn purchases)
-- `game_time_str`: Formatted as M:SS
-- `hero`: Hero that purchased the item
-- `item`: Item name (e.g., "item_bfury", "item_power_treads")
-
----
-
-## get_courier_kills
-
-Get all courier kills in a Dota 2 match.
-
-**Parameters:**
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `match_id` | int | Yes | The Dota 2 match ID |
-
-**Returns list of courier kills:**
-
-- `game_time`: Seconds since game start
-- `game_time_str`: Formatted as M:SS
-- `killer`: Hero that killed the courier
-- `killer_is_hero`: Whether the killer was a hero
-- `team`: Team whose courier was killed (radiant/dire)
+Negative times = purchased before horn (0:00).
 
 ---
 
 ## get_objective_kills
 
-Get all major objective kills in a Dota 2 match.
+Roshan, tormentor, towers, barracks.
 
-**Parameters:**
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `match_id` | int | Yes | The Dota 2 match ID |
+```python
+get_objective_kills(match_id=8461956309)
+```
 
 **Returns:**
+```json
+{
+  "roshan_kills": [
+    {"game_time": 1392, "game_time_str": "23:12", "killer": "medusa", "team": "dire", "kill_number": 1}
+  ],
+  "tormentor_kills": [
+    {"game_time": 1215, "game_time_str": "20:15", "killer": "medusa", "team": "dire", "side": "dire"}
+  ],
+  "tower_kills": [
+    {"game_time": 669, "game_time_str": "11:09", "tower": "dire_t1_mid", "team": "dire", "tier": 1, "lane": "mid", "killer": "nevermore"}
+  ],
+  "barracks_kills": [
+    {"game_time": 2373, "game_time_str": "39:33", "barracks": "radiant_melee_mid", "team": "radiant", "lane": "mid", "type": "melee", "killer": "medusa"}
+  ]
+}
+```
 
-- `roshan_kills`: List of Roshan kills with game_time, killer, team, kill_number
-- `tormentor_kills`: List of Tormentor kills with game_time, killer, team, side
-- `tower_kills`: List of tower destructions with game_time, tower name, team, tier, lane, killer
-- `barracks_kills`: List of barracks destructions with game_time, name, team, lane, type, killer
+---
+
+## get_match_timeline
+
+Net worth, XP, KDA over time for all players.
+
+```python
+get_match_timeline(match_id=8461956309)
+```
+
+**Returns:**
+```json
+{
+  "players": [
+    {
+      "hero": "antimage",
+      "team": "dire",
+      "net_worth": [500, 800, 1200, ...],  // every 30 seconds
+      "hero_damage": [0, 0, 150, ...],
+      "kda_timeline": [
+        {"game_time": 0, "kills": 0, "deaths": 0, "assists": 0, "level": 1},
+        {"game_time": 300, "kills": 0, "deaths": 0, "assists": 0, "level": 5}
+      ]
+    }
+  ],
+  "team_graphs": {
+    "radiant_xp": [0, 1200, 2500, ...],
+    "dire_xp": [0, 1100, 2400, ...],
+    "radiant_gold": [0, 600, 1300, ...],
+    "dire_gold": [0, 650, 1400, ...]
+  }
+}
+```
+
+---
+
+## get_stats_at_minute
+
+Snapshot of all players at a specific minute.
+
+```python
+get_stats_at_minute(match_id=8461956309, minute=10)
+```
+
+**Returns:**
+```json
+{
+  "minute": 10,
+  "players": [
+    {
+      "hero": "antimage",
+      "team": "dire",
+      "net_worth": 5420,
+      "last_hits": 78,
+      "denies": 8,
+      "kills": 0,
+      "deaths": 0,
+      "assists": 0,
+      "level": 10,
+      "hero_damage": 450
+    }
+  ]
+}
+```
+
+---
+
+## get_courier_kills
+
+Courier snipes.
+
+```python
+get_courier_kills(match_id=8461956309)
+```
+
+**Returns:**
+```json
+{
+  "kills": [
+    {
+      "game_time": 420,
+      "game_time_str": "7:00",
+      "killer": "bounty_hunter",
+      "killer_is_hero": true,
+      "owner": "antimage",
+      "team": "dire",
+      "position": {"x": 2100, "y": -1500, "region": "river", "location": "River near Radiant outpost"}
+    }
+  ]
+}
+```
