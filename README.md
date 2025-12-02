@@ -3,6 +3,7 @@
 > Model Context Protocol server for Dota 2 match analysis using replay files
 
 [![Build Status](https://github.com/DeepBlueCoding/mcp_replay_dota2/actions/workflows/test.yml/badge.svg)](https://github.com/DeepBlueCoding/mcp_replay_dota2/actions/workflows/test.yml)
+[![Documentation](https://img.shields.io/badge/docs-gh--pages-blue.svg)](https://deepbluecoding.github.io/mcp_replay_dota2/)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
