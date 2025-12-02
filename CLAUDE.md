@@ -77,6 +77,14 @@ External APIs (OpenDota, dotaconstants, python_manta)
   - Provides enriched hero data
   - Singleton pattern: `heroes_resource` instance
 
+- **`map_resources.py`**: Static Dota 2 map data
+  - Tower positions (22 towers with team, tier, lane)
+  - Barracks positions (12 barracks)
+  - Neutral camp locations with tiers
+  - Rune spawns (power, bounty, wisdom, water)
+  - Outposts, shops, landmarks (Roshan pit, Tormentors, etc.)
+  - World coordinate system: -8000 to +8000
+
 #### 3. **Utilities Layer** (`src/utils/`)
 - **`constants_fetcher.py`**: Downloads and caches constants from odota/dotaconstants
   - Singleton: `constants_fetcher` instance
@@ -93,6 +101,20 @@ External APIs (OpenDota, dotaconstants, python_manta)
   - Integrates with constants for full hero data
   - Supports aliases and abbreviations
   - Singleton: `hero_fuzzy_search` instance
+
+- **`combat_log_parser.py`**: Parses combat log events from replays
+  - Hero deaths with position data
+  - Combat log events with filtering
+  - Fight detection with participant connectivity
+  - Item purchases, courier kills
+  - Objective kills (Roshan, Tormentor, towers, barracks)
+  - Singleton: `combat_log_parser` instance
+
+- **`position_tracker.py`**: Tracks entity positions from replays
+  - Converts cell-based coordinates to world coordinates
+  - Classifies map positions (lane, region, nearby landmarks)
+  - Provides human-readable location descriptions
+  - Singleton: `position_tracker` instance
 
 #### 4. **Data Storage**
 - `data/constants/`: Cached dotaconstants JSON files (heroes, items, abilities, etc.)
@@ -113,7 +135,7 @@ External APIs (OpenDota, dotaconstants, python_manta)
 
 - **`fastmcp`**: MCP server framework
 - **`python-opendota`**: OpenDota API client (local package at `../python-opendota-sdk`)
-- **`python-manta`**: Dota 2 replay parser (local package at `../python_manta`)
+- **`python-manta`**: Dota 2 replay parser (PyPI package >=1.4.5)
 - **dotaconstants**: Hero/item/ability data from odota/dotaconstants GitHub
 
 ## Data Format Conventions
@@ -197,15 +219,78 @@ from src.utils.hero_fuzzy_search import hero_fuzzy_search
 - Utility files: descriptive names in `src/utils/`
 - Tools: `*_tools.py` in `src/tools/`
 
+## MCP Design Principles (CRITICAL)
+
+Based on official MCP specification from [modelcontextprotocol.io](https://modelcontextprotocol.io/specification/2025-06-18/server/tools) and [modelcontextprotocol.info](https://modelcontextprotocol.info/docs/concepts/tools/).
+
+### The Three MCP Primitives
+
+| Primitive | Controlled By | Purpose |
+|-----------|---------------|---------|
+| **Tools** | Model (AI) | Functions the AI autonomously decides to call |
+| **Resources** | Application/User | Data exposed for context (user selects what to include) |
+| **Prompts** | User | Predefined templates (slash commands) |
+
+### Tools = Model-Controlled Data Access
+
+**Tools are model-controlled** - the AI decides when and how to call them based on the conversation context. This means:
+
+- Tools are **queryable building blocks** that return structured data
+- The model **combines multiple tools** to answer complex questions
+- The model **formulates the analysis** - tools just provide data
+
+### Tool Design Principles (Official)
+
+From the MCP specification, tools should be:
+
+1. **Focused and atomic** - Each tool does one thing well
+2. **Clear descriptions** - So the model knows when to use each tool
+3. **Detailed JSON schemas** - Well-defined parameters
+4. **Documented return structures** - So model understands output format
+5. **Stateless** - No hidden state between calls
+
+### Anti-Pattern: Hardcoded Analysis Tools
+
+```python
+# ❌ BAD: Tool hardcoded for one specific question
+analyze_carry_laning_matchup(match_id)
+# What about mid matchup? Offlane? Support rotations?
+# You'd need infinite tools for every possible question.
+```
+
+### Correct Pattern: Composable Data Tools
+
+```python
+# ✅ GOOD: Flexible tools the model can combine
+list_match_heroes(match_id)      # → Heroes with lanes/roles
+get_match_timeline(match_id)     # → All timeline data (LH, denies, gold, etc.)
+get_stats_at_minute(match_id, minute)  # → Snapshot at specific time
+```
+
+The LLM then:
+1. Calls the tools it needs based on the user's question
+2. Gets structured data back
+3. Formulates its own analysis
+
+**Tools provide data. The LLM provides analysis.**
+
+### This Project's Tool Philosophy
+
+This MCP server provides **data access tools** for Dota 2 match analysis:
+
+1. Tools return **structured, well-documented data**
+2. Tools are **flexible enough** to answer any question when combined
+3. The **LLM synthesizes insights** from the data - not the tools
+4. Each tool should have **clear descriptions** so the model knows when to use it
+
 ## Important Notes
 
-1. **Local Dependencies**: This project depends on two local packages that must exist:
+1. **Local Dependencies**: This project depends on one local package that must exist:
    - `python-opendota-sdk` at `../python-opendota-sdk`
-   - `python_manta` at `../python_manta`
 
 2. **Hero Internal Names**: Heroes use `npc_dota_hero_*` format as keys, not IDs or display names
 
-3. **Replay Parsing**: Requires python_manta package with working Rust bindings
+3. **Replay Parsing**: Requires python_manta package (>=1.4.5 from PyPI) with working Rust bindings
 
 4. **Constants Updates**: Run `scripts/fetch_constants.py` to update cached constants from dotaconstants
 

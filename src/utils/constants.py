@@ -14,4 +14,4 @@ ENABLE_MEMORY_SUMMARIZATION = os.getenv("ENABLE_MEMORY_SUMMARIZATION", "true").l
 TRIM_THRESHOLD_TOKENS = int(os.getenv("TRIM_THRESHOLD_TOKENS", 20000))
 SUMMARIZATION_MODEL = os.getenv("SUMMARIZATION_MODEL", "gpt-4o-mini")
 
-# Other constants can be added here as needed 
+# Other constants can be added here as needed

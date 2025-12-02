@@ -1,0 +1,52 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches: [master]
+    tags:
+      - 'v*'
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - '.github/workflows/docs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install mkdocs-material mike mkdocstrings[python]
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Deploy docs (release tag)
+        if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, '-')
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "Deploying release tag: $VERSION"
+          mike deploy --push --update-aliases $VERSION latest
+          mike set-default --push latest
+
+      - name: Deploy docs (master)
+        if: github.ref == 'refs/heads/master'
+        run: |
+          echo "Deploying master branch"
+          mike deploy --push --update-aliases master latest
+          mike set-default --push latest
