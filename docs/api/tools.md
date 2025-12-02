@@ -2,6 +2,38 @@
 
 Tools are functions the LLM can call. All tools take `match_id` as required parameter.
 
+## download_replay
+
+Pre-download and cache a replay file. **Use this first** before asking analysis questions about a new match. Replay files are large (50-400MB) and can take 1-5 minutes to download.
+
+```python
+download_replay(match_id=8461956309)
+```
+
+**Returns:**
+```json
+{
+  "success": true,
+  "match_id": 8461956309,
+  "replay_path": "/home/user/dota2/replays/8461956309.dem",
+  "file_size_mb": 398.0,
+  "already_cached": false
+}
+```
+
+If already cached:
+```json
+{
+  "success": true,
+  "match_id": 8461956309,
+  "replay_path": "/home/user/dota2/replays/8461956309.dem",
+  "file_size_mb": 398.0,
+  "already_cached": true
+}
+```
+
+---
+
 ## get_hero_deaths
 
 All hero deaths in the match.

@@ -27,6 +27,7 @@ from src.models.combat_log import (
     CombatLogFilters,
     CombatLogResponse,
     CourierKillsResponse,
+    DownloadReplayResponse,
     FightCombatLogResponse,
     HeroDeathsResponse,
     ItemPurchasesResponse,
@@ -176,6 +177,57 @@ async def match_players_resource(match_id: str) -> Dict[str, Any]:
         return {"error": f"Invalid match ID: {match_id}"}
 
 # Define MCP Tools
+@mcp.tool
+async def download_replay(match_id: int) -> DownloadReplayResponse:
+    """
+    Download and cache the replay file for a Dota 2 match.
+
+    Use this tool FIRST before asking analysis questions about a match.
+    Replay files are large (50-400MB) and can take 1-5 minutes to download.
+
+    Once downloaded, the replay is cached locally and subsequent queries
+    for the same match will be instant.
+
+    Args:
+        match_id: The Dota 2 match ID (from OpenDota, Dotabuff, or in-game)
+
+    Returns:
+        DownloadReplayResponse with success status and file info
+    """
+    downloader = ReplayDownloader()
+
+    # Check if already cached
+    existing_path = downloader.get_replay_path(match_id)
+    if existing_path:
+        file_size_mb = existing_path.stat().st_size / (1024 * 1024)
+        return DownloadReplayResponse(
+            success=True,
+            match_id=match_id,
+            replay_path=str(existing_path),
+            file_size_mb=round(file_size_mb, 1),
+            already_cached=True,
+        )
+
+    # Download the replay
+    replay_path = await downloader.download_replay(match_id)
+
+    if not replay_path:
+        return DownloadReplayResponse(
+            success=False,
+            match_id=match_id,
+            error="Could not download replay. The match may be too old, private, or the replay is not available on OpenDota."
+        )
+
+    file_size_mb = replay_path.stat().st_size / (1024 * 1024)
+    return DownloadReplayResponse(
+        success=True,
+        match_id=match_id,
+        replay_path=str(replay_path),
+        file_size_mb=round(file_size_mb, 1),
+        already_cached=False,
+    )
+
+
 @mcp.tool
 async def get_match_timeline(match_id: int) -> Dict[str, Any]:
     """
@@ -567,6 +619,7 @@ def main():
     print("   dota2://match/{match_id}/heroes", file=sys.stderr)
     print("   dota2://match/{match_id}/players", file=sys.stderr)
     print("Tools:", file=sys.stderr)
+    print("   download_replay", file=sys.stderr)
     print("   get_match_timeline", file=sys.stderr)
     print("   get_stats_at_minute", file=sys.stderr)
     print("   get_hero_deaths", file=sys.stderr)

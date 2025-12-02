@@ -198,3 +198,14 @@ class ObjectiveKillsResponse(BaseModel):
     tower_kills: List[TowerKill] = Field(default_factory=list)
     barracks_kills: List[BarracksKill] = Field(default_factory=list)
     error: Optional[str] = Field(default=None)
+
+
+class DownloadReplayResponse(BaseModel):
+    """Response for download_replay tool."""
+
+    success: bool
+    match_id: int
+    replay_path: Optional[str] = Field(default=None, description="Path to the downloaded replay file")
+    file_size_mb: Optional[float] = Field(default=None, description="Size of the replay file in MB")
+    already_cached: bool = Field(default=False, description="Whether the replay was already cached")
+    error: Optional[str] = Field(default=None)
