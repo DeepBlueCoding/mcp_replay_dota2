@@ -84,8 +84,8 @@ dota2/
 *.dem
 *.dem.bz2
 
-# Cached constants (can be regenerated)
-data/constants/*.json
+# Cached constants - committed to repo for CI
+# data/constants/*.json
 
 # Temp/test files
 test_*.py
