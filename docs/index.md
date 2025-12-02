@@ -50,7 +50,7 @@ uv sync
 
 ### 2. Connect to Your LLM
 
-See [Configuration](getting-started/configuration.md) for setup with:
+See [Integrations](integrations/index.md) for setup with:
 
 - Claude Desktop
 - Claude Code CLI

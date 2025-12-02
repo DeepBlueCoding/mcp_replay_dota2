@@ -28,4 +28,4 @@ Tools: get_hero_deaths, get_combat_log, ...
 
 ## Next Step
 
-[Connect to your LLM](configuration.md)
+[Connect to your LLM](../integrations/index.md)

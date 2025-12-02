@@ -23,6 +23,7 @@ theme:
     - navigation.instant
     - navigation.tabs
     - navigation.sections
+    - navigation.expand
     - navigation.top
     - search.highlight
     - content.code.copy
@@ -44,9 +45,22 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Setup:
-      - Installation: getting-started/installation.md
-      - Connecting to LLMs: getting-started/configuration.md
+  - Installation: getting-started/installation.md
+  - Integrations:
+      - Overview: integrations/index.md
+      - Native MCP:
+          - Claude Desktop: integrations/claude-desktop.md
+          - Claude Code: integrations/claude-code.md
+      - Agentic Frameworks:
+          - LangChain: integrations/langchain.md
+          - LangGraph: integrations/langgraph.md
+          - CrewAI: integrations/crewai.md
+          - AutoGen: integrations/autogen.md
+      - Direct API:
+          - FastMCP Client: integrations/fastmcp.md
+          - MCP SDK: integrations/mcp-sdk.md
+          - Anthropic API: integrations/anthropic-api.md
+          - OpenAI API: integrations/openai-api.md
   - Use Cases: examples/use-cases.md
   - API Reference:
       - Tools: api/tools.md
