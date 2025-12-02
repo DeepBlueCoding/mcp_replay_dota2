@@ -21,11 +21,6 @@ classifiers = [
     "Topic :: Games/Entertainment",
 ]
 
-[project.urls]
-Homepage = "https://github.com/DeepBlueCoding/mcp_replay_dota2"
-Documentation = "https://deepbluecoding.github.io/mcp_replay_dota2/"
-Repository = "https://github.com/DeepBlueCoding/mcp_replay_dota2"
-"Bug Tracker" = "https://github.com/DeepBlueCoding/mcp_replay_dota2/issues"
 dependencies = [
     "fastmcp>=2.12.3",
     "python-opendota-sdk==7.39.5.1.dev1",
@@ -33,6 +28,12 @@ dependencies = [
     "python-manta==1.4.5.1.dev8",
     "aiohttp>=3.13.2",
 ]
+
+[project.urls]
+Homepage = "https://github.com/DeepBlueCoding/mcp_replay_dota2"
+Documentation = "https://deepbluecoding.github.io/mcp_replay_dota2/"
+Repository = "https://github.com/DeepBlueCoding/mcp_replay_dota2"
+"Bug Tracker" = "https://github.com/DeepBlueCoding/mcp_replay_dota2/issues"
 
 [project.optional-dependencies]
 dev = [
