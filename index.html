@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Model Context Protocol server for Dota 2 match analysis using replay files">
+        <meta name="description" content="Give your LLM the ability to analyze Dota 2 matches">
       
       
       
@@ -25,7 +25,7 @@
     
     
       
-        <title>MCP Dota 2 Match Analysis Server</title>
+        <title>MCP Dota 2 Server</title>
       
     
     
@@ -50,8 +50,6 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
-    
-      <link rel="stylesheet" href="assets/_mkdocstrings.css">
     
     <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -87,16 +85,12 @@
       
     </div>
     
-      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
-        
-      </div>
-    
     
       
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="MCP Dota 2 Match Analysis Server" class="md-header__button md-logo" aria-label="MCP Dota 2 Match Analysis Server" data-md-component="logo">
+    <a href="." title="MCP Dota 2 Server" class="md-header__button md-logo" aria-label="MCP Dota 2 Server" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -110,7 +104,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            MCP Dota 2 Match Analysis Server
+            MCP Dota 2 Server
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -254,7 +248,7 @@
           
   
   
-  Getting Started
+  Setup
 
         </a>
       </li>
@@ -267,34 +261,33 @@
   
   
   
+    <li class="md-tabs__item">
+      <a href="examples/use-cases/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Use Cases
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
     
     
       <li class="md-tabs__item">
-        <a href="api/resources/" class="md-tabs__link">
+        <a href="api/tools/" class="md-tabs__link">
           
   
   
   API Reference
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-  
-  
-    
-    
-      <li class="md-tabs__item">
-        <a href="examples/basic/" class="md-tabs__link">
-          
-  
-  
-  Examples
 
         </a>
       </li>
@@ -343,13 +336,13 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="MCP Dota 2 Match Analysis Server" class="md-nav__button md-logo" aria-label="MCP Dota 2 Match Analysis Server" data-md-component="logo">
+    <a href="." title="MCP Dota 2 Server" class="md-nav__button md-logo" aria-label="MCP Dota 2 Server" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    MCP Dota 2 Match Analysis Server
+    MCP Dota 2 Server
   </label>
   
     <div class="md-nav__source">
@@ -433,10 +426,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#features" class="md-nav__link">
+  <a href="#what-this-does" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Features
+        What This Does
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-mcp-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How MCP Works
       
     </span>
   </a>
@@ -452,13 +456,52 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Quick Start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-install" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Install
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-connect-to-your-llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Connect to Your LLM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-ask-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Ask Questions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
-  <a href="#architecture" class="md-nav__link">
+  <a href="#available-tools" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Architecture
+        Available Tools
       
     </span>
   </a>
@@ -466,10 +509,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#links" class="md-nav__link">
+  <a href="#available-resources" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Links
+        Available Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-conversations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Conversations
       
     </span>
   </a>
@@ -504,9 +558,7 @@
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
@@ -516,7 +568,7 @@
   <span class="md-ellipsis">
     
   
-    Getting Started
+    Setup
   
 
     
@@ -532,7 +584,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Getting Started
+    Setup
   
 
           </label>
@@ -580,7 +632,7 @@
   <span class="md-ellipsis">
     
   
-    Configuration
+    Connecting to LLMs
   
 
     
@@ -607,6 +659,33 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="examples/use-cases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Use Cases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
     
     
     
@@ -621,12 +700,10 @@
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
             
   
   
@@ -644,8 +721,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -654,34 +731,6 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="api/resources/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Resources
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
             
               
                 
@@ -718,131 +767,14 @@
   
   
     <li class="md-nav__item">
-      <a href="api/models/" class="md-nav__link">
+      <a href="api/resources/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Models
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Examples
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Examples
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="examples/basic/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Basic Usage
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="examples/match-analysis/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Match Analysis
+    Resources
   
 
     
@@ -917,10 +849,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#features" class="md-nav__link">
+  <a href="#what-this-does" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Features
+        What This Does
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-mcp-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How MCP Works
       
     </span>
   </a>
@@ -936,13 +879,52 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Quick Start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-install" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Install
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-connect-to-your-llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Connect to Your LLM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-ask-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Ask Questions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
-  <a href="#architecture" class="md-nav__link">
+  <a href="#available-tools" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Architecture
+        Available Tools
       
     </span>
   </a>
@@ -950,10 +932,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#links" class="md-nav__link">
+  <a href="#available-resources" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Links
+        Available Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-conversations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Conversations
       
     </span>
   </a>
@@ -981,55 +974,134 @@
 
 
 <h1 id="mcp-dota-2-match-analysis-server">MCP Dota 2 Match Analysis Server<a class="headerlink" href="#mcp-dota-2-match-analysis-server" title="Permanent link">&para;</a></h1>
-<blockquote>
-<p>Model Context Protocol server for Dota 2 match analysis using replay files</p>
-</blockquote>
-<p><a href="https://github.com/DeepBlueCoding/mcp_replay_dota2/actions/workflows/test.yml"><img alt="Build Status" src="https://github.com/DeepBlueCoding/mcp_replay_dota2/actions/workflows/test.yml/badge.svg" /></a>
-<a href="https://www.python.org/downloads/"><img alt="Python 3.12" src="https://img.shields.io/badge/python-3.12-blue.svg" /></a>
-<a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" /></a></p>
-<p>A FastMCP server that provides MCP tools and resources for analyzing Dota 2 matches using replay files and the OpenDota API.</p>
-<h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h2>
+<p>A Model Context Protocol (MCP) server that gives LLMs the ability to analyze Dota 2 matches by parsing replay files and querying the OpenDota API.</p>
+<h2 id="what-this-does">What This Does<a class="headerlink" href="#what-this-does" title="Permanent link">&para;</a></h2>
+<p>This server exposes <strong>tools</strong> and <strong>resources</strong> that an LLM can call to answer questions about Dota 2 matches:</p>
 <ul>
-<li><strong>MCP Resources</strong> - Expose Dota 2 data through standardized MCP resource URIs</li>
-<li><strong>Match Analysis Tools</strong> - Comprehensive tools for analyzing match replays</li>
-<li><strong>Combat Log Parsing</strong> - Extract hero deaths, item purchases, objective kills</li>
-<li><strong>Timeline Analysis</strong> - Track player stats throughout the match</li>
-<li><strong>Map Data</strong> - Tower positions, neutral camps, rune spawns, landmarks</li>
+<li>"Why did we lose the teamfight at 25 minutes?"</li>
+<li>"How did the enemy Anti-Mage get such a fast Battle Fury?"</li>
+<li>"When did Roshan die and who took the Aegis?"</li>
+<li>"Show me what happened when I died at minute 12"</li>
 </ul>
+<p>The LLM reads the replay data and provides analysis based on actual game events, not guesswork.</p>
+<h2 id="how-mcp-works">How MCP Works<a class="headerlink" href="#how-mcp-works" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌─────────────────┐         ┌─────────────────┐         ┌─────────────────┐
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│   LLM Client    │ ──MCP── │   This Server   │ ──────▸ │  Replay Parser  │
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│ (Claude, GPT)   │         │                 │         │  OpenDota API   │
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>└─────────────────┘         └─────────────────┘         └─────────────────┘
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>         │                           │
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>         │   &quot;Analyze match 123&quot;     │
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>         │ ─────────────────────────▸│
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>         │                           │
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>         │                           │── calls get_hero_deaths(123)
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>         │                           │── calls get_combat_log(123, ...)
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>         │                           │── calls get_objective_kills(123)
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>         │                           │
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>         │   structured JSON data    │
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>         │ ◂─────────────────────────│
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>         │                           │
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>         ▼                           ▼
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>   LLM synthesizes response: &quot;The fight was lost because...&quot;
+</code></pre></div>
+<p><strong>Resources</strong> = Static data the LLM can reference (hero list, map positions)
+<strong>Tools</strong> = Functions the LLM can call with parameters (get deaths, get combat log)</p>
 <h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Configure your MCP client to connect to this server</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1"># The server exposes resources and tools via the MCP protocol</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Resources available:</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1"># - dota2://heroes/all - All Dota 2 heroes</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1"># - dota2://map - Map positions and landmarks</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># - dota2://match/{match_id}/heroes - Heroes in a specific match</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="c1"># - dota2://match/{match_id}/players - Players in a specific match</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c1"># Tools available:</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="c1"># - get_match_timeline - Time-series data for a match</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="c1"># - get_stats_at_minute - Player stats at a specific minute</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="c1"># - get_hero_deaths - All hero death events</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="c1"># - get_combat_log - Filtered combat log events</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="c1"># - get_fight_combat_log - Combat events around a fight</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="c1"># - get_item_purchases - Item purchase timings</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="c1"># - get_courier_kills - Courier kill events</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="c1"># - get_objective_kills - Roshan, tower, barracks kills</span>
+<h3 id="1-install">1. Install<a class="headerlink" href="#1-install" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/DeepBlueCoding/mcp_replay_dota2.git
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nb">cd</span><span class="w"> </span>mcp_replay_dota2
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>uv<span class="w"> </span>sync
 </code></pre></div>
-<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>MCP Server (dota_match_mcp_server.py)
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    ↓
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>Resources Layer (src/resources/)
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    ↓
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>Utilities Layer (src/utils/)
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    ↓
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>External APIs (OpenDota, dotaconstants, python_manta)
-</code></pre></div>
-<h2 id="links">Links<a class="headerlink" href="#links" title="Permanent link">&para;</a></h2>
+<h3 id="2-connect-to-your-llm">2. Connect to Your LLM<a class="headerlink" href="#2-connect-to-your-llm" title="Permanent link">&para;</a></h3>
+<p>See <a href="getting-started/configuration/">Configuration</a> for setup with:</p>
 <ul>
-<li><a href="https://github.com/DeepBlueCoding/mcp_replay_dota2">GitHub Repository</a></li>
-<li><a href="https://docs.opendota.com/">OpenDota API Docs</a></li>
-<li><a href="https://modelcontextprotocol.io/">MCP Specification</a></li>
+<li>Claude Desktop</li>
+<li>Claude Code CLI</li>
+<li>OpenAI + LangChain</li>
+<li>Custom Python clients</li>
+</ul>
+<h3 id="3-ask-questions">3. Ask Questions<a class="headerlink" href="#3-ask-questions" title="Permanent link">&para;</a></h3>
+<p>Once connected, just ask naturally:</p>
+<blockquote>
+<p>"Analyze match 8461956309. Why did Radiant lose?"</p>
+</blockquote>
+<p>The LLM will automatically call the appropriate tools and synthesize an analysis.</p>
+<h2 id="available-tools">Available Tools<a class="headerlink" href="#available-tools" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>What It Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>get_hero_deaths</code></td>
+<td>All deaths with killer, victim, ability used</td>
+</tr>
+<tr>
+<td><code>get_combat_log</code></td>
+<td>Damage events, abilities, modifiers in a time range</td>
+</tr>
+<tr>
+<td><code>get_fight_combat_log</code></td>
+<td>Auto-detects fight boundaries around a death</td>
+</tr>
+<tr>
+<td><code>get_item_purchases</code></td>
+<td>When each item was bought</td>
+</tr>
+<tr>
+<td><code>get_objective_kills</code></td>
+<td>Roshan, towers, barracks timings</td>
+</tr>
+<tr>
+<td><code>get_match_timeline</code></td>
+<td>Net worth, XP, KDA over time</td>
+</tr>
+<tr>
+<td><code>get_stats_at_minute</code></td>
+<td>Snapshot of all players at a specific minute</td>
+</tr>
+<tr>
+<td><code>get_courier_kills</code></td>
+<td>Courier snipes with position</td>
+</tr>
+</tbody>
+</table>
+<h2 id="available-resources">Available Resources<a class="headerlink" href="#available-resources" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>URI</th>
+<th>Data</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dota2://heroes/all</code></td>
+<td>All 124 heroes with attributes</td>
+</tr>
+<tr>
+<td><code>dota2://map</code></td>
+<td>Tower, camp, rune, landmark positions</td>
+</tr>
+<tr>
+<td><code>dota2://match/{id}/heroes</code></td>
+<td>10 heroes in match with stats</td>
+</tr>
+<tr>
+<td><code>dota2://match/{id}/players</code></td>
+<td>10 players with names and heroes</td>
+</tr>
+</tbody>
+</table>
+<h2 id="example-conversations">Example Conversations<a class="headerlink" href="#example-conversations" title="Permanent link">&para;</a></h2>
+<p>See <a href="examples/use-cases/">Use Cases</a> for detailed examples:</p>
+<ul>
+<li>Analyzing why a teamfight was lost</li>
+<li>Tracking a carry's item timings</li>
+<li>Understanding a gank that went wrong</li>
+<li>Comparing laning phase performance</li>
 </ul>
 
 
@@ -1086,7 +1158,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.instant", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy"], "search": "assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.instant", "navigation.tabs", "navigation.sections", "navigation.top", "search.highlight", "content.code.copy"], "search": "assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="assets/javascripts/bundle.e71a0d61.min.js"></script>
