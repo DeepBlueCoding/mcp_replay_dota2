@@ -1,5 +1,12 @@
 # MCP SDK
 
+<details>
+<summary><strong>🤖 AI Summary</strong></summary>
+
+Install: `pip install mcp`. Use `StdioServerParameters` + `stdio_client()` + `ClientSession`. Initialize with `await session.initialize()`. List tools/resources with `session.list_tools()`. Call tools: `session.call_tool(name, arguments={})`. Read resources: `session.read_resource(uri)`. Build custom client class for cleaner API.
+
+</details>
+
 Use the official MCP Python SDK for low-level control.
 
 ## Install

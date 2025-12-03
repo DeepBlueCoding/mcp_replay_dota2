@@ -1,5 +1,12 @@
 # CrewAI
 
+<details>
+<summary><strong>🤖 AI Summary</strong></summary>
+
+Install: `pip install crewai crewai-tools langchain-mcp-adapters`. Wrap MCP tools with `@tool` decorator. Create specialized Agents: FightAnalyst, EconomyAnalyst, ObjectiveAnalyst, LeadAnalyst. Define Tasks with `context` for dependencies. Run with `Crew.kickoff()`. Agents collaborate and synthesize analysis.
+
+</details>
+
 Build multi-agent systems where specialized agents collaborate on match analysis.
 
 ## Install Dependencies

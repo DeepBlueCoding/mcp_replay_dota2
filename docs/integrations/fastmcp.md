@@ -1,5 +1,12 @@
 # FastMCP Client
 
+<details>
+<summary><strong>🤖 AI Summary</strong></summary>
+
+Install: `pip install fastmcp`. Use `Client("uv run python dota_match_mcp_server.py")` as async context manager. Call tools: `await client.call_tool("get_hero_deaths", match_id=123)`. Get resources: `await client.get_resource("dota2://heroes/all")`. Handles errors and supports batch processing.
+
+</details>
+
 The simplest Python integration - use the same library the server is built with.
 
 ## Install

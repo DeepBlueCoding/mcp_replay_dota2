@@ -1,5 +1,12 @@
 # Claude Desktop
 
+<details>
+<summary><strong>🤖 AI Summary</strong></summary>
+
+Add to `claude_desktop_config.json`: `{"mcpServers": {"dota2": {"command": "uv", "args": ["run", "python", "dota_match_mcp_server.py"], "cwd": "/path/to/repo"}}}`. Restart Claude Desktop. Look for hammer icon (🔨) to verify. Ask naturally: "Analyze match 8461956309".
+
+</details>
+
 The simplest way to use this MCP server - just configure and chat.
 
 ## Setup

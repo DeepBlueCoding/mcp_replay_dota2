@@ -127,9 +127,9 @@ External APIs (OpenDota, dotaconstants, python_manta)
 1. MCP client calls `list_match_heroes(match_id)`
 2. Server calls `heroes_resource.get_heroes_in_match(match_id)`
 3. Resource uses `replay_downloader` to get replay file
-4. Resource parses replay with `python_manta.parse_demo_draft()`
+4. Resource parses replay with `MantaParser().parse_game_info()`
 5. Resource filters all heroes to only picked heroes
-6. Returns filtered hero data in legacy format
+6. Returns filtered hero data in full dotaconstants format
 
 ### External Dependencies
 

@@ -1,5 +1,12 @@
 # Claude Code CLI
 
+<details>
+<summary><strong>🤖 AI Summary</strong></summary>
+
+Add to `.mcp.json` (project) or `~/.claude/settings.json` (global): `{"mcpServers": {"dota2": {"command": "uv", "args": ["run", "python", "/path/to/dota_match_mcp_server.py"]}}}`. Verify with `/tools`. Ask: "Analyze match 8461956309". Can also generate scripts using real match data.
+
+</details>
+
 Use the Dota 2 MCP server within Claude Code for development workflows.
 
 ## Project-Level Setup

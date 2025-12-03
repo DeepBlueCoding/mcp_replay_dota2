@@ -3,13 +3,13 @@ Combat log parser for extracting events from Dota 2 replays.
 
 Provides methods to extract hero deaths, combat log events, and detect
 fight boundaries using participant connectivity analysis.
+
+Uses replay_cache to avoid repeated parsing of large replay files.
 """
 
 import logging
 from pathlib import Path
 from typing import List, Optional, Tuple
-
-from python_manta import MantaParser
 
 from src.models.combat_log import (
     BarracksKill,
@@ -20,16 +20,19 @@ from src.models.combat_log import (
     ItemPurchase,
     MapLocation,
     RoshanKill,
+    RunePickup,
     TormentorKill,
     TowerKill,
 )
-from src.utils.position_tracker import position_tracker
+from src.utils.constants_fetcher import constants_fetcher
+from src.utils.position_tracker import classify_map_position
+from src.utils.replay_cache import ParsedReplayData, replay_cache
 
 logger = logging.getLogger(__name__)
 
 
 class CombatLogParser:
-    """Parses replay files to extract combat log data."""
+    """Parses replay files to extract combat log data using cached replay data."""
 
     COMBATLOG_TYPES = {
         0: "DAMAGE",
@@ -45,70 +48,9 @@ class CombatLogParser:
         10: "XP",
         11: "PURCHASE",
         12: "BUYBACK",
+        13: "ABILITY_TRIGGER",
         18: "FIRST_BLOOD",
     }
-
-    def __init__(self):
-        self._parser = MantaParser()
-        self._tick_time_map: Optional[List[Tuple[int, float]]] = None
-
-    def _build_tick_time_map(self, replay_path: Path) -> List[Tuple[int, float]]:
-        """
-        Build a mapping from tick to game_time using entity snapshots.
-
-        Args:
-            replay_path: Path to the replay file
-
-        Returns:
-            List of (tick, game_time) tuples for interpolation
-        """
-        result = self._parser.parse_entities(
-            str(replay_path),
-            interval_ticks=900,
-            max_snapshots=200
-        )
-
-        tick_map = []
-        for snap in result.snapshots:
-            if snap.game_time >= 0:
-                tick_map.append((snap.tick, snap.game_time))
-
-        return tick_map
-
-    def _tick_to_game_time(self, tick: int) -> float:
-        """
-        Convert a tick to game time using interpolation.
-
-        Args:
-            tick: The tick value from combat log
-
-        Returns:
-            Game time in seconds
-        """
-        if not self._tick_time_map:
-            return 0.0
-
-        before = None
-        after = None
-
-        for t, gt in self._tick_time_map:
-            if t <= tick:
-                before = (t, gt)
-            elif after is None:
-                after = (t, gt)
-                break
-
-        if before is None:
-            return 0.0
-
-        if after is None:
-            return before[1]
-
-        tick_range = after[0] - before[0]
-        time_range = after[1] - before[1]
-        tick_offset = tick - before[0]
-
-        return before[1] + (tick_offset / tick_range) * time_range
 
     def _format_game_time(self, seconds: float) -> str:
         """Format seconds as M:SS string."""
@@ -126,47 +68,48 @@ class CombatLogParser:
         """Check if a name is a hero."""
         return "npc_dota_hero_" in name
 
+    def _get_position_at_tick(
+        self, data: ParsedReplayData, hero_name: str, tick: int
+    ) -> Optional[MapLocation]:
+        """Get hero position at tick using cached data."""
+        pos = replay_cache.get_hero_position_at_tick(data, hero_name, tick)
+        if pos:
+            map_pos = classify_map_position(pos[0], pos[1])
+            return MapLocation(
+                x=map_pos.x,
+                y=map_pos.y,
+                region=map_pos.region,
+                lane=map_pos.lane,
+                location=map_pos.location,
+            )
+        return None
+
     def get_hero_deaths(self, replay_path: Path, include_position: bool = True) -> List[HeroDeath]:
         """
         Get all hero deaths from a replay.
 
         Args:
             replay_path: Path to the .dem replay file
-            include_position: Whether to include map position data (slower)
+            include_position: Whether to include map position data
 
         Returns:
             List of HeroDeath models with game_time, killer, victim, ability, and position
         """
-        if self._tick_time_map is None:
-            self._tick_time_map = self._build_tick_time_map(replay_path)
-
-        result = self._parser.parse_combat_log(
-            str(replay_path),
-            types=[4],  # DEATH events only
-            max_entries=10000
-        )
+        data = replay_cache.get_parsed_data(replay_path)
 
         deaths = []
-        for entry in result.entries:
+        for entry in data.combat_log:
+            if entry.type != 4:  # DEATH
+                continue
             if not self._is_hero(entry.target_name):
                 continue
 
-            game_time = self._tick_to_game_time(entry.tick)
+            game_time = replay_cache.tick_to_game_time(data, entry.tick)
             victim_name = self._clean_name(entry.target_name)
 
             position = None
             if include_position:
-                pos = position_tracker.get_hero_position_at_tick(
-                    replay_path, victim_name, entry.tick
-                )
-                if pos:
-                    position = MapLocation(
-                        x=pos.x,
-                        y=pos.y,
-                        region=pos.region,
-                        lane=pos.lane,
-                        location=pos.location
-                    )
+                position = self._get_position_at_tick(data, victim_name, entry.tick)
 
             deaths.append(HeroDeath(
                 game_time=round(game_time, 1),
@@ -179,6 +122,96 @@ class CombatLogParser:
             ))
 
         return deaths
+
+    def _is_self_buff_ability(self, ability_name: str) -> bool:
+        """
+        Check if an ability is a self-buff (No Target behavior).
+
+        Self-buff abilities cannot "miss" - they always apply to the caster.
+        Examples: Enchant Totem, Rage, Blade Fury, Mirror Image
+        """
+        abilities = constants_fetcher.get_abilities_constants()
+        if not abilities:
+            return False
+
+        ability_data = abilities.get(ability_name, {})
+        behavior = ability_data.get("behavior", "")
+
+        # behavior can be a string or list
+        if isinstance(behavior, list):
+            return "No Target" in behavior
+        return behavior == "No Target"
+
+    def _normalize_ability_name(self, name: str) -> str:
+        """
+        Normalize ability/modifier name for comparison.
+
+        MODIFIER_ADD events often have 'modifier_' prefix that ABILITY events don't have.
+        E.g., ABILITY has 'naga_siren_ensnare', MODIFIER_ADD has 'modifier_naga_siren_ensnare'
+        """
+        if name.startswith("modifier_"):
+            return name[9:]  # len("modifier_") = 9
+        return name
+
+    def _build_ability_hit_index(self, data: ParsedReplayData, time_window: float = 2.0) -> dict:
+        """
+        Build an index of which ability casts resulted in damage/effects on enemy heroes.
+
+        For each (caster, ability, cast_time), tracks whether there was a subsequent
+        DAMAGE or MODIFIER_ADD event on an enemy hero within the time window.
+
+        Self-buff abilities (No Target behavior) are marked as None (not applicable).
+
+        Returns:
+            Dict mapping (caster_name, ability_name, cast_tick) -> bool|None
+            - True: ability hit an enemy hero
+            - False: ability missed (no enemy heroes hit)
+            - None: not applicable (self-buff ability)
+        """
+        ability_casts = []
+        damage_effects = []
+
+        for entry in data.combat_log:
+            game_time = replay_cache.tick_to_game_time(data, entry.tick)
+
+            if entry.type == 5:  # ABILITY
+                if self._is_hero(entry.attacker_name) and entry.inflictor_name:
+                    ability_casts.append({
+                        "caster": entry.attacker_name,
+                        "ability": entry.inflictor_name,
+                        "time": game_time,
+                        "tick": entry.tick,
+                    })
+            elif entry.type in (0, 2):  # DAMAGE or MODIFIER_ADD
+                if self._is_hero(entry.attacker_name) and self._is_hero(entry.target_name):
+                    if entry.attacker_name != entry.target_name and entry.inflictor_name:
+                        damage_effects.append({
+                            "caster": entry.attacker_name,
+                            "ability": entry.inflictor_name,
+                            "time": game_time,
+                        })
+
+        hit_index = {}
+        for cast in ability_casts:
+            key = (cast["caster"], cast["ability"], cast["tick"])
+
+            # Self-buff abilities can't miss - mark as N/A
+            if self._is_self_buff_ability(cast["ability"]):
+                hit_index[key] = None
+                continue
+
+            # Check if offensive ability hit an enemy hero
+            # Normalize ability names to handle modifier_ prefix difference
+            cast_ability_normalized = self._normalize_ability_name(cast["ability"])
+            hit = any(
+                d["caster"] == cast["caster"]
+                and self._normalize_ability_name(d["ability"]) == cast_ability_normalized
+                and cast["time"] <= d["time"] <= cast["time"] + time_window
+                for d in damage_effects
+            )
+            hit_index[key] = hit
+
+        return hit_index
 
     def get_combat_log(
         self,
@@ -199,23 +232,23 @@ class CombatLogParser:
             hero_filter: Only include events involving this hero (cleaned name, e.g. "earthshaker")
 
         Returns:
-            List of CombatLogEvent models
+            List of CombatLogEvent models. ABILITY events include 'hit' field indicating
+            whether the ability damaged/affected an enemy hero.
         """
-        if self._tick_time_map is None:
-            self._tick_time_map = self._build_tick_time_map(replay_path)
+        data = replay_cache.get_parsed_data(replay_path)
 
         if types is None:
-            types = [0, 2, 5, 4]  # DAMAGE, MODIFIER_ADD, ABILITY, DEATH
+            types = [0, 2, 5, 4, 13]  # DAMAGE, MODIFIER_ADD, ABILITY, DEATH, ABILITY_TRIGGER
 
-        result = self._parser.parse_combat_log(
-            str(replay_path),
-            types=types,
-            max_entries=50000
-        )
+        # Build hit index for ability events
+        hit_index = self._build_ability_hit_index(data) if 5 in types else {}
 
         events = []
-        for entry in result.entries:
-            game_time = self._tick_to_game_time(entry.tick)
+        for entry in data.combat_log:
+            if entry.type not in types:
+                continue
+
+            game_time = replay_cache.tick_to_game_time(data, entry.tick)
 
             if start_time is not None and game_time < start_time:
                 continue
@@ -232,6 +265,12 @@ class CombatLogParser:
 
             event_type = self.COMBATLOG_TYPES.get(entry.type, f"UNKNOWN_{entry.type}")
 
+            # Determine hit status for ABILITY events
+            hit = None
+            if entry.type == 5 and self._is_hero(entry.attacker_name) and entry.inflictor_name:
+                key = (entry.attacker_name, entry.inflictor_name, entry.tick)
+                hit = hit_index.get(key, False)
+
             events.append(CombatLogEvent(
                 type=event_type,
                 game_time=round(game_time, 1),
@@ -241,11 +280,11 @@ class CombatLogParser:
                 target=target_clean,
                 target_is_hero=self._is_hero(entry.target_name),
                 ability=entry.inflictor_name if entry.inflictor_name != "dota_unknown" else None,
-                value=entry.value if hasattr(entry, 'value') and entry.value else None,
+                value=entry.value if entry.value else None,
+                hit=hit,
             ))
 
         return events
-
 
     def _find_connected_fight(
         self,
@@ -261,23 +300,26 @@ class CombatLogParser:
         1. They share a participant (attacker or target)
         2. They are within gap_threshold seconds of each other
 
-        Args:
-            events: List of CombatLogEvent models sorted by time
-            reference_time: The anchor time (e.g., death time)
-            anchor_hero: Optional hero to start the connectivity search from
-            gap_threshold: Max seconds between events to consider them connected
-
-        Returns:
-            List of CombatLogEvent models belonging to the connected fight
+        Includes ability casts (even AoE/self-cast) from fight participants.
         """
         if not events:
             return []
 
+        # Hero-vs-hero combat events for establishing fight participants
+        # ABILITY_TRIGGER includes Lotus Orb reflections (attacker=buff holder, target=spell caster)
         hero_combat = [
             e for e in events
-            if e.type in ("DAMAGE", "ABILITY", "MODIFIER_ADD", "DEATH")
+            if e.type in ("DAMAGE", "ABILITY", "MODIFIER_ADD", "DEATH", "ABILITY_TRIGGER")
             and e.attacker_is_hero and e.target_is_hero
             and e.attacker != e.target
+        ]
+
+        # Ability casts by heroes (including AoE/self-cast where target is unknown)
+        ability_casts = [
+            e for e in events
+            if e.type == "ABILITY"
+            and e.attacker_is_hero
+            and not e.target_is_hero  # AoE or self-cast
         ]
 
         if not hero_combat:
@@ -333,6 +375,19 @@ class CombatLogParser:
                     fight_participants.add(target_lower)
                     added = True
 
+        # Now add ability casts from fight participants (including whiffs)
+        fight_start = min(e.game_time for e in fight_events)
+        fight_end = max(e.game_time for e in fight_events)
+
+        for e in ability_casts:
+            if e in fight_events:
+                continue
+            attacker_lower = e.attacker.lower()
+            # Include if caster is a fight participant and within fight time bounds
+            if attacker_lower in fight_participants:
+                if fight_start - 1 <= e.game_time <= fight_end + 1:
+                    fight_events.append(e)
+
         return sorted(fight_events, key=lambda x: x.game_time)
 
     def get_combat_timespan(
@@ -346,23 +401,8 @@ class CombatLogParser:
         """
         Get combat log for a fight around a reference time (e.g., a death).
 
-        Detects fight boundaries using participant connectivity - events are grouped
-        into the same fight if they share participants and are within gap_threshold.
-        Separate skirmishes (e.g., mid fight vs safelane fight) are correctly separated.
-
-        Args:
-            replay_path: Path to the .dem replay file
-            reference_time: Reference game time in seconds (e.g., death time)
-            hero: Optional hero name to anchor the fight detection
-            gap_threshold: Seconds between events to consider them connected
-            max_lookback: Maximum seconds to look back from reference_time
-
-        Returns:
-            FightResult model with fight boundaries, participants, and events
+        Detects fight boundaries using participant connectivity.
         """
-        if self._tick_time_map is None:
-            self._tick_time_map = self._build_tick_time_map(replay_path)
-
         search_start = max(0, reference_time - max_lookback)
         search_end = reference_time + 2
 
@@ -445,14 +485,12 @@ class CombatLogParser:
         Returns:
             List of ItemPurchase models sorted by game time
         """
-        result = self._parser.parse_combat_log(
-            str(replay_path),
-            types=[11],  # PURCHASE events
-            max_entries=5000
-        )
+        data = replay_cache.get_parsed_data(replay_path)
 
         purchases = []
-        for entry in result.entries:
+        for entry in data.combat_log:
+            if entry.type != 11:  # PURCHASE
+                continue
             if not entry.target_name or "hero" not in entry.target_name.lower():
                 continue
 
@@ -484,14 +522,12 @@ class CombatLogParser:
         Returns:
             List of CourierKill models sorted by game time
         """
-        result = self._parser.parse_combat_log(
-            str(replay_path),
-            types=[4],  # DEATH events
-            max_entries=5000
-        )
+        data = replay_cache.get_parsed_data(replay_path)
 
         kills = []
-        for entry in result.entries:
+        for entry in data.combat_log:
+            if entry.type != 4:  # DEATH
+                continue
             if "courier" not in entry.target_name.lower():
                 continue
 
@@ -499,8 +535,6 @@ class CombatLogParser:
             killer = self._clean_name(entry.attacker_name)
             owner = self._clean_name(entry.target_source_name)
 
-            # Determine team from target_team field
-            # Team 2 = Radiant, Team 3 = Dire
             if entry.target_team == 2:
                 team = "radiant"
             elif entry.target_team == 3:
@@ -508,20 +542,9 @@ class CombatLogParser:
             else:
                 team = "unknown"
 
-            # Get position from killer's location (courier position not easily queryable)
             position = None
             if include_position and self._is_hero(entry.attacker_name):
-                pos = position_tracker.get_hero_position_at_tick(
-                    replay_path, killer, entry.tick
-                )
-                if pos:
-                    position = MapLocation(
-                        x=pos.x,
-                        y=pos.y,
-                        region=pos.region,
-                        lane=pos.lane,
-                        location=pos.location
-                    )
+                position = self._get_position_at_tick(data, killer, entry.tick)
 
             kills.append(CourierKill(
                 game_time=round(game_time, 1),
@@ -548,11 +571,7 @@ class CombatLogParser:
         Returns:
             Tuple of (roshan_kills, tormentor_kills, tower_kills, barracks_kills)
         """
-        result = self._parser.parse_combat_log(
-            str(replay_path),
-            types=[4],  # DEATH events
-            max_entries=10000
-        )
+        data = replay_cache.get_parsed_data(replay_path)
 
         roshan_kills = []
         tormentor_kills = []
@@ -560,7 +579,10 @@ class CombatLogParser:
         barracks_kills = []
         roshan_count = 0
 
-        for entry in result.entries:
+        for entry in data.combat_log:
+            if entry.type != 4:  # DEATH
+                continue
+
             target = entry.target_name.lower()
             game_time = entry.game_time
             killer = self._clean_name(entry.attacker_name)
@@ -568,8 +590,6 @@ class CombatLogParser:
             # Roshan kills
             if "roshan" in target:
                 roshan_count += 1
-                # Roshan killer team: if killer is a hero, determine team
-                # Team 2 = Radiant, Team 3 = Dire
                 if entry.attacker_team == 2:
                     team = "radiant"
                 elif entry.attacker_team == 3:
@@ -585,12 +605,11 @@ class CombatLogParser:
                     kill_number=roshan_count,
                 ))
 
-            # Tormentor kills (miniboss)
+            # Tormentor kills
             elif "miniboss" in target:
-                # Determine which side's Tormentor based on killer team
                 if entry.attacker_team == 2:
                     team = "radiant"
-                    side = "radiant"  # Radiant usually kills their own side Tormentor
+                    side = "radiant"
                 elif entry.attacker_team == 3:
                     team = "dire"
                     side = "dire"
@@ -608,10 +627,8 @@ class CombatLogParser:
 
             # Tower kills
             elif "tower" in target and ("goodguys" in target or "badguys" in target):
-                # Parse tower info from name like "npc_dota_goodguys_tower1_mid"
                 team = "radiant" if "goodguys" in target else "dire"
 
-                # Extract tier
                 tier = 1
                 if "tower1" in target:
                     tier = 1
@@ -622,7 +639,6 @@ class CombatLogParser:
                 elif "tower4" in target:
                     tier = 4
 
-                # Extract lane
                 lane = "unknown"
                 if "_top" in target:
                     lane = "top"
@@ -633,7 +649,6 @@ class CombatLogParser:
                 elif tier == 4:
                     lane = "base"
 
-                # Build a cleaner tower name
                 tower_name = f"{team}_t{tier}_{lane}"
 
                 tower_kills.append(TowerKill(
@@ -649,13 +664,9 @@ class CombatLogParser:
 
             # Barracks kills
             elif "rax" in target and ("goodguys" in target or "badguys" in target):
-                # Parse barracks info from name like "npc_dota_goodguys_melee_rax_mid"
                 team = "radiant" if "goodguys" in target else "dire"
-
-                # Extract type
                 rax_type = "melee" if "melee" in target else "ranged"
 
-                # Extract lane
                 lane = "unknown"
                 if "_top" in target:
                     lane = "top"
@@ -664,7 +675,6 @@ class CombatLogParser:
                 elif "_bot" in target:
                     lane = "bot"
 
-                # Build cleaner barracks name
                 barracks_name = f"{team}_{rax_type}_{lane}"
 
                 barracks_kills.append(BarracksKill(
@@ -684,6 +694,47 @@ class CombatLogParser:
             sorted(tower_kills, key=lambda x: x.game_time),
             sorted(barracks_kills, key=lambda x: x.game_time),
         )
+
+    def get_rune_pickups(self, replay_path: Path) -> List[RunePickup]:
+        """
+        Get power rune pickup events from a replay.
+
+        Power runes are tracked via MODIFIER_ADD events when a hero gains a rune buff.
+        Note: Bounty and wisdom runes are not trackable this way as they don't grant buffs.
+
+        Args:
+            replay_path: Path to the .dem replay file
+
+        Returns:
+            List of RunePickup models sorted by game time
+        """
+        from python_manta import RuneType
+
+        data = replay_cache.get_parsed_data(replay_path)
+
+        pickups = []
+        for entry in data.combat_log:
+            if entry.type != 2:  # MODIFIER_ADD
+                continue
+            if not entry.inflictor_name:
+                continue
+            if not RuneType.is_rune_modifier(entry.inflictor_name):
+                continue
+            if not self._is_hero(entry.target_name):
+                continue
+
+            game_time = replay_cache.tick_to_game_time(data, entry.tick)
+            hero = self._clean_name(entry.target_name)
+            rune = RuneType.from_modifier(entry.inflictor_name)
+
+            pickups.append(RunePickup(
+                game_time=round(game_time, 1),
+                game_time_str=self._format_game_time(game_time),
+                hero=hero,
+                rune_type=rune.display_name,
+            ))
+
+        return sorted(pickups, key=lambda x: x.game_time)
 
 
 combat_log_parser = CombatLogParser()

@@ -56,6 +56,26 @@ class RuneSpawn(BaseModel):
     position: MapCoordinate
 
 
+class RuneTypeInfo(BaseModel):
+    """Information about a specific rune type."""
+
+    name: str = Field(description="Rune type name")
+    first_spawn: int = Field(description="First spawn time in seconds (game time)")
+    interval: int = Field(description="Spawn interval in seconds (0 if single spawn)")
+    effect: str = Field(description="What this rune does when picked up")
+    duration: Optional[int] = Field(default=None, description="Buff duration in seconds (if applicable)")
+
+
+class RuneRules(BaseModel):
+    """Spawn rules and information for all rune types."""
+
+    power_runes: RuneTypeInfo = Field(description="Power runes (river): haste, DD, arcane, invis, regen, shield")
+    bounty_runes: RuneTypeInfo = Field(description="Bounty runes (jungle): grants gold to team")
+    wisdom_runes: RuneTypeInfo = Field(description="Wisdom runes (near bases): grants XP")
+    water_runes: RuneTypeInfo = Field(description="Water runes (river): restores HP/mana, early game only")
+    power_rune_types: List[str] = Field(description="All possible power rune variants")
+
+
 class Outpost(BaseModel):
     """An outpost location."""
 
@@ -98,6 +118,7 @@ class MapData(BaseModel):
     ancients: List[Ancient] = Field(description="Both team ancients")
     neutral_camps: List[NeutralCamp] = Field(description="All neutral camps")
     rune_spawns: List[RuneSpawn] = Field(description="All rune spawn locations")
+    rune_rules: RuneRules = Field(description="Rune spawn timing rules and effects")
     outposts: List[Outpost] = Field(description="Both outposts")
     shops: List[Shop] = Field(description="All shops")
     landmarks: List[Landmark] = Field(description="Notable landmarks")

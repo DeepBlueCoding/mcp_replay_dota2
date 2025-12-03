@@ -1,5 +1,12 @@
 # Anthropic API
 
+<details>
+<summary><strong>🤖 AI Summary</strong></summary>
+
+Install: `pip install anthropic mcp`. Define tools with `input_schema`. Create `MCPToolExecutor` class to call MCP server. Implement agentic loop: call Claude with tools → check `stop_reason` → if `tool_use`, execute via MCP, return results → repeat until `end_turn`. Supports streaming with `messages.stream()`.
+
+</details>
+
 Integrate MCP tools directly with Claude API for full control.
 
 ## Overview

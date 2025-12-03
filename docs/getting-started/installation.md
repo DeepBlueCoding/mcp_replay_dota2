@@ -1,5 +1,12 @@
 # Installation
 
+<details>
+<summary><strong>🤖 AI Summary</strong></summary>
+
+Requires Python 3.12 and `uv`. Install: `git clone` repo, `uv sync`. Verify: `uv run python dota_match_mcp_server.py`. Then connect to your LLM client (Claude Desktop, Claude Code, etc.).
+
+</details>
+
 ## Requirements
 
 - Python 3.12

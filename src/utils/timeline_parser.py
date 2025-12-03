@@ -1,18 +1,20 @@
 """
 Timeline parser for extracting time-series data from Dota 2 replays.
+
+Uses replay_cache to avoid repeated parsing of large replay files.
 """
 
 import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from python_manta import parse_demo_entities, parse_demo_universal
+from src.utils.replay_cache import replay_cache
 
 logger = logging.getLogger(__name__)
 
 
 class TimelineParser:
-    """Parses replay files to extract timeline data."""
+    """Parses replay files to extract timeline data using cached replay data."""
 
     def parse_timeline(self, replay_path: Path) -> Optional[Dict[str, Any]]:
         """
@@ -24,45 +26,39 @@ class TimelineParser:
         Returns:
             Dictionary with timeline data for all players, or None on error
         """
-        try:
-            result = parse_demo_universal(str(replay_path), 'CDOTAMatchMetadataFile', max_messages=1)
-            if not result.messages:
-                logger.error("No metadata found in replay")
-                return None
+        data = replay_cache.get_parsed_data(replay_path)
 
-            data = result.messages[0].data
-            metadata = data.get('metadata', {})
-            teams = metadata.get('teams', [])
-
-            if len(teams) < 2:
-                logger.error("Not enough team data in replay")
-                return None
-
-            players = []
-            for team_idx, team in enumerate(teams[:2]):
-                team_name = "radiant" if team_idx == 0 else "dire"
-
-                for player in team.get('players', []):
-                    player_data = self._extract_player_timeline(player, team_name)
-                    if player_data:
-                        players.append(player_data)
-
-            team_graphs = self._extract_team_graphs(teams[:2])
-
-            entity_data = self._parse_entity_timeline(replay_path)
-            if entity_data:
-                self._merge_entity_data(players, entity_data)
-
-            return {
-                "match_id": data.get('match_id'),
-                "players": players,
-                "radiant": team_graphs.get("radiant", {}),
-                "dire": team_graphs.get("dire", {}),
-            }
-
-        except Exception as e:
-            logger.error(f"Failed to parse timeline: {e}")
+        if data.metadata is None:
+            logger.error("No metadata found in replay")
             return None
+
+        metadata = data.metadata.get('metadata', {})
+        teams = metadata.get('teams', [])
+
+        if len(teams) < 2:
+            logger.error("Not enough team data in replay")
+            return None
+
+        players = []
+        for team_idx, team in enumerate(teams[:2]):
+            team_name = "radiant" if team_idx == 0 else "dire"
+
+            for player in team.get('players', []):
+                player_data = self._extract_player_timeline(player, team_name)
+                if player_data:
+                    players.append(player_data)
+
+        team_graphs = self._extract_team_graphs(teams[:2])
+
+        # Merge entity data from cache
+        self._merge_entity_data(players, data.entity_snapshots)
+
+        return {
+            "match_id": data.metadata.get('match_id') if data.metadata else data.match_id,
+            "players": players,
+            "radiant": team_graphs.get("radiant", {}),
+            "dire": team_graphs.get("dire", {}),
+        }
 
     def _extract_player_timeline(self, player: Dict[str, Any], team: str) -> Optional[Dict[str, Any]]:
         """Extract timeline data for a single player."""
@@ -107,62 +103,48 @@ class TimelineParser:
             }
         return result
 
-    def _parse_entity_timeline(self, replay_path: Path) -> Optional[Dict[int, List[Dict[str, Any]]]]:
-        """
-        Parse entity data for last hits and denies per minute.
-
-        Args:
-            replay_path: Path to the .dem replay file
-
-        Returns:
-            Dictionary mapping player_id to list of per-minute stats, or None on error
-        """
-        try:
-            result = parse_demo_entities(str(replay_path), interval_ticks=1800, max_snapshots=100)
-            if not result.success:
-                logger.error(f"Entity parsing failed: {result.error}")
-                return None
-
-            player_timeline: Dict[int, List[Dict[str, Any]]] = {}
-
-            for snap in result.snapshots:
-                if len(snap.players) != 10:
-                    continue
-
-                game_min = int(snap.game_time / 60)
-
-                for p in snap.players:
-                    if p.player_id not in player_timeline:
-                        player_timeline[p.player_id] = []
-
-                    player_timeline[p.player_id].append({
-                        "game_time": snap.game_time,
-                        "minute": game_min,
-                        "last_hits": p.last_hits,
-                        "denies": p.denies,
-                        "gold": p.gold,
-                        "level": p.level,
-                        "hero_id": p.hero_id,
-                    })
-
-            return player_timeline
-
-        except Exception as e:
-            logger.error(f"Failed to parse entity timeline: {e}")
-            return None
-
-    def _merge_entity_data(self, players: List[Dict[str, Any]], entity_data: Dict[int, List[Dict[str, Any]]]) -> None:
+    def _merge_entity_data(self, players: List[Dict[str, Any]], entity_snapshots: list) -> None:
         """
         Merge entity data (last_hits, denies) into player timeline data.
 
         Args:
             players: List of player timeline dicts to update in place
-            entity_data: Entity data keyed by player_id
+            entity_snapshots: Entity snapshots from cache
         """
+        # Build player_id to timeline data mapping
+        player_timeline: Dict[int, List[Dict[str, Any]]] = {}
+
+        for snap in entity_snapshots:
+            # Skip draft phase snapshots (game_time is 0.0 during draft)
+            # Game time becomes positive when actual gameplay starts
+            if snap.game_time <= 0:
+                continue
+
+            game_min = int(snap.game_time / 60)
+
+            for p in snap.players:
+                player_id = p.get('player_id')
+                if player_id is None:
+                    continue
+
+                if player_id not in player_timeline:
+                    player_timeline[player_id] = []
+
+                player_timeline[player_id].append({
+                    "game_time": snap.game_time,
+                    "minute": game_min,
+                    "last_hits": p.get('last_hits', 0),
+                    "denies": p.get('denies', 0),
+                    "gold": p.get('gold', 0),
+                    "level": p.get('level', 1),
+                    "hero_id": p.get('hero_id', 0),
+                })
+
+        # Merge into players
         for player in players:
             player_id = player.get('game_player_id')
-            if player_id is not None and player_id in entity_data:
-                snapshots = entity_data[player_id]
+            if player_id is not None and player_id in player_timeline:
+                snapshots = player_timeline[player_id]
                 player['last_hits'] = [s['last_hits'] for s in snapshots]
                 player['denies'] = [s['denies'] for s in snapshots]
                 player['entity_timeline'] = snapshots

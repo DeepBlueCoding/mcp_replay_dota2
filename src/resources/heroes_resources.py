@@ -115,15 +115,14 @@ class HeroesResource:
 
     async def get_heroes_in_match(self, match_id: int) -> Dict[str, Dict[str, Any]]:
         """
-        Get heroes data filtered by those playing in a given match.
-        Returns data in legacy format but only for the 10 heroes in the match.
+        Get full hero constants data for heroes playing in a given match.
 
         Args:
             match_id: The Dota 2 match ID
 
         Returns:
-            Dictionary with hero internal names as keys and hero data as values,
-            filtered to only include heroes that played in the specified match
+            Dictionary with hero internal names as keys and full constants data as values,
+            filtered to only include the 10 heroes that played in the specified match
         """
         replay_path = await self.replay_downloader.download_replay(match_id)
 
@@ -132,71 +131,27 @@ class HeroesResource:
             return {}
 
         try:
-            from python_manta import parse_demo_draft
+            from python_manta import MantaParser
 
-            draft_info = parse_demo_draft(str(replay_path))
+            parser = MantaParser()
+            game_info = parser.parse_game_info(str(replay_path))
 
-            if not draft_info.success:
-                logger.error(f"Failed to parse draft for match {match_id}: {draft_info.error}")
+            if not game_info.success:
+                logger.error(f"Failed to parse game info for match {match_id}: {game_info.error}")
                 return {}
 
-            picked_hero_ids = {pick.hero_id for pick in draft_info.picks_bans
-                              if hasattr(pick, 'hero_id') and hasattr(pick, 'is_pick')
-                              and pick.hero_id > 0 and pick.is_pick}
-
-            all_heroes = await self.get_all_heroes()
-
-            filtered_heroes = {}
-            for hero_name, hero_data in all_heroes.items():
-                if hero_data.get("hero_id") in picked_hero_ids:
-                    filtered_heroes[hero_name] = hero_data
-
-            return filtered_heroes
-
-        except ImportError:
-            logger.error("Draft parser not available. Please ensure python_manta is installed.")
-            return {}
-        except Exception as e:
-            logger.error(f"Error parsing match {match_id}: {e}")
-            return {}
-
-    async def get_heroes_in_match_enriched(self, match_id: int) -> Dict[str, Dict[str, Any]]:
-        """
-        Get enriched heroes data for a match using full dotaconstants data.
-
-        Args:
-            match_id: The Dota 2 match ID
-
-        Returns:
-            Dictionary with hero internal names as keys and enriched hero data as values
-        """
-        replay_path = await self.replay_downloader.download_replay(match_id)
-
-        if not replay_path:
-            logger.error(f"Could not download replay for match {match_id}")
-            return {}
-
-        try:
-            from python_manta import parse_demo_draft
-
-            draft_info = parse_demo_draft(str(replay_path))
-
-            if not draft_info.success:
-                logger.error(f"Failed to parse draft for match {match_id}: {draft_info.error}")
-                return {}
-
-            picked_hero_ids = [pick.hero_id for pick in draft_info.picks_bans
+            picked_hero_ids = [pick.hero_id for pick in game_info.picks_bans
                               if hasattr(pick, 'hero_id') and hasattr(pick, 'is_pick')
                               and pick.hero_id > 0 and pick.is_pick]
 
-            enriched_heroes_list = self.constants.enrich_hero_picks(picked_hero_ids)
+            heroes_list = self.constants.enrich_hero_picks(picked_hero_ids)
 
-            enriched_heroes = {}
-            for hero_data in enriched_heroes_list:
+            heroes = {}
+            for hero_data in heroes_list:
                 hero_key = hero_data.get("name", f"npc_dota_hero_{hero_data.get('id', 'unknown')}")
-                enriched_heroes[hero_key] = hero_data
+                heroes[hero_key] = hero_data
 
-            return enriched_heroes
+            return heroes
 
         except ImportError:
             logger.error("Draft parser not available. Please ensure python_manta is installed.")

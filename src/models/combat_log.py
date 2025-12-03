@@ -17,6 +17,7 @@ class CombatLogEvent(BaseModel):
     target_is_hero: bool = Field(description="Whether the target is a hero")
     ability: Optional[str] = Field(default=None, description="Ability or item involved")
     value: Optional[int] = Field(default=None, description="Damage amount or other numeric value")
+    hit: Optional[bool] = Field(default=None, description="For ABILITY events: whether the ability hit an enemy hero. None for non-ability events.")
 
 
 class MapLocation(BaseModel):
@@ -208,4 +209,23 @@ class DownloadReplayResponse(BaseModel):
     replay_path: Optional[str] = Field(default=None, description="Path to the downloaded replay file")
     file_size_mb: Optional[float] = Field(default=None, description="Size of the replay file in MB")
     already_cached: bool = Field(default=False, description="Whether the replay was already cached")
+    error: Optional[str] = Field(default=None)
+
+
+class RunePickup(BaseModel):
+    """A power rune pickup event."""
+
+    game_time: float = Field(description="Game time in seconds")
+    game_time_str: str = Field(description="Game time formatted as M:SS")
+    hero: str = Field(description="Hero that picked up the rune")
+    rune_type: str = Field(description="Type of power rune: haste, double_damage, arcane, invisibility, regeneration, or shield")
+
+
+class RunePickupsResponse(BaseModel):
+    """Response for get_rune_pickups tool."""
+
+    success: bool
+    match_id: int
+    total_pickups: int = Field(default=0)
+    pickups: List[RunePickup] = Field(default_factory=list)
     error: Optional[str] = Field(default=None)

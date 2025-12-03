@@ -15,6 +15,7 @@ from src.models.combat_log import (
     HeroDeath,
     MapLocation,
     RoshanKill,
+    RunePickup,
     TormentorKill,
     TowerKill,
 )
@@ -375,3 +376,241 @@ class TestPositionTracking:
                 # Map coordinates should be within valid range (-8000 to 8000)
                 assert -8500 <= death.position.x <= 8500
                 assert -8500 <= death.position.y <= 8500
+
+
+class TestRunePickups:
+    """Tests for power rune pickup tracking."""
+
+    @pytest.fixture
+    def parser(self):
+        return CombatLogParser()
+
+    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
+    def test_get_rune_pickups_returns_list_of_rune_pickup_models(self, parser):
+        pickups = parser.get_rune_pickups(REPLAY_PATH)
+
+        assert len(pickups) > 0
+        assert all(isinstance(p, RunePickup) for p in pickups)
+
+    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
+    def test_rune_pickups_correct_count(self, parser):
+        pickups = parser.get_rune_pickups(REPLAY_PATH)
+
+        # Match 8461956309 has 19 power rune pickups
+        assert len(pickups) == 19
+
+    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
+    def test_first_rune_pickup_details(self, parser):
+        pickups = parser.get_rune_pickups(REPLAY_PATH)
+
+        first_rune = pickups[0]
+        assert first_rune.game_time_str == "6:14"
+        assert first_rune.hero == "naga_siren"
+        assert first_rune.rune_type == "Arcane"
+
+    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
+    def test_rune_pickups_sorted_by_time(self, parser):
+        pickups = parser.get_rune_pickups(REPLAY_PATH)
+
+        times = [p.game_time for p in pickups]
+        assert times == sorted(times)
+
+    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
+    def test_rune_types_are_valid(self, parser):
+        from python_manta import RuneType
+
+        pickups = parser.get_rune_pickups(REPLAY_PATH)
+        valid_types = {r.display_name for r in RuneType}
+
+        for pickup in pickups:
+            assert pickup.rune_type in valid_types
+
+    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
+    def test_pangolier_most_rune_pickups(self, parser):
+        pickups = parser.get_rune_pickups(REPLAY_PATH)
+
+        # Count pickups per hero
+        hero_counts = {}
+        for p in pickups:
+            hero_counts[p.hero] = hero_counts.get(p.hero, 0) + 1
+
+        # Pangolier picked up the most runes in this match
+        assert max(hero_counts, key=hero_counts.get) == "pangolier"
+        assert hero_counts["pangolier"] == 9
+
+
+class TestAbilityHitDetection:
+    """Tests for ability hit/miss detection in combat log."""
+
+    @pytest.fixture
+    def parser(self):
+        return CombatLogParser()
+
+    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
+    def test_ability_events_have_hit_field(self, parser):
+        events = parser.get_combat_log(
+            REPLAY_PATH,
+            start_time=280,
+            end_time=300,
+            types=[5],  # ABILITY only
+        )
+
+        ability_events = [e for e in events if e.type == "ABILITY"]
+        assert len(ability_events) > 0
+
+        # All ability events should have hit field (True, False, or None)
+        for e in ability_events:
+            assert e.hit in (True, False, None)
+
+    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
+    def test_self_buff_abilities_have_hit_none(self, parser):
+        events = parser.get_combat_log(
+            REPLAY_PATH,
+            start_time=280,
+            end_time=300,
+            types=[5],
+            hero_filter="earthshaker",
+        )
+
+        # Enchant Totem is a self-buff ability (No Target behavior)
+        totem_events = [e for e in events if e.ability == "earthshaker_enchant_totem"]
+        assert len(totem_events) > 0
+
+        for e in totem_events:
+            assert e.hit is None, "Self-buff abilities should have hit=None"
+
+    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
+    def test_ensnare_that_hit_shows_as_true(self, parser):
+        events = parser.get_combat_log(
+            REPLAY_PATH,
+            start_time=280,
+            end_time=282,
+            types=[5],
+            hero_filter="naga",
+        )
+
+        # Naga Siren's Ensnare at 4:40 hit Earthshaker (verified from replay)
+        ensnare_events = [e for e in events if e.ability == "naga_siren_ensnare"]
+        assert len(ensnare_events) == 1
+        assert ensnare_events[0].hit is True, "Ensnare that hit a hero should have hit=True"
+
+    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
+    def test_modifier_prefix_normalization(self, parser):
+        # Test the internal method for normalizing ability names
+        assert parser._normalize_ability_name("naga_siren_ensnare") == "naga_siren_ensnare"
+        assert parser._normalize_ability_name("modifier_naga_siren_ensnare") == "naga_siren_ensnare"
+        assert parser._normalize_ability_name("modifier_rune_haste") == "rune_haste"
+
+    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
+    def test_non_ability_events_have_hit_none(self, parser):
+        events = parser.get_combat_log(
+            REPLAY_PATH,
+            start_time=280,
+            end_time=290,
+            types=[0, 2, 4],  # DAMAGE, MODIFIER_ADD, DEATH
+        )
+
+        # Non-ABILITY events should have hit=None
+        for e in events:
+            assert e.hit is None, f"Non-ability event {e.type} should have hit=None"
+
+    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
+    def test_hit_detection_stats_reasonable(self, parser):
+        events = parser.get_combat_log(
+            REPLAY_PATH,
+            start_time=0,
+            end_time=600,
+            types=[5],
+        )
+
+        hits = [e for e in events if e.hit is True]
+        misses = [e for e in events if e.hit is False]
+        na = [e for e in events if e.hit is None]
+
+        # Should have a reasonable distribution
+        assert len(hits) > 50, "Should have many abilities that hit"
+        assert len(misses) > 20, "Should have some abilities that missed"
+        assert len(na) > 100, "Should have many self-buff abilities"
+
+        # Hits + misses + NA should equal total
+        assert len(hits) + len(misses) + len(na) == len(events)
+
+
+class TestAbilityTrigger:
+    """Tests for ABILITY_TRIGGER events (Lotus Orb reflections, passive procs)."""
+
+    @pytest.fixture
+    def parser(self):
+        return CombatLogParser()
+
+    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
+    def test_ability_trigger_type_in_combatlog_types(self, parser):
+        assert 13 in parser.COMBATLOG_TYPES
+        assert parser.COMBATLOG_TYPES[13] == "ABILITY_TRIGGER"
+
+    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
+    def test_ability_trigger_events_included_by_default(self, parser):
+        # Disruptor Glimpse triggers happen around 320-370s (first blood area)
+        events = parser.get_combat_log(
+            REPLAY_PATH,
+            start_time=320,
+            end_time=370,
+        )
+
+        trigger_events = [e for e in events if e.type == "ABILITY_TRIGGER"]
+        assert len(trigger_events) > 0, "ABILITY_TRIGGER events should be included by default"
+
+    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
+    def test_lotus_orb_reflections_tracked(self, parser):
+        events = parser.get_combat_log(
+            REPLAY_PATH,
+            types=[13],  # ABILITY_TRIGGER only
+        )
+
+        lotus_events = [e for e in events if e.ability and "lotus" in e.ability.lower()]
+
+        # Match 8461956309 has 2 Lotus Orb reflections (verified)
+        assert len(lotus_events) == 2
+
+    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
+    def test_lotus_orb_reflection_structure(self, parser):
+        events = parser.get_combat_log(
+            REPLAY_PATH,
+            types=[13],
+        )
+
+        lotus_events = [e for e in events if e.ability and "lotus" in e.ability.lower()]
+        assert len(lotus_events) > 0
+
+        # First reflection: Naga Siren (with buff) -> Shadow Demon (caster)
+        first = lotus_events[0]
+        assert first.attacker == "naga_siren", "Attacker should be hero with Lotus buff"
+        assert first.target == "shadow_demon", "Target should be spell caster"
+        assert first.ability == "item_lotus_orb"
+
+    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
+    def test_passive_procs_tracked(self, parser):
+        # Use match 8582735416 which has Axe Counter Helix procs
+        other_replay = Path.home() / "dota2" / "replays" / "8582735416.dem"
+        if not other_replay.exists():
+            pytest.skip("Second replay not available")
+
+        events = parser.get_combat_log(
+            other_replay,
+            types=[13],
+        )
+
+        helix_events = [e for e in events if e.ability and "counter_helix" in e.ability.lower()]
+        assert len(helix_events) > 100, "Should track many Counter Helix procs"
+
+    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
+    def test_ability_trigger_in_fight_detection(self, parser):
+        # Disruptor Glimpse at ~365s (computed game time)
+        events = parser.get_combat_log(
+            REPLAY_PATH,
+            start_time=360,
+            end_time=370,
+        )
+
+        trigger_in_range = [e for e in events if e.type == "ABILITY_TRIGGER"]
+        assert len(trigger_in_range) > 0, "ABILITY_TRIGGER should be included in combat log output"

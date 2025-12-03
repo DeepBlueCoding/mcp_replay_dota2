@@ -203,21 +203,17 @@ class TestHeroesResourceWithRealMatch:
 
     @pytest.mark.integration
     @pytest.mark.asyncio
-    async def test_get_heroes_in_match_preserves_data_format(self, heroes_resource):
-        """Test that match heroes have the same format as all heroes."""
-        all_heroes = await heroes_resource.get_all_heroes()
+    async def test_get_heroes_in_match_has_full_constants_data(self, heroes_resource):
+        """Test that match heroes have full dotaconstants format."""
         match_heroes = await heroes_resource.get_heroes_in_match(self.REAL_MATCH_ID)
 
-        for hero_key in match_heroes.keys():
-            match_hero = match_heroes[hero_key]
-            all_hero = all_heroes[hero_key]
-
-            assert match_hero == all_hero
-
-            assert "hero_id" in match_hero
-            assert "canonical_name" in match_hero
-            assert "aliases" in match_hero
-            assert "attribute" in match_hero
+        for hero_key, hero_data in match_heroes.items():
+            assert "id" in hero_data
+            assert "name" in hero_data
+            assert "localized_name" in hero_data
+            assert "primary_attr" in hero_data
+            assert "attack_type" in hero_data
+            assert "roles" in hero_data
 
     @pytest.mark.asyncio
     async def test_get_heroes_in_match_with_invalid_match_id(self, heroes_resource):
@@ -234,21 +230,21 @@ class TestHeroesResourceWithRealMatch:
 
         assert "npc_dota_hero_earthshaker" in match_heroes
         earthshaker = match_heroes["npc_dota_hero_earthshaker"]
-        assert earthshaker["hero_id"] == 7
-        assert earthshaker["canonical_name"] == "Earthshaker"
-        assert earthshaker["attribute"] == "strength"
+        assert earthshaker["id"] == 7
+        assert earthshaker["localized_name"] == "Earthshaker"
+        assert earthshaker["primary_attr"] == "str"
 
         assert "npc_dota_hero_juggernaut" in match_heroes
         juggernaut = match_heroes["npc_dota_hero_juggernaut"]
-        assert juggernaut["hero_id"] == 8
-        assert juggernaut["canonical_name"] == "Juggernaut"
-        assert juggernaut["attribute"] == "agility"
+        assert juggernaut["id"] == 8
+        assert juggernaut["localized_name"] == "Juggernaut"
+        assert juggernaut["primary_attr"] == "agi"
 
         assert "npc_dota_hero_pugna" in match_heroes
         pugna = match_heroes["npc_dota_hero_pugna"]
-        assert pugna["hero_id"] == 45
-        assert pugna["canonical_name"] == "Pugna"
-        assert pugna["attribute"] == "intelligence"
+        assert pugna["id"] == 45
+        assert pugna["localized_name"] == "Pugna"
+        assert pugna["primary_attr"] == "int"
 
 
 class TestHeroesResourceErrorHandling:

@@ -14,7 +14,9 @@ from src.models.map_data import (
     MapLane,
     NeutralCamp,
     Outpost,
+    RuneRules,
     RuneSpawn,
+    RuneTypeInfo,
     Shop,
     Tower,
 )
@@ -211,6 +213,48 @@ def get_map_data() -> MapData:
                   position=MapCoordinate(x=600, y=200)),
     ]
 
+    # Rune spawn rules and timing
+    rune_rules = RuneRules(
+        power_runes=RuneTypeInfo(
+            name="power",
+            first_spawn=360,  # 6:00
+            interval=120,  # every 2 minutes
+            effect="Grants a random buff: haste (max movespeed), double damage, arcane (reduced cooldowns/mana cost), invisibility, regeneration, or shield",
+            duration=45,
+        ),
+        bounty_runes=RuneTypeInfo(
+            name="bounty",
+            first_spawn=0,  # 0:00
+            interval=180,  # every 3 minutes
+            effect="Grants gold to the hero and all allied heroes",
+            duration=None,
+        ),
+        wisdom_runes=RuneTypeInfo(
+            name="wisdom",
+            first_spawn=420,  # 7:00
+            interval=420,  # every 7 minutes
+            effect="Grants experience based on game time",
+            duration=None,
+        ),
+        water_runes=RuneTypeInfo(
+            name="water",
+            first_spawn=120,  # 2:00
+            interval=120,  # every 2 minutes, but stops after 4:00
+            effect="Restores health and mana. Only spawns at 2:00 and 4:00",
+            duration=None,
+        ),
+        power_rune_types=[
+            "Haste",
+            "Double Damage",
+            "Arcane",
+            "Invisibility",
+            "Regeneration",
+            "Shield",
+            "Illusion",
+            "Water",
+        ],
+    )
+
     # Outposts
     outposts = [
         Outpost(name="radiant_outpost", side="radiant",
@@ -286,6 +330,7 @@ def get_map_data() -> MapData:
         ancients=ancients,
         neutral_camps=neutral_camps,
         rune_spawns=rune_spawns,
+        rune_rules=rune_rules,
         outposts=outposts,
         shops=shops,
         landmarks=landmarks,

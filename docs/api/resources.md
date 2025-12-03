@@ -1,5 +1,12 @@
 # Resources Reference
 
+<details>
+<summary><strong>🤖 AI Summary</strong></summary>
+
+Static data via URI. **Core**: `dota2://heroes/all` (124+ heroes with aliases, roles), `dota2://map` (towers, camps, runes, landmarks). **Match-specific**: `dota2://match/{id}/heroes` (10 heroes with KDA, GPM, items), `dota2://match/{id}/players` (player names, heroes). **Pro scene**: `dota2://pro/players`, `dota2://pro/teams`, `dota2://pro/player/{id}`, `dota2://pro/team/{id}`.
+
+</details>
+
 Resources are static data the LLM can include as context. Access via URI.
 
 ## dota2://heroes/all
@@ -129,3 +136,128 @@ dota2://match/8461956309/players
 ```
 
 Use for: Identifying players, looking up pros, correlating with external data.
+
+---
+
+# Pro Scene Resources
+
+Static data about professional Dota 2 players and teams.
+
+## dota2://pro/players
+
+All professional players from OpenDota.
+
+```
+dota2://pro/players
+```
+
+```json
+{
+  "players": [
+    {
+      "account_id": 311360822,
+      "name": "Yatoro",
+      "personaname": "Yatoro",
+      "team_id": 8599101,
+      "team_name": "Team Spirit",
+      "team_tag": "Spirit",
+      "country_code": "UA",
+      "fantasy_role": 1,
+      "is_active": true
+    }
+  ],
+  "total_players": 2500
+}
+```
+
+Use for: Looking up pro player info, finding players by team.
+
+---
+
+## dota2://pro/teams
+
+All professional teams from OpenDota.
+
+```
+dota2://pro/teams
+```
+
+```json
+{
+  "teams": [
+    {
+      "team_id": 8599101,
+      "name": "Team Spirit",
+      "tag": "Spirit",
+      "rating": 1500.0,
+      "wins": 450,
+      "losses": 200
+    }
+  ],
+  "total_teams": 500
+}
+```
+
+Use for: Looking up team info, comparing team ratings.
+
+---
+
+## dota2://pro/player/{account_id}
+
+Detailed info for a specific pro player.
+
+```
+dota2://pro/player/311360822
+```
+
+```json
+{
+  "account_id": 311360822,
+  "name": "Yatoro",
+  "personaname": "Yatoro",
+  "team_id": 8599101,
+  "team_name": "Team Spirit",
+  "team_tag": "Spirit",
+  "country_code": "UA",
+  "fantasy_role": 1,
+  "is_active": true,
+  "aliases": ["yatoro", "raddan"]
+}
+```
+
+Use for: Getting detailed player info including aliases.
+
+---
+
+## dota2://pro/team/{team_id}
+
+Detailed info for a specific team including roster.
+
+```
+dota2://pro/team/8599101
+```
+
+```json
+{
+  "team": {
+    "team_id": 8599101,
+    "name": "Team Spirit",
+    "tag": "Spirit",
+    "rating": 1500.0,
+    "wins": 450,
+    "losses": 200,
+    "aliases": ["ts", "spirit"]
+  },
+  "roster": [
+    {
+      "account_id": 311360822,
+      "player_name": "Yatoro",
+      "games_played": 300,
+      "wins": 200,
+      "is_current": true
+    }
+  ]
+}
+```
+
+Use for: Getting team roster, win/loss stats, team aliases.
