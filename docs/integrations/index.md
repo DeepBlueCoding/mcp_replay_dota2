@@ -1,11 +1,8 @@
 # Connecting to LLMs
 
-<details>
-<summary><strong>🤖 AI Summary</strong></summary>
+??? info "🤖 AI Summary"
 
-Integration options by difficulty: **Easy** - Claude Desktop (config JSON), Claude Code CLI (.mcp.json), FastMCP Client (Python). **Medium** - LangChain, LangGraph, CrewAI, AutoGen, MCP SDK. **Hard** - Anthropic API, OpenAI API (manual tool loop). For quick chat → Claude Desktop. For Python apps → FastMCP/LangChain. For multi-step agents → LangGraph. For multi-agent → CrewAI.
-
-</details>
+    Integration options by difficulty: **Easy** - Claude Desktop (config JSON), Claude Code CLI (.mcp.json), FastMCP Client (Python). **Medium** - LangChain, LangGraph, CrewAI, AutoGen, MCP SDK. **Hard** - Anthropic API, OpenAI API (manual tool loop). For quick chat → Claude Desktop. For Python apps → FastMCP/LangChain. For multi-step agents → LangGraph. For multi-agent → CrewAI.
 
 This MCP server can connect to any LLM that supports the Model Context Protocol or tool calling.
 

@@ -1,11 +1,8 @@
 # Resources Reference
 
-<details>
-<summary><strong>🤖 AI Summary</strong></summary>
+??? info "🤖 AI Summary"
 
-Static data via URI. **Core**: `dota2://heroes/all` (124+ heroes with aliases, roles), `dota2://map` (towers, camps, runes, landmarks). **Match-specific**: `dota2://match/{id}/heroes` (10 heroes with KDA, GPM, items), `dota2://match/{id}/players` (player names, heroes). **Pro scene**: `dota2://pro/players`, `dota2://pro/teams`, `dota2://pro/player/{id}`, `dota2://pro/team/{id}`.
-
-</details>
+    Static data via URI. **Core**: `dota2://heroes/all` (124+ heroes with aliases, roles), `dota2://map` (towers, camps, runes, landmarks). **Match-specific**: `dota2://match/{id}/heroes` (10 heroes with KDA, GPM, items), `dota2://match/{id}/players` (player names, heroes). **Pro scene**: `dota2://pro/players`, `dota2://pro/teams`, `dota2://pro/player/{id}`, `dota2://pro/team/{id}`.
 
 Resources are static data the LLM can include as context. Access via URI.
 

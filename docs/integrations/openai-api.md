@@ -1,11 +1,8 @@
 # OpenAI API
 
-<details>
-<summary><strong>🤖 AI Summary</strong></summary>
+??? info "🤖 AI Summary"
 
-Install: `pip install openai mcp`. Define tools with `type: "function"` schema. Create `MCPToolExecutor` to call MCP server. Agentic loop: call `chat.completions.create()` with tools → check `message.tool_calls` → execute via MCP → add tool results → repeat until no tool_calls. Supports streaming and parallel tool calls.
-
-</details>
+    Install: `pip install openai mcp`. Define tools with `type: "function"` schema. Create `MCPToolExecutor` to call MCP server. Agentic loop: call `chat.completions.create()` with tools → check `message.tool_calls` → execute via MCP → add tool results → repeat until no tool_calls. Supports streaming and parallel tool calls.
 
 Use MCP tools with OpenAI models (GPT-4, GPT-4o, etc.).
 

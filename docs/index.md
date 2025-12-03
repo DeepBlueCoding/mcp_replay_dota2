@@ -1,11 +1,8 @@
 # MCP Dota 2 Match Analysis Server
 
-<details>
-<summary><strong>🤖 AI Summary</strong></summary>
+??? info "🤖 AI Summary"
 
-MCP server for Dota 2 match analysis. **Tools** (LLM calls these): `get_hero_deaths`, `get_combat_log`, `get_fight_combat_log`, `get_item_purchases`, `get_objective_kills`, `get_match_timeline`, `get_stats_at_minute`, `get_courier_kills`. **Resources** (static context): `dota2://heroes/all`, `dota2://map`, `dota2://match/{id}/heroes`, `dota2://match/{id}/players`. Connects to Claude Desktop, Claude Code, LangChain, LangGraph, CrewAI, or direct API integration.
-
-</details>
+    MCP server for Dota 2 match analysis. **Tools** (LLM calls these): `get_hero_deaths`, `get_combat_log`, `get_fight_combat_log`, `get_item_purchases`, `get_objective_kills`, `get_match_timeline`, `get_stats_at_minute`, `get_courier_kills`. **Resources** (static context): `dota2://heroes/all`, `dota2://map`, `dota2://match/{id}/heroes`, `dota2://match/{id}/players`. Connects to Claude Desktop, Claude Code, LangChain, LangGraph, CrewAI, or direct API integration.
 
 A Model Context Protocol (MCP) server that gives LLMs the ability to analyze Dota 2 matches by parsing replay files and querying the OpenDota API.
 

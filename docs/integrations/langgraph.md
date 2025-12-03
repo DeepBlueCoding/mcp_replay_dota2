@@ -1,11 +1,8 @@
 # LangGraph
 
-<details>
-<summary><strong>🤖 AI Summary</strong></summary>
+??? info "🤖 AI Summary"
 
-Install: `pip install langgraph langchain-openai langchain-mcp-adapters`. Use `create_react_agent(llm, tools)` for simple ReAct agent. Build custom `StateGraph` for specialized flows: get_deaths → identify_fights → get_objectives → synthesize. Supports streaming via `astream_events()`.
-
-</details>
+    Install: `pip install langgraph langchain-openai langchain-mcp-adapters`. Use `create_react_agent(llm, tools)` for simple ReAct agent. Build custom `StateGraph` for specialized flows: get_deaths → identify_fights → get_objectives → synthesize. Supports streaming via `astream_events()`.
 
 Build stateful, multi-step Dota 2 analysis agents with LangGraph.
 

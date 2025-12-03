@@ -1,11 +1,8 @@
 # AutoGen
 
-<details>
-<summary><strong>🤖 AI Summary</strong></summary>
+??? info "🤖 AI Summary"
 
-Install: `pip install pyautogen langchain-mcp-adapters`. Create `AssistantAgent` with function definitions, `UserProxyAgent` with `function_map` to execute MCP tools. Use `a_initiate_chat()` for conversation. For multi-agent: create specialists (FightExpert, MacroExpert) and use `GroupChat` + `GroupChatManager`.
-
-</details>
+    Install: `pip install pyautogen langchain-mcp-adapters`. Create `AssistantAgent` with function definitions, `UserProxyAgent` with `function_map` to execute MCP tools. Use `a_initiate_chat()` for conversation. For multi-agent: create specialists (FightExpert, MacroExpert) and use `GroupChat` + `GroupChatManager`.
 
 Build conversational agents that analyze matches through dialogue.
 

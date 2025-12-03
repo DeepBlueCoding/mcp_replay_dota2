@@ -1,11 +1,8 @@
 # LangChain
 
-<details>
-<summary><strong>🤖 AI Summary</strong></summary>
+??? info "🤖 AI Summary"
 
-Install: `pip install langchain langchain-openai langchain-mcp-adapters`. Use `MCPToolkit` to connect, `toolkit.get_tools()` returns LangChain tools. Bind to any LLM: `llm.bind_tools(tools)`. Works with agents via `create_tool_calling_agent()`. Supports Claude via `langchain-anthropic`.
-
-</details>
+    Install: `pip install langchain langchain-openai langchain-mcp-adapters`. Use `MCPToolkit` to connect, `toolkit.get_tools()` returns LangChain tools. Bind to any LLM: `llm.bind_tools(tools)`. Works with agents via `create_tool_calling_agent()`. Supports Claude via `langchain-anthropic`.
 
 Use MCP tools as LangChain tools with any supported LLM.
 

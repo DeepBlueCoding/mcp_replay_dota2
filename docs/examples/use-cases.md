@@ -1,11 +1,8 @@
 # Real Use Cases
 
-<details>
-<summary><strong>🤖 AI Summary</strong></summary>
+??? info "🤖 AI Summary"
 
-Example LLM conversations: **Lost teamfight** - `get_hero_deaths` → `get_fight_combat_log` → analyze initiation, counters, positioning. **Carry farm tracking** - `get_item_purchases` → `get_stats_at_minute` → compare CS, deaths, item timings. **Gank analysis** - deaths with position → fight log → identify root, damage chain, positioning mistake. **Roshan control** - `get_objective_kills` → timeline of objectives. **Laning comparison** - `get_stats_at_minute(10)` → compare LH, denies, net worth, level.
-
-</details>
+    Example LLM conversations: **Lost teamfight** - `get_hero_deaths` → `get_fight_combat_log` → analyze initiation, counters, positioning. **Carry farm tracking** - `get_item_purchases` → `get_stats_at_minute` → compare CS, deaths, item timings. **Gank analysis** - deaths with position → fight log → identify root, damage chain, positioning mistake. **Roshan control** - `get_objective_kills` → timeline of objectives. **Laning comparison** - `get_stats_at_minute(10)` → compare LH, denies, net worth, level.
 
 These are example conversations showing how an LLM uses the MCP tools to analyze matches.
 
