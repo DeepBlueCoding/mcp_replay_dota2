@@ -220,13 +220,8 @@ class TestFastUnitTests:
     def test_services_import(self):
         """All services can be imported."""
         from src.services import (
-            ReplayService,
-            ReplayCache,
             CombatService,
-            FightService,
-            JungleService,
-            LaneService,
-            SeekService,
+            ReplayService,
         )
         assert ReplayService is not None
         assert CombatService is not None

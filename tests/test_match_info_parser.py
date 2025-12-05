@@ -5,7 +5,6 @@ Uses pre-parsed replay data from conftest.py fixtures.
 All data is from match 8461956309 with verified values.
 """
 
-import pytest
 
 from src.models.match_info import (
     DraftAction,

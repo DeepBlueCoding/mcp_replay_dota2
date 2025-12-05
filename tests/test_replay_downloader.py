@@ -7,7 +7,6 @@ Following CLAUDE.md testing principles:
 - No framework behavior testing, only actual business value
 """
 
-from pathlib import Path
 
 import pytest
 

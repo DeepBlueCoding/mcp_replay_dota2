@@ -104,6 +104,15 @@ logs/
 # MCP-specific
 .mcp/
 
+# MkDocs build output
+site/
+
+# Temp architecture docs
+v2-architecture.md
+
+# Windows Zone.Identifier metadata files
+*:Zone.Identifier
+
 # Data directories (keep structure, ignore contents)
 data/replays/
 data/temp/
