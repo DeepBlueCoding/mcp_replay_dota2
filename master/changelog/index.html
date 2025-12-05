@@ -1439,13 +1439,15 @@
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
 <h4 id="pro-scene-features">Pro Scene Features<a class="headerlink" href="#pro-scene-features" title="Permanent link">&para;</a></h4>
 <ul>
-<li>Pro scene resources: <code>dota2://pro/players</code>, <code>dota2://pro/teams</code>, <code>dota2://pro/player/{id}</code>, <code>dota2://pro/team/{id}</code></li>
+<li>Pro scene resources: <code>dota2://pro/players</code>, <code>dota2://pro/teams</code></li>
 <li>Pro scene tools: <code>search_pro_player</code>, <code>search_team</code>, <code>get_pro_player</code>, <code>get_pro_player_by_name</code>, <code>get_team</code>, <code>get_team_by_name</code>, <code>get_team_matches</code>, <code>get_leagues</code>, <code>get_pro_matches</code>, <code>get_league_matches</code></li>
 <li>Series grouping for pro matches (Bo1/Bo3/Bo5 detection, winner calculation)</li>
 <li>Fuzzy search for players and teams with alias support</li>
 </ul>
 <h4 id="match-analysis-tools">Match Analysis Tools<a class="headerlink" href="#match-analysis-tools" title="Permanent link">&para;</a></h4>
 <ul>
+<li><code>get_match_heroes</code> - Get 10 heroes in match with KDA, items, stats</li>
+<li><code>get_match_players</code> - Get 10 players with names and hero assignments</li>
 <li><code>get_rune_pickups</code> - Track rune pickups by hero</li>
 <li><code>get_match_draft</code> - Complete draft order for Captains Mode</li>
 <li><code>get_match_info</code> - Match metadata (teams, players, winner, duration)</li>
@@ -1453,7 +1455,7 @@
 </ul>
 <h4 id="core-features">Core Features<a class="headerlink" href="#core-features" title="Permanent link">&para;</a></h4>
 <ul>
-<li>MCP Resources: <code>dota2://heroes/all</code>, <code>dota2://map</code>, <code>dota2://match/{id}/heroes</code>, <code>dota2://match/{id}/players</code></li>
+<li>MCP Resources: <code>dota2://heroes/all</code>, <code>dota2://map</code>, <code>dota2://pro/players</code>, <code>dota2://pro/teams</code></li>
 <li>MCP Tools: <code>get_match_timeline</code>, <code>get_stats_at_minute</code>, <code>get_hero_deaths</code>, <code>get_combat_log</code>, <code>get_fight_combat_log</code>, <code>get_item_purchases</code>, <code>get_courier_kills</code>, <code>get_objective_kills</code></li>
 <li>Map data with tower, barracks, neutral camp, rune, and landmark positions</li>
 <li>Combat log parsing with fight detection</li>
@@ -1464,7 +1466,13 @@
 </ul>
 <h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
 <ul>
-<li>N/A</li>
+<li>Refactored parameterized resources to tools following MCP design principles:</li>
+<li>Removed <code>dota2://match/{id}/heroes</code> → use <code>get_match_heroes(match_id)</code> tool</li>
+<li>Removed <code>dota2://match/{id}/players</code> → use <code>get_match_players(match_id)</code> tool</li>
+<li>Removed <code>dota2://pro/player/{id}</code> → use <code>get_pro_player(account_id)</code> tool</li>
+<li>Removed <code>dota2://pro/team/{id}</code> → use <code>get_team(team_id)</code> tool</li>
+<li>Resources now only contain static reference data (all heroes, map, all pro players/teams)</li>
+<li>Tools are used for dynamic data that requires computation or parameters</li>
 </ul>
 <h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
 <ul>

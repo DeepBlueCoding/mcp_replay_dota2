@@ -1519,8 +1519,8 @@
 
 <h1 id="mcp-dota-2-match-analysis-server">MCP Dota 2 Match Analysis Server<a class="headerlink" href="#mcp-dota-2-match-analysis-server" title="Permanent link">&para;</a></h1>
 <details class="info">
-<summary>🤖 AI Summary</summary>
-<p>MCP server for Dota 2 match analysis. <strong>Tools</strong> (LLM calls these): <code>get_hero_deaths</code>, <code>get_combat_log</code>, <code>get_fight_combat_log</code>, <code>get_item_purchases</code>, <code>get_objective_kills</code>, <code>get_match_timeline</code>, <code>get_stats_at_minute</code>, <code>get_courier_kills</code>. <strong>Resources</strong> (static context): <code>dota2://heroes/all</code>, <code>dota2://map</code>, <code>dota2://match/{id}/heroes</code>, <code>dota2://match/{id}/players</code>. Connects to Claude Desktop, Claude Code, LangChain, LangGraph, CrewAI, or direct API integration.</p>
+<summary>AI Summary</summary>
+<p>MCP server for Dota 2 match analysis. <strong>Tools</strong> (LLM calls these): <code>get_match_heroes</code>, <code>get_match_players</code>, <code>get_hero_deaths</code>, <code>get_combat_log</code>, <code>get_fight_combat_log</code>, <code>get_item_purchases</code>, <code>get_objective_kills</code>, <code>get_match_timeline</code>, <code>get_stats_at_minute</code>, <code>get_courier_kills</code>, plus pro scene tools. <strong>Resources</strong> (static context): <code>dota2://heroes/all</code>, <code>dota2://map</code>, <code>dota2://pro/players</code>, <code>dota2://pro/teams</code>. Connects to Claude Desktop, Claude Code, LangChain, LangGraph, CrewAI, or direct API integration.</p>
 </details>
 <p>A Model Context Protocol (MCP) server that gives LLMs the ability to analyze Dota 2 matches by parsing replay files and querying the OpenDota API.</p>
 <h2 id="what-this-does">What This Does<a class="headerlink" href="#what-this-does" title="Permanent link">&para;</a></h2>
@@ -1588,6 +1588,30 @@
 <td>Pre-cache replay file (call first for new matches)</td>
 </tr>
 <tr>
+<td><code>get_match_info</code></td>
+<td>Match metadata (teams, players, winner)</td>
+</tr>
+<tr>
+<td><code>get_match_heroes</code></td>
+<td>10 heroes in match with KDA, items, stats</td>
+</tr>
+<tr>
+<td><code>get_match_players</code></td>
+<td>10 players with names and hero assignments</td>
+</tr>
+<tr>
+<td><code>get_match_draft</code></td>
+<td>Complete draft order (bans/picks)</td>
+</tr>
+<tr>
+<td><code>get_match_timeline</code></td>
+<td>Net worth, XP, KDA over time</td>
+</tr>
+<tr>
+<td><code>get_stats_at_minute</code></td>
+<td>Snapshot of all players at a specific minute</td>
+</tr>
+<tr>
 <td><code>get_hero_deaths</code></td>
 <td>All deaths with killer, victim, ability used</td>
 </tr>
@@ -1608,28 +1632,12 @@
 <td>Roshan, towers, barracks timings</td>
 </tr>
 <tr>
-<td><code>get_match_timeline</code></td>
-<td>Net worth, XP, KDA over time</td>
-</tr>
-<tr>
-<td><code>get_stats_at_minute</code></td>
-<td>Snapshot of all players at a specific minute</td>
-</tr>
-<tr>
 <td><code>get_courier_kills</code></td>
 <td>Courier snipes with position</td>
 </tr>
 <tr>
 <td><code>get_rune_pickups</code></td>
 <td>Rune pickups by hero</td>
-</tr>
-<tr>
-<td><code>get_match_draft</code></td>
-<td>Complete draft order (bans/picks)</td>
-</tr>
-<tr>
-<td><code>get_match_info</code></td>
-<td>Match metadata (teams, players, winner)</td>
 </tr>
 </tbody>
 </table>
@@ -1677,6 +1685,7 @@
 </tbody>
 </table>
 <h2 id="available-resources">Available Resources<a class="headerlink" href="#available-resources" title="Permanent link">&para;</a></h2>
+<p>Static reference data (user attaches to context):</p>
 <table>
 <thead>
 <tr>
@@ -1694,14 +1703,6 @@
 <td>Tower, camp, rune, landmark positions</td>
 </tr>
 <tr>
-<td><code>dota2://match/{id}/heroes</code></td>
-<td>10 heroes in match with stats</td>
-</tr>
-<tr>
-<td><code>dota2://match/{id}/players</code></td>
-<td>10 players with names and heroes</td>
-</tr>
-<tr>
 <td><code>dota2://pro/players</code></td>
 <td>All pro players</td>
 </tr>
@@ -1709,16 +1710,12 @@
 <td><code>dota2://pro/teams</code></td>
 <td>All pro teams</td>
 </tr>
-<tr>
-<td><code>dota2://pro/player/{id}</code></td>
-<td>Pro player details</td>
-</tr>
-<tr>
-<td><code>dota2://pro/team/{id}</code></td>
-<td>Team details + roster</td>
-</tr>
 </tbody>
 </table>
+<div class="admonition note">
+<p class="admonition-title">Match-specific data uses tools</p>
+<p>For match heroes/players and detailed pro player/team info, use the corresponding tools (<code>get_match_heroes</code>, <code>get_match_players</code>, <code>get_pro_player</code>, <code>get_team</code>).</p>
+</div>
 <h2 id="example-conversations">Example Conversations<a class="headerlink" href="#example-conversations" title="Permanent link">&para;</a></h2>
 <p>See <a href="examples/use-cases/">Use Cases</a> for detailed examples:</p>
 <ul>
