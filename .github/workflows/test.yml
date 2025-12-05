@@ -38,36 +38,22 @@ jobs:
       - name: Type check with mypy
         run: uv run mypy src/ dota_match_mcp_server.py --ignore-missing-imports
 
-      - name: Cache replay and parsed data
+      - name: Cache test replay
         id: cache-replay
         uses: actions/cache@v4
         with:
-          path: |
-            ~/dota2/replays
-            ~/.cache/mcp_dota2/parsed_replays
-          key: replay-parsed-${{ env.TEST_MATCH_ID }}-v1
+          path: ~/dota2/replays
+          key: replay-${{ env.TEST_MATCH_ID }}
 
-      - name: Download and pre-parse test replay
+      - name: Download test replay
         if: steps.cache-replay.outputs.cache-hit != 'true'
         run: |
-          mkdir -p ~/dota2/replays ~/.cache/mcp_dota2/parsed_replays
+          mkdir -p ~/dota2/replays
           uv run python -c "
           import asyncio
           from src.utils.replay_downloader import ReplayDownloader
-          from src.utils.replay_cache import replay_cache
-          from pathlib import Path
-
-          async def setup():
-              downloader = ReplayDownloader()
-              await downloader.download_replay(${{ env.TEST_MATCH_ID }})
-              # Pre-parse to cache parsed data
-              replay_path = Path.home() / 'dota2' / 'replays' / '${{ env.TEST_MATCH_ID }}.dem'
-              if replay_path.exists():
-                  print('Pre-parsing replay to cache...')
-                  replay_cache.get_parsed_data(replay_path)
-                  print('Done!')
-
-          asyncio.run(setup())
+          downloader = ReplayDownloader()
+          asyncio.run(downloader.download_replay(${{ env.TEST_MATCH_ID }}))
           "
 
       - name: Run tests
