@@ -106,7 +106,7 @@ class CombatLogParser:
             if not self._is_hero(entry.target_name):
                 continue
 
-            game_time = replay_cache.tick_to_game_time(data, entry.tick)
+            game_time = entry.game_time
             victim_name = self._clean_name(entry.target_name)
 
             position = None
@@ -174,7 +174,7 @@ class CombatLogParser:
         damage_effects = []
 
         for entry in data.combat_log:
-            game_time = replay_cache.tick_to_game_time(data, entry.tick)
+            game_time = entry.game_time
 
             if entry.type == CombatLogType.ABILITY.value:
                 if self._is_hero(entry.attacker_name) and entry.inflictor_name:
@@ -257,7 +257,7 @@ class CombatLogParser:
             if entry.type not in types:
                 continue
 
-            game_time = replay_cache.tick_to_game_time(data, entry.tick)
+            game_time = entry.game_time
 
             if start_time is not None and game_time < start_time:
                 continue
@@ -733,7 +733,7 @@ class CombatLogParser:
             if not self._is_hero(entry.target_name):
                 continue
 
-            game_time = replay_cache.tick_to_game_time(data, entry.tick)
+            game_time = entry.game_time
             hero = self._clean_name(entry.target_name)
             rune = RuneType.from_modifier(entry.inflictor_name)
 
