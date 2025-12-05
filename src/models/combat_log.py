@@ -17,7 +17,10 @@ class CombatLogEvent(BaseModel):
     target_is_hero: bool = Field(description="Whether the target is a hero")
     ability: Optional[str] = Field(default=None, description="Ability or item involved")
     value: Optional[int] = Field(default=None, description="Damage amount or other numeric value")
-    hit: Optional[bool] = Field(default=None, description="For ABILITY events: whether the ability hit an enemy hero. None for non-ability events.")
+    hit: Optional[bool] = Field(
+        default=None,
+        description="For ABILITY events: whether the ability hit an enemy hero.",
+    )
 
 
 class MapLocation(BaseModel):
@@ -218,7 +221,9 @@ class RunePickup(BaseModel):
     game_time: float = Field(description="Game time in seconds")
     game_time_str: str = Field(description="Game time formatted as M:SS")
     hero: str = Field(description="Hero that picked up the rune")
-    rune_type: str = Field(description="Type of power rune: haste, double_damage, arcane, invisibility, regeneration, or shield")
+    rune_type: str = Field(
+        description="Type of power rune: haste, double_damage, arcane, etc."
+    )
 
 
 class RunePickupsResponse(BaseModel):

@@ -17,7 +17,7 @@ mcp_dir = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 sys.path.insert(0, str(mcp_dir))
 
-from fastmcp import FastMCP, Context
+from fastmcp import Context, FastMCP
 
 # Create the MCP server instance
 mcp = FastMCP("Dota 2 Match Analysis Server")
@@ -34,7 +34,6 @@ from src.models.combat_log import (
     ObjectiveKillsResponse,
     RunePickupsResponse,
 )
-from src.models.match_info import DraftResult, MatchInfoResult
 from src.models.pro_scene import (
     LeagueMatchesResponse,
     LeaguesResponse,
@@ -48,12 +47,12 @@ from src.models.pro_scene import (
 from src.resources.heroes_resources import heroes_resource
 from src.resources.map_resources import get_cached_map_data
 from src.resources.pro_scene_resources import pro_scene_resource
+from src.services.cache.replay_cache import ReplayCache as ReplayCacheV2
+from src.services.replay.replay_service import ReplayService
 from src.utils.combat_log_parser import combat_log_parser
 from src.utils.match_info_parser import match_info_parser
 from src.utils.replay_cache import replay_cache
 from src.utils.replay_downloader import ReplayDownloader
-from src.services.replay.replay_service import ReplayService
-from src.services.cache.replay_cache import ReplayCache as ReplayCacheV2
 
 # Initialize v2 services (for new tools with progress reporting)
 _replay_cache_v2 = ReplayCacheV2()
@@ -62,17 +61,20 @@ _replay_service = ReplayService(cache=_replay_cache_v2)
 # Phase 2: Combat and Fight services
 from src.services.combat.combat_service import CombatService
 from src.services.combat.fight_service import FightService
+
 _combat_service = CombatService()
 _fight_service = FightService(combat_service=_combat_service)
 
 # Phase 3: Jungle and Lane services
 from src.services.jungle.jungle_service import JungleService
 from src.services.lane.lane_service import LaneService
+
 _jungle_service = JungleService()
 _lane_service = LaneService()
 
 # Phase 4: Dense Seek services
 from src.services.seek.seek_service import SeekService
+
 _seek_service = SeekService()
 
 from src.utils.timeline_parser import timeline_parser

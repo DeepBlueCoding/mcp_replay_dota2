@@ -219,7 +219,7 @@ def get_map_data() -> MapData:
             name="power",
             first_spawn=360,  # 6:00
             interval=120,  # every 2 minutes
-            effect="Grants a random buff: haste (max movespeed), double damage, arcane (reduced cooldowns/mana cost), invisibility, regeneration, or shield",
+            effect="Random buff: haste, double damage, arcane, invis, regen, or shield",
             duration=45,
         ),
         bounty_runes=RuneTypeInfo(

@@ -5,9 +5,9 @@ Pre-parses all replay data ONCE at session start to avoid re-parsing in every te
 This reduces test time from ~15-20 minutes to ~2-3 minutes.
 """
 
-import pytest
 from pathlib import Path
-from functools import lru_cache
+
+import pytest
 
 # Test match ID with known verified data
 TEST_MATCH_ID = 8461956309
@@ -56,22 +56,50 @@ def _ensure_parsed():
     _cache["rune_pickups"] = combat_parser.get_rune_pickups(REPLAY_PATH)
 
     print("[conftest] Parsing combat log segments...")
-    _cache["combat_log_280_290"] = combat_parser.get_combat_log(REPLAY_PATH, start_time=280, end_time=290)
-    _cache["combat_log_280_290_es"] = combat_parser.get_combat_log(REPLAY_PATH, start_time=280, end_time=290, hero_filter="earthshaker")
-    _cache["combat_log_287_289_es"] = combat_parser.get_combat_log(REPLAY_PATH, start_time=287, end_time=289, hero_filter="earthshaker")
-    _cache["combat_log_280_300_ability"] = combat_parser.get_combat_log(REPLAY_PATH, start_time=280, end_time=300, types=[5])
-    _cache["combat_log_280_300_es_ability"] = combat_parser.get_combat_log(REPLAY_PATH, start_time=280, end_time=300, types=[5], hero_filter="earthshaker")
-    _cache["combat_log_280_282_naga_ability"] = combat_parser.get_combat_log(REPLAY_PATH, start_time=280, end_time=282, types=[5], hero_filter="naga")
-    _cache["combat_log_280_290_dmg_mod_death"] = combat_parser.get_combat_log(REPLAY_PATH, start_time=280, end_time=290, types=[0, 2, 4])
-    _cache["combat_log_0_600_ability"] = combat_parser.get_combat_log(REPLAY_PATH, start_time=0, end_time=600, types=[5])
-    _cache["combat_log_320_370"] = combat_parser.get_combat_log(REPLAY_PATH, start_time=320, end_time=370)
-    _cache["combat_log_360_370"] = combat_parser.get_combat_log(REPLAY_PATH, start_time=360, end_time=370)
-    _cache["combat_log_trigger_only"] = combat_parser.get_combat_log(REPLAY_PATH, types=[13])
+    _cache["combat_log_280_290"] = combat_parser.get_combat_log(
+        REPLAY_PATH, start_time=280, end_time=290
+    )
+    _cache["combat_log_280_290_es"] = combat_parser.get_combat_log(
+        REPLAY_PATH, start_time=280, end_time=290, hero_filter="earthshaker"
+    )
+    _cache["combat_log_287_289_es"] = combat_parser.get_combat_log(
+        REPLAY_PATH, start_time=287, end_time=289, hero_filter="earthshaker"
+    )
+    _cache["combat_log_280_300_ability"] = combat_parser.get_combat_log(
+        REPLAY_PATH, start_time=280, end_time=300, types=[5]
+    )
+    _cache["combat_log_280_300_es_ability"] = combat_parser.get_combat_log(
+        REPLAY_PATH, start_time=280, end_time=300, types=[5], hero_filter="earthshaker"
+    )
+    _cache["combat_log_280_282_naga_ability"] = combat_parser.get_combat_log(
+        REPLAY_PATH, start_time=280, end_time=282, types=[5], hero_filter="naga"
+    )
+    _cache["combat_log_280_290_dmg_mod_death"] = combat_parser.get_combat_log(
+        REPLAY_PATH, start_time=280, end_time=290, types=[0, 2, 4]
+    )
+    _cache["combat_log_0_600_ability"] = combat_parser.get_combat_log(
+        REPLAY_PATH, start_time=0, end_time=600, types=[5]
+    )
+    _cache["combat_log_320_370"] = combat_parser.get_combat_log(
+        REPLAY_PATH, start_time=320, end_time=370
+    )
+    _cache["combat_log_360_370"] = combat_parser.get_combat_log(
+        REPLAY_PATH, start_time=360, end_time=370
+    )
+    _cache["combat_log_trigger_only"] = combat_parser.get_combat_log(
+        REPLAY_PATH, types=[13]
+    )
 
     print("[conftest] Parsing fight detections...")
-    _cache["fight_first_blood"] = combat_parser.get_combat_timespan(REPLAY_PATH, reference_time=FIRST_BLOOD_TIME, hero="earthshaker")
-    _cache["fight_first_blood_no_hero"] = combat_parser.get_combat_timespan(REPLAY_PATH, reference_time=FIRST_BLOOD_TIME, hero=None)
-    _cache["fight_pango_nf"] = combat_parser.get_combat_timespan(REPLAY_PATH, reference_time=268, hero="pangolier")
+    _cache["fight_first_blood"] = combat_parser.get_combat_timespan(
+        REPLAY_PATH, reference_time=FIRST_BLOOD_TIME, hero="earthshaker"
+    )
+    _cache["fight_first_blood_no_hero"] = combat_parser.get_combat_timespan(
+        REPLAY_PATH, reference_time=FIRST_BLOOD_TIME, hero=None
+    )
+    _cache["fight_pango_nf"] = combat_parser.get_combat_timespan(
+        REPLAY_PATH, reference_time=268, hero="pangolier"
+    )
 
     print("[conftest] Parsing match info...")
     _cache["match_info"] = match_parser.get_match_info(REPLAY_PATH)

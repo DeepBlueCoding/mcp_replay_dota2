@@ -1,6 +1,6 @@
 """Pydantic models for match info and draft data."""
 
-from typing import List, Literal, Optional
+from typing import List, Literal
 
 from pydantic import BaseModel, Field
 

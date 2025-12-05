@@ -6,7 +6,6 @@ This dramatically improves performance by avoiding repeated parsing of 400MB+ fi
 """
 
 import logging
-import os
 import re
 from dataclasses import dataclass
 from pathlib import Path

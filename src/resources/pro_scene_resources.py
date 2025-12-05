@@ -274,16 +274,16 @@ class ProSceneResource:
             leagues_data = await pro_scene_fetcher.fetch_leagues()
 
             leagues = []
-            for l in leagues_data:
-                league_tier = l.get("tier")
+            for lg in leagues_data:
+                league_tier = lg.get("tier")
 
                 if tier and league_tier != tier:
                     continue
 
                 leagues.append(
                     LeagueInfo(
-                        league_id=l["leagueid"],
-                        name=l.get("name") or "Unknown",
+                        league_id=lg["leagueid"],
+                        name=lg.get("name") or "Unknown",
                         tier=league_tier,
                     )
                 )

@@ -275,7 +275,8 @@ class CombatLogParser:
 
             # Determine hit status for ABILITY events
             hit = None
-            if entry.type == CombatLogType.ABILITY.value and self._is_hero(entry.attacker_name) and entry.inflictor_name:
+            is_ability = entry.type == CombatLogType.ABILITY.value
+            if is_ability and self._is_hero(entry.attacker_name) and entry.inflictor_name:
                 key = (entry.attacker_name, entry.inflictor_name, entry.tick)
                 hit = hit_index.get(key, False)
 
