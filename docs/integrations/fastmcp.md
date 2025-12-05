@@ -35,13 +35,13 @@ asyncio.run(main())
 ```python
 async def main():
     async with Client("uv run python dota_match_mcp_server.py") as client:
-        # Get hero data
+        # Get static hero reference data
         heroes = await client.get_resource("dota2://heroes/all")
         print(f"Total heroes: {len(heroes)}")
 
-        # Get match-specific data
-        match_heroes = await client.get_resource("dota2://match/8461956309/heroes")
-        for hero in match_heroes['heroes']:
+        # Get match-specific data using tools
+        match_heroes = await client.call_tool("get_match_heroes", match_id=8461956309)
+        for hero in match_heroes['radiant'] + match_heroes['dire']:
             print(f"{hero['localized_name']} - {hero['team']} - K/D/A: {hero['kills']}/{hero['deaths']}/{hero['assists']}")
 
 asyncio.run(main())

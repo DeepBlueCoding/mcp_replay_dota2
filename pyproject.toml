@@ -25,7 +25,7 @@ dependencies = [
     "fastmcp>=2.12.3",
     "python-opendota-sdk==7.39.5.1.dev1",
     "requests>=2.32.5",
-    "python-manta==1.4.5.1.dev12",
+    "python-manta==1.4.5.2.dev3",
     "aiohttp>=3.13.2",
     "diskcache>=5.6.3",
 ]
@@ -84,10 +84,17 @@ disable_error_code = ["var-annotated", "arg-type", "union-attr", "import-untyped
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
+addopts = "-v --tb=short --strict-markers"
+filterwarnings = ["ignore::DeprecationWarning"]
 markers = [
-    "integration: marks tests that require replays or network access",
+    "fast: marks tests that don't require replay parsing (run with '-m fast')",
+    "slow: marks tests that parse replays, take 1+ minutes (deselect with '-m \"not slow\"')",
+    "integration: marks tests requiring external resources (replays, network)",
+    "core: marks essential functionality tests",
+    "use_case: marks tests validating documented use cases",
 ]

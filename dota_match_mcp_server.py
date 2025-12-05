@@ -17,7 +17,7 @@ mcp_dir = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 sys.path.insert(0, str(mcp_dir))
 
-from fastmcp import FastMCP
+from fastmcp import FastMCP, Context
 
 # Create the MCP server instance
 mcp = FastMCP("Dota 2 Match Analysis Server")
@@ -52,6 +52,29 @@ from src.utils.combat_log_parser import combat_log_parser
 from src.utils.match_info_parser import match_info_parser
 from src.utils.replay_cache import replay_cache
 from src.utils.replay_downloader import ReplayDownloader
+from src.services.replay.replay_service import ReplayService
+from src.services.cache.replay_cache import ReplayCache as ReplayCacheV2
+
+# Initialize v2 services (for new tools with progress reporting)
+_replay_cache_v2 = ReplayCacheV2()
+_replay_service = ReplayService(cache=_replay_cache_v2)
+
+# Phase 2: Combat and Fight services
+from src.services.combat.combat_service import CombatService
+from src.services.combat.fight_service import FightService
+_combat_service = CombatService()
+_fight_service = FightService(combat_service=_combat_service)
+
+# Phase 3: Jungle and Lane services
+from src.services.jungle.jungle_service import JungleService
+from src.services.lane.lane_service import LaneService
+_jungle_service = JungleService()
+_lane_service = LaneService()
+
+# Phase 4: Dense Seek services
+from src.services.seek.seek_service import SeekService
+_seek_service = SeekService()
+
 from src.utils.timeline_parser import timeline_parser
 
 # Purge expired replay cache entries on server start
@@ -111,91 +134,6 @@ async def map_data_resource() -> Dict[str, Any]:
     return map_data.model_dump()
 
 
-@mcp.resource(
-    "dota2://match/{match_id}/heroes",
-    name="Match Heroes",
-    description="The 10 heroes in a match: hero info, lane, role, KDA, items, GPM/XPM, player info",
-    mime_type="application/json"
-)
-async def match_heroes_resource(match_id: str) -> Dict[str, Any]:
-    """
-    MCP resource providing complete hero data for a match.
-
-    Returns per-hero:
-    - Hero: hero_id, hero_name, localized_name, primary_attr, attack_type, roles
-    - Performance: kills, deaths, assists, last_hits, GPM, XPM, net_worth, hero_damage
-    - Position: team (radiant/dire), lane, role (core/support)
-    - Items: item_0 through item_5, item_neutral
-    - Player: player_name, pro_name (who is controlling this hero)
-
-    Args:
-        match_id: The Dota 2 match ID as a string
-
-    Returns:
-        Dictionary with radiant and dire team heroes
-    """
-    try:
-        match_id_int = int(match_id)
-        heroes = await heroes_resource.get_match_heroes(match_id_int)
-        if heroes:
-            radiant = [h for h in heroes if h.get("team") == "radiant"]
-            dire = [h for h in heroes if h.get("team") == "dire"]
-            return {
-                "match_id": match_id_int,
-                "radiant": radiant,
-                "dire": dire,
-            }
-        return {"error": f"Could not fetch heroes for match {match_id}"}
-    except ValueError:
-        return {"error": f"Invalid match ID: {match_id}"}
-
-
-@mcp.resource(
-    "dota2://match/{match_id}/players",
-    name="Match Players",
-    description="The 10 players in a match with their player info and which hero they played",
-    mime_type="application/json"
-)
-async def match_players_resource(match_id: str) -> Dict[str, Any]:
-    """
-    MCP resource providing player-to-hero mapping for a match.
-
-    Returns per-player:
-    - Player: player_name (Steam name), pro_name (professional name if known), account_id
-    - Team: radiant or dire
-    - Hero: hero_id, hero_name, localized_name
-
-    Args:
-        match_id: The Dota 2 match ID as a string
-
-    Returns:
-        Dictionary with radiant and dire team players
-    """
-    try:
-        match_id_int = int(match_id)
-        heroes = await heroes_resource.get_match_heroes(match_id_int)
-        if heroes:
-            players = []
-            for h in heroes:
-                players.append({
-                    "player_name": h.get("player_name"),
-                    "pro_name": h.get("pro_name"),
-                    "account_id": h.get("account_id"),
-                    "team": h.get("team"),
-                    "hero_id": h.get("hero_id"),
-                    "hero_name": h.get("hero_name"),
-                    "localized_name": h.get("localized_name"),
-                })
-            radiant = [p for p in players if p.get("team") == "radiant"]
-            dire = [p for p in players if p.get("team") == "dire"]
-            return {
-                "match_id": match_id_int,
-                "radiant": radiant,
-                "dire": dire,
-            }
-        return {"error": f"Could not fetch players for match {match_id}"}
-    except ValueError:
-        return {"error": f"Invalid match ID: {match_id}"}
 
 
 @mcp.resource(
@@ -257,57 +195,11 @@ async def pro_teams_resource() -> Dict[str, Any]:
     }
 
 
-@mcp.resource(
-    "dota2://pro/player/{account_id}",
-    name="Pro Player Details",
-    description="Detailed info for a specific pro player by account ID",
-    mime_type="application/json"
-)
-async def pro_player_resource(account_id: str) -> Dict[str, Any]:
-    """
-    MCP resource providing details for a specific pro player.
-
-    Args:
-        account_id: Player's Steam account ID as string
-
-    Returns:
-        Player details including team info and aliases
-    """
-    try:
-        account_id_int = int(account_id)
-        response = await pro_scene_resource.get_player(account_id_int)
-        return response.model_dump()
-    except ValueError:
-        return {"success": False, "error": f"Invalid account ID: {account_id}"}
-
-
-@mcp.resource(
-    "dota2://pro/team/{team_id}",
-    name="Pro Team Details",
-    description="Detailed info for a specific team including current roster",
-    mime_type="application/json"
-)
-async def pro_team_resource(team_id: str) -> Dict[str, Any]:
-    """
-    MCP resource providing details for a specific team.
-
-    Args:
-        team_id: Team ID as string
-
-    Returns:
-        Team details including roster and aliases
-    """
-    try:
-        team_id_int = int(team_id)
-        response = await pro_scene_resource.get_team(team_id_int)
-        return response.model_dump()
-    except ValueError:
-        return {"success": False, "error": f"Invalid team ID: {team_id}"}
 
 
 # Define MCP Tools
 @mcp.tool
-async def download_replay(match_id: int) -> DownloadReplayResponse:
+async def download_replay(match_id: int, ctx: Context) -> DownloadReplayResponse:
     """
     Download and cache the replay file for a Dota 2 match.
 
@@ -317,44 +209,60 @@ async def download_replay(match_id: int) -> DownloadReplayResponse:
     Once downloaded, the replay is cached locally and subsequent queries
     for the same match will be instant.
 
+    Progress is reported during download:
+    - 0-10%: Checking cache and getting replay URL
+    - 10-40%: Downloading compressed file
+    - 40-50%: Extracting replay
+    - 50-95%: Parsing replay (uses python-manta v2)
+    - 95-100%: Caching results
+
     Args:
         match_id: The Dota 2 match ID (from OpenDota, Dotabuff, or in-game)
 
     Returns:
         DownloadReplayResponse with success status and file info
     """
-    downloader = ReplayDownloader()
+    # Create progress callback that reports to MCP client
+    async def progress_callback(current: int, total: int, message: str) -> None:
+        await ctx.report_progress(current, total)
 
-    # Check if already cached
-    existing_path = downloader.get_replay_path(match_id)
-    if existing_path:
-        file_size_mb = existing_path.stat().st_size / (1024 * 1024)
+    # Check if already downloaded (fast path)
+    if _replay_service.is_downloaded(match_id):
+        file_size_mb = _replay_service.get_replay_file_size(match_id)
+        await ctx.report_progress(100, 100)
         return DownloadReplayResponse(
             success=True,
             match_id=match_id,
-            replay_path=str(existing_path),
-            file_size_mb=round(file_size_mb, 1),
+            replay_path=str(_replay_service._replay_dir / f"{match_id}.dem"),
+            file_size_mb=round(file_size_mb or 0, 1),
             already_cached=True,
         )
 
-    # Download the replay
-    replay_path = await downloader.download_replay(match_id)
+    try:
+        # Download with progress reporting
+        replay_path = await _replay_service.download_only(match_id, progress=progress_callback)
 
-    if not replay_path:
+        file_size_mb = replay_path.stat().st_size / (1024 * 1024)
+        return DownloadReplayResponse(
+            success=True,
+            match_id=match_id,
+            replay_path=str(replay_path),
+            file_size_mb=round(file_size_mb, 1),
+            already_cached=False,
+        )
+
+    except ValueError as e:
         return DownloadReplayResponse(
             success=False,
             match_id=match_id,
-            error="Could not download replay. The match may be too old, private, or the replay is not available on OpenDota."
+            error=str(e),
         )
-
-    file_size_mb = replay_path.stat().st_size / (1024 * 1024)
-    return DownloadReplayResponse(
-        success=True,
-        match_id=match_id,
-        replay_path=str(replay_path),
-        file_size_mb=round(file_size_mb, 1),
-        already_cached=False,
-    )
+    except Exception as e:
+        return DownloadReplayResponse(
+            success=False,
+            match_id=match_id,
+            error=f"Could not download replay: {e}",
+        )
 
 
 @mcp.tool
@@ -872,6 +780,85 @@ async def get_match_info(match_id: int) -> Dict[str, Any]:
     }
 
 
+@mcp.tool
+async def get_match_heroes(match_id: int) -> Dict[str, Any]:
+    """
+    Get the 10 heroes in a Dota 2 match with detailed stats.
+
+    Returns per-hero:
+    - Hero: hero_id, hero_name, localized_name, primary_attr, attack_type, roles
+    - Performance: kills, deaths, assists, last_hits, GPM, XPM, net_worth, hero_damage
+    - Position: team (radiant/dire), lane, role (core/support)
+    - Items: item_0 through item_5, item_neutral
+    - Player: player_name, pro_name (who is controlling this hero)
+
+    Args:
+        match_id: The Dota 2 match ID
+
+    Returns:
+        Dictionary with radiant and dire team heroes
+    """
+    heroes = await heroes_resource.get_match_heroes(match_id)
+    if heroes:
+        radiant = [h for h in heroes if h.get("team") == "radiant"]
+        dire = [h for h in heroes if h.get("team") == "dire"]
+        return {
+            "success": True,
+            "match_id": match_id,
+            "radiant": radiant,
+            "dire": dire,
+        }
+    return {
+        "success": False,
+        "match_id": match_id,
+        "error": f"Could not fetch heroes for match {match_id}"
+    }
+
+
+@mcp.tool
+async def get_match_players(match_id: int) -> Dict[str, Any]:
+    """
+    Get the 10 players in a Dota 2 match with their hero assignments.
+
+    Returns per-player:
+    - Player: player_name (Steam name), pro_name (professional name if known), account_id
+    - Team: radiant or dire
+    - Hero: hero_id, hero_name, localized_name
+
+    Args:
+        match_id: The Dota 2 match ID
+
+    Returns:
+        Dictionary with radiant and dire team players
+    """
+    heroes = await heroes_resource.get_match_heroes(match_id)
+    if heroes:
+        players = []
+        for h in heroes:
+            players.append({
+                "player_name": h.get("player_name"),
+                "pro_name": h.get("pro_name"),
+                "account_id": h.get("account_id"),
+                "team": h.get("team"),
+                "hero_id": h.get("hero_id"),
+                "hero_name": h.get("hero_name"),
+                "localized_name": h.get("localized_name"),
+            })
+        radiant = [p for p in players if p.get("team") == "radiant"]
+        dire = [p for p in players if p.get("team") == "dire"]
+        return {
+            "success": True,
+            "match_id": match_id,
+            "radiant": radiant,
+            "dire": dire,
+        }
+    return {
+        "success": False,
+        "match_id": match_id,
+        "error": f"Could not fetch players for match {match_id}"
+    }
+
+
 # Pro Scene Tools
 @mcp.tool
 async def search_pro_player(
@@ -1124,6 +1111,757 @@ async def get_league_matches(
     return await pro_scene_resource.get_league_matches(league_id, limit=limit)
 
 
+# Phase 2: Fight Analysis Tools (v2 services)
+@mcp.tool
+async def list_fights(match_id: int, ctx: Context) -> Dict[str, Any]:
+    """
+    List all fights in a Dota 2 match.
+
+    A fight is defined as a group of hero deaths occurring within 15 seconds of each other.
+    Fights are categorized as:
+    - Teamfights: 3+ deaths
+    - Skirmishes: 1-2 deaths
+
+    Returns:
+    - total_fights: Number of distinct fights
+    - teamfights: Number of teamfights (3+ deaths)
+    - skirmishes: Number of smaller engagements
+    - total_deaths: Total hero deaths in the match
+    - fights: List of fights with start_time, deaths, participants
+
+    Args:
+        match_id: The Dota 2 match ID
+
+    Returns:
+        Dictionary with fight summary and list of all fights
+    """
+    # Create progress callback
+    async def progress_callback(current: int, total: int, message: str) -> None:
+        await ctx.report_progress(current, total)
+
+    try:
+        # Get parsed data (cached or download+parse)
+        data = await _replay_service.get_parsed_data(match_id, progress=progress_callback)
+
+        # Get fight summary
+        summary = _fight_service.get_fight_summary(data)
+
+        return {
+            "success": True,
+            "match_id": match_id,
+            **summary,
+        }
+
+    except ValueError as e:
+        return {
+            "success": False,
+            "match_id": match_id,
+            "error": str(e),
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "match_id": match_id,
+            "error": f"Failed to analyze fights: {e}",
+        }
+
+
+@mcp.tool
+async def get_teamfights(
+    match_id: int,
+    min_deaths: int = 3,
+    ctx: Context = None,
+) -> Dict[str, Any]:
+    """
+    Get only teamfights from a Dota 2 match.
+
+    Teamfights are fights with 3 or more hero deaths.
+    Use min_deaths parameter to adjust the threshold.
+
+    Returns for each teamfight:
+    - fight_id: Unique identifier
+    - start_time: When the fight started (M:SS format)
+    - duration: How long the fight lasted
+    - deaths: List of hero deaths with killer, victim, time
+    - participants: All heroes involved
+
+    Args:
+        match_id: The Dota 2 match ID
+        min_deaths: Minimum deaths to classify as teamfight (default: 3)
+
+    Returns:
+        Dictionary with list of teamfights
+    """
+    # Create progress callback
+    async def progress_callback(current: int, total: int, message: str) -> None:
+        if ctx:
+            await ctx.report_progress(current, total)
+
+    try:
+        data = await _replay_service.get_parsed_data(match_id, progress=progress_callback)
+        teamfights = _fight_service.get_teamfights(data, min_deaths=min_deaths)
+
+        return {
+            "success": True,
+            "match_id": match_id,
+            "min_deaths_threshold": min_deaths,
+            "total_teamfights": len(teamfights),
+            "teamfights": [
+                {
+                    "fight_id": f.fight_id,
+                    "start_time": f.start_time_str,
+                    "end_time": f.end_time_str,
+                    "duration_seconds": round(f.duration, 1),
+                    "total_deaths": f.total_deaths,
+                    "participants": f.participants,
+                    "deaths": [
+                        {
+                            "game_time": d.game_time_str,
+                            "killer": d.killer,
+                            "victim": d.victim,
+                            "ability": d.ability,
+                        }
+                        for d in f.deaths
+                    ],
+                }
+                for f in teamfights
+            ],
+        }
+
+    except ValueError as e:
+        return {
+            "success": False,
+            "match_id": match_id,
+            "error": str(e),
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "match_id": match_id,
+            "error": f"Failed to get teamfights: {e}",
+        }
+
+
+@mcp.tool
+async def get_fight(
+    match_id: int,
+    fight_id: str,
+    ctx: Context = None,
+) -> Dict[str, Any]:
+    """
+    Get detailed information about a specific fight.
+
+    Use list_fights first to get available fight_ids.
+
+    Returns:
+    - Fight timing (start, end, duration)
+    - All participants
+    - All deaths with killer, victim, ability, position
+    - Damage breakdown (if available)
+
+    Args:
+        match_id: The Dota 2 match ID
+        fight_id: Fight identifier (e.g., "fight_1", "fight_5")
+
+    Returns:
+        Detailed fight information
+    """
+    async def progress_callback(current: int, total: int, message: str) -> None:
+        if ctx:
+            await ctx.report_progress(current, total)
+
+    try:
+        data = await _replay_service.get_parsed_data(match_id, progress=progress_callback)
+        fight = _fight_service.get_fight_by_id(data, fight_id)
+
+        if not fight:
+            return {
+                "success": False,
+                "match_id": match_id,
+                "error": f"Fight '{fight_id}' not found. Use list_fights to see available fights.",
+            }
+
+        return {
+            "success": True,
+            "match_id": match_id,
+            "fight_id": fight.fight_id,
+            "start_time": fight.start_time_str,
+            "start_time_seconds": fight.start_time,
+            "end_time": fight.end_time_str,
+            "end_time_seconds": fight.end_time,
+            "duration_seconds": round(fight.duration, 1),
+            "is_teamfight": fight.is_teamfight,
+            "total_deaths": fight.total_deaths,
+            "participants": fight.participants,
+            "deaths": [
+                {
+                    "game_time": d.game_time_str,
+                    "game_time_seconds": d.game_time,
+                    "killer": d.killer,
+                    "killer_is_hero": d.killer_is_hero,
+                    "victim": d.victim,
+                    "ability": d.ability,
+                    "position_x": d.position_x,
+                    "position_y": d.position_y,
+                }
+                for d in fight.deaths
+            ],
+        }
+
+    except ValueError as e:
+        return {
+            "success": False,
+            "match_id": match_id,
+            "error": str(e),
+        }
+
+
+# Phase 3: Jungle and Lane Analysis Tools (v2 services)
+@mcp.tool
+async def get_camp_stacks(
+    match_id: int,
+    hero_filter: Optional[str] = None,
+    ctx: Context = None,
+) -> Dict[str, Any]:
+    """
+    Get all neutral camp stacks in a Dota 2 match.
+
+    Camp stacks are detected from the combat log using the native NEUTRAL_CAMP_STACK event.
+
+    Returns:
+    - total_stacks: Number of stacks in the match
+    - stacks: List of stack events with:
+      - game_time: When the stack occurred (M:SS format)
+      - stacker: Hero that created the stack
+      - camp_type: Type of camp (ancient, large, medium, small) if detectable
+      - stack_count: Number of creeps in the stack
+
+    Args:
+        match_id: The Dota 2 match ID
+        hero_filter: Only show stacks by this hero (optional)
+
+    Returns:
+        Dictionary with camp stack events
+    """
+    async def progress_callback(current: int, total: int, message: str) -> None:
+        if ctx:
+            await ctx.report_progress(current, total)
+
+    try:
+        data = await _replay_service.get_parsed_data(match_id, progress=progress_callback)
+        stacks = _jungle_service.get_camp_stacks(data, hero_filter=hero_filter)
+
+        return {
+            "success": True,
+            "match_id": match_id,
+            "hero_filter": hero_filter,
+            "total_stacks": len(stacks),
+            "stacks": [
+                {
+                    "game_time": s.game_time_str,
+                    "game_time_seconds": s.game_time,
+                    "stacker": s.stacker,
+                    "camp_type": s.camp_type,
+                    "stack_count": s.stack_count,
+                }
+                for s in stacks
+            ],
+        }
+
+    except ValueError as e:
+        return {
+            "success": False,
+            "match_id": match_id,
+            "error": str(e),
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "match_id": match_id,
+            "error": f"Failed to get camp stacks: {e}",
+        }
+
+
+@mcp.tool
+async def get_jungle_summary(match_id: int, ctx: Context = None) -> Dict[str, Any]:
+    """
+    Get jungle activity summary for a Dota 2 match.
+
+    Provides an overview of neutral camp stacking and efficiency.
+
+    Returns:
+    - total_stacks: Total camp stacks in the match
+    - stacks_by_hero: Dictionary mapping hero name to stack count
+    - stack_efficiency: Dictionary mapping hero to stacks per 10 minutes
+
+    Args:
+        match_id: The Dota 2 match ID
+
+    Returns:
+        Dictionary with jungle summary
+    """
+    async def progress_callback(current: int, total: int, message: str) -> None:
+        if ctx:
+            await ctx.report_progress(current, total)
+
+    try:
+        data = await _replay_service.get_parsed_data(match_id, progress=progress_callback)
+        summary = _jungle_service.get_jungle_summary(data)
+        efficiency = _jungle_service.get_stack_efficiency(data)
+
+        return {
+            "success": True,
+            "match_id": match_id,
+            "total_stacks": summary.total_stacks,
+            "stacks_by_hero": summary.stacks_by_hero,
+            "stack_efficiency_per_10min": efficiency,
+        }
+
+    except ValueError as e:
+        return {
+            "success": False,
+            "match_id": match_id,
+            "error": str(e),
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "match_id": match_id,
+            "error": f"Failed to get jungle summary: {e}",
+        }
+
+
+@mcp.tool
+async def get_lane_summary(match_id: int, ctx: Context = None) -> Dict[str, Any]:
+    """
+    Get laning phase summary for a Dota 2 match.
+
+    Analyzes the first 10 minutes (laning phase) to determine:
+    - Lane winners (based on CS advantage)
+    - Per-hero laning stats
+    - Overall laning score by team
+
+    Returns:
+    - lane_winners: Winner of each lane (radiant/dire/even)
+      - top: Winner of top lane
+      - mid: Winner of mid lane
+      - bot: Winner of bot lane
+    - team_scores: Overall laning score by team
+    - hero_stats: Per-hero laning stats including:
+      - hero: Hero name
+      - lane: Which lane (top/mid/bot)
+      - role: Role (core/offlane/mid/support)
+      - team: radiant/dire
+      - last_hits_5min, last_hits_10min: CS at 5 and 10 minutes
+      - denies_5min, denies_10min: Denies at 5 and 10 minutes
+      - gold_5min, gold_10min: Net worth at 5 and 10 minutes
+      - level_5min, level_10min: Level at 5 and 10 minutes
+
+    Args:
+        match_id: The Dota 2 match ID
+
+    Returns:
+        Dictionary with laning phase summary
+    """
+    async def progress_callback(current: int, total: int, message: str) -> None:
+        if ctx:
+            await ctx.report_progress(current, total)
+
+    try:
+        data = await _replay_service.get_parsed_data(match_id, progress=progress_callback)
+        summary = _lane_service.get_lane_summary(data)
+
+        return {
+            "success": True,
+            "match_id": match_id,
+            "lane_winners": {
+                "top": summary.top_winner,
+                "mid": summary.mid_winner,
+                "bot": summary.bot_winner,
+            },
+            "team_scores": {
+                "radiant": round(summary.radiant_laning_score, 1),
+                "dire": round(summary.dire_laning_score, 1),
+            },
+            "hero_stats": [
+                {
+                    "hero": s.hero,
+                    "lane": s.lane,
+                    "role": s.role,
+                    "team": s.team,
+                    "last_hits_5min": s.last_hits_5min,
+                    "last_hits_10min": s.last_hits_10min,
+                    "denies_5min": s.denies_5min,
+                    "denies_10min": s.denies_10min,
+                    "gold_5min": s.gold_5min,
+                    "gold_10min": s.gold_10min,
+                    "level_5min": s.level_5min,
+                    "level_10min": s.level_10min,
+                }
+                for s in summary.hero_stats
+            ],
+        }
+
+    except ValueError as e:
+        return {
+            "success": False,
+            "match_id": match_id,
+            "error": str(e),
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "match_id": match_id,
+            "error": f"Failed to get lane summary: {e}",
+        }
+
+
+@mcp.tool
+async def get_cs_at_minute(
+    match_id: int,
+    minute: int,
+    ctx: Context = None,
+) -> Dict[str, Any]:
+    """
+    Get last hits, denies, gold, and level for all heroes at a specific minute.
+
+    Useful for tracking CS progression and comparing farm at key timings.
+
+    Args:
+        match_id: The Dota 2 match ID
+        minute: Game minute to query (e.g., 5, 10, 15)
+
+    Returns:
+        Dictionary with CS data for all heroes at the specified minute
+    """
+    async def progress_callback(current: int, total: int, message: str) -> None:
+        if ctx:
+            await ctx.report_progress(current, total)
+
+    try:
+        data = await _replay_service.get_parsed_data(match_id, progress=progress_callback)
+        cs_data = _lane_service.get_cs_at_minute(data, minute)
+
+        return {
+            "success": True,
+            "match_id": match_id,
+            "minute": minute,
+            "heroes": cs_data,
+        }
+
+    except ValueError as e:
+        return {
+            "success": False,
+            "match_id": match_id,
+            "error": str(e),
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "match_id": match_id,
+            "error": f"Failed to get CS at minute {minute}: {e}",
+        }
+
+
+@mcp.tool
+async def get_hero_positions(
+    match_id: int,
+    minute: int,
+    ctx: Context = None,
+) -> Dict[str, Any]:
+    """
+    Get hero positions at a specific minute in a Dota 2 match.
+
+    Returns X,Y coordinates for all 10 heroes at the specified game minute.
+    Useful for understanding lane assignments and rotations.
+
+    Args:
+        match_id: The Dota 2 match ID
+        minute: Game minute to query (e.g., 0, 5, 10)
+
+    Returns:
+        Dictionary with hero positions at the specified minute
+    """
+    async def progress_callback(current: int, total: int, message: str) -> None:
+        if ctx:
+            await ctx.report_progress(current, total)
+
+    try:
+        data = await _replay_service.get_parsed_data(match_id, progress=progress_callback)
+        positions = _lane_service.get_hero_positions_at_minute(data, minute)
+
+        return {
+            "success": True,
+            "match_id": match_id,
+            "minute": minute,
+            "positions": [
+                {
+                    "hero": p.hero,
+                    "team": p.team,
+                    "x": round(p.x, 1),
+                    "y": round(p.y, 1),
+                    "game_time": p.game_time,
+                }
+                for p in positions
+            ],
+        }
+
+    except ValueError as e:
+        return {
+            "success": False,
+            "match_id": match_id,
+            "error": str(e),
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "match_id": match_id,
+            "error": f"Failed to get hero positions at minute {minute}: {e}",
+        }
+
+
+# Phase 4: Dense Seek Tools (v2 services)
+@mcp.tool
+async def get_snapshot_at_time(
+    match_id: int,
+    game_time: float,
+    ctx: Context = None,
+) -> Dict[str, Any]:
+    """
+    Get game state snapshot at a specific game time.
+
+    Returns high-resolution state including all hero positions, health, mana, and levels.
+    Uses python-manta v2's tick-level seeking for precise snapshots.
+
+    Args:
+        match_id: The Dota 2 match ID
+        game_time: Game time in seconds (e.g., 300.0 for 5:00)
+
+    Returns:
+        Dictionary with game state at the specified time
+    """
+    async def progress_callback(current: int, total: int, message: str) -> None:
+        if ctx:
+            await ctx.report_progress(current, total)
+
+    try:
+        # First ensure replay is downloaded
+        data = await _replay_service.get_parsed_data(match_id, progress=progress_callback)
+
+        # Get snapshot using SeekService
+        snapshot = _seek_service.get_snapshot_at_time(data.replay_path, game_time)
+
+        if not snapshot:
+            return {
+                "success": False,
+                "match_id": match_id,
+                "error": f"Could not get snapshot at time {game_time}",
+            }
+
+        return {
+            "success": True,
+            "match_id": match_id,
+            "tick": snapshot.tick,
+            "game_time": snapshot.game_time,
+            "game_time_str": snapshot.game_time_str,
+            "radiant_gold": snapshot.radiant_gold,
+            "dire_gold": snapshot.dire_gold,
+            "heroes": [
+                {
+                    "hero": h.hero,
+                    "team": h.team,
+                    "player_id": h.player_id,
+                    "x": round(h.x, 1),
+                    "y": round(h.y, 1),
+                    "health": h.health,
+                    "max_health": h.max_health,
+                    "mana": h.mana,
+                    "max_mana": h.max_mana,
+                    "level": h.level,
+                    "alive": h.alive,
+                }
+                for h in snapshot.heroes
+            ],
+        }
+
+    except ValueError as e:
+        return {
+            "success": False,
+            "match_id": match_id,
+            "error": str(e),
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "match_id": match_id,
+            "error": f"Failed to get snapshot: {e}",
+        }
+
+
+@mcp.tool
+async def get_position_timeline(
+    match_id: int,
+    start_time: float,
+    end_time: float,
+    hero_filter: Optional[str] = None,
+    interval_seconds: float = 1.0,
+    ctx: Context = None,
+) -> Dict[str, Any]:
+    """
+    Get hero positions over a time range at regular intervals.
+
+    Useful for tracking hero movement patterns, rotations, and positioning.
+
+    Args:
+        match_id: The Dota 2 match ID
+        start_time: Start time in seconds (e.g., 300.0 for 5:00)
+        end_time: End time in seconds (e.g., 360.0 for 6:00)
+        hero_filter: Only include this hero (optional)
+        interval_seconds: Sampling interval in seconds (default 1.0)
+
+    Returns:
+        Dictionary with position timelines for each hero
+    """
+    async def progress_callback(current: int, total: int, message: str) -> None:
+        if ctx:
+            await ctx.report_progress(current, total)
+
+    try:
+        data = await _replay_service.get_parsed_data(match_id, progress=progress_callback)
+
+        timelines = _seek_service.get_position_timeline(
+            replay_path=data.replay_path,
+            start_time=start_time,
+            end_time=end_time,
+            hero_filter=hero_filter,
+            interval_seconds=interval_seconds,
+        )
+
+        return {
+            "success": True,
+            "match_id": match_id,
+            "start_time": start_time,
+            "end_time": end_time,
+            "interval_seconds": interval_seconds,
+            "hero_filter": hero_filter,
+            "heroes": [
+                {
+                    "hero": t.hero,
+                    "team": t.team,
+                    "positions": [
+                        {
+                            "tick": p[0],
+                            "game_time": round(p[1], 1),
+                            "x": round(p[2], 1),
+                            "y": round(p[3], 1),
+                        }
+                        for p in t.positions
+                    ],
+                }
+                for t in timelines
+            ],
+        }
+
+    except ValueError as e:
+        return {
+            "success": False,
+            "match_id": match_id,
+            "error": str(e),
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "match_id": match_id,
+            "error": f"Failed to get position timeline: {e}",
+        }
+
+
+@mcp.tool
+async def get_fight_replay(
+    match_id: int,
+    start_time: float,
+    end_time: float,
+    interval_seconds: float = 0.5,
+    ctx: Context = None,
+) -> Dict[str, Any]:
+    """
+    Get high-resolution replay data for a fight.
+
+    Samples game state at regular intervals during the fight to show
+    how hero positions, health, and mana changed throughout.
+
+    Use get_fight to get fight boundaries, then use this for detailed analysis.
+
+    Args:
+        match_id: The Dota 2 match ID
+        start_time: Fight start time in seconds
+        end_time: Fight end time in seconds
+        interval_seconds: Sampling interval (default 0.5s for 2 samples/second)
+
+    Returns:
+        Dictionary with fight replay data including hero states over time
+    """
+    async def progress_callback(current: int, total: int, message: str) -> None:
+        if ctx:
+            await ctx.report_progress(current, total)
+
+    try:
+        data = await _replay_service.get_parsed_data(match_id, progress=progress_callback)
+
+        fight_replay = _seek_service.get_fight_replay(
+            replay_path=data.replay_path,
+            start_time=start_time,
+            end_time=end_time,
+            interval_seconds=interval_seconds,
+        )
+
+        return {
+            "success": True,
+            "match_id": match_id,
+            "start_tick": fight_replay.start_tick,
+            "end_tick": fight_replay.end_tick,
+            "start_time": fight_replay.start_time,
+            "start_time_str": fight_replay.start_time_str,
+            "end_time": fight_replay.end_time,
+            "end_time_str": fight_replay.end_time_str,
+            "interval_seconds": interval_seconds,
+            "total_snapshots": len(fight_replay.snapshots),
+            "snapshots": [
+                {
+                    "tick": s.tick,
+                    "game_time": round(s.game_time, 1),
+                    "game_time_str": s.game_time_str,
+                    "heroes": [
+                        {
+                            "hero": h.hero,
+                            "team": h.team,
+                            "x": round(h.x, 1),
+                            "y": round(h.y, 1),
+                            "health": h.health,
+                            "max_health": h.max_health,
+                            "alive": h.alive,
+                        }
+                        for h in s.heroes
+                    ],
+                }
+                for s in fight_replay.snapshots
+            ],
+        }
+
+    except ValueError as e:
+        return {
+            "success": False,
+            "match_id": match_id,
+            "error": str(e),
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "match_id": match_id,
+            "error": f"Failed to get fight replay: {e}",
+        }
+
+
 def main():
     """Main entry point for the server."""
     if len(sys.argv) > 1 and sys.argv[1] == "--version":
@@ -1134,15 +1872,13 @@ def main():
     print("Resources:", file=sys.stderr)
     print("   dota2://heroes/all", file=sys.stderr)
     print("   dota2://map", file=sys.stderr)
-    print("   dota2://match/{match_id}/heroes", file=sys.stderr)
-    print("   dota2://match/{match_id}/players", file=sys.stderr)
     print("   dota2://pro/players", file=sys.stderr)
     print("   dota2://pro/teams", file=sys.stderr)
-    print("   dota2://pro/player/{account_id}", file=sys.stderr)
-    print("   dota2://pro/team/{team_id}", file=sys.stderr)
     print("Tools:", file=sys.stderr)
     print("   download_replay", file=sys.stderr)
     print("   get_match_info", file=sys.stderr)
+    print("   get_match_heroes", file=sys.stderr)
+    print("   get_match_players", file=sys.stderr)
     print("   get_match_draft", file=sys.stderr)
     print("   get_match_timeline", file=sys.stderr)
     print("   get_stats_at_minute", file=sys.stderr)
@@ -1163,6 +1899,17 @@ def main():
     print("   get_leagues", file=sys.stderr)
     print("   get_pro_matches", file=sys.stderr)
     print("   get_league_matches", file=sys.stderr)
+    print("   list_fights (v2)", file=sys.stderr)
+    print("   get_teamfights (v2)", file=sys.stderr)
+    print("   get_fight (v2)", file=sys.stderr)
+    print("   get_camp_stacks (v2)", file=sys.stderr)
+    print("   get_jungle_summary (v2)", file=sys.stderr)
+    print("   get_lane_summary (v2)", file=sys.stderr)
+    print("   get_cs_at_minute (v2)", file=sys.stderr)
+    print("   get_hero_positions (v2)", file=sys.stderr)
+    print("   get_snapshot_at_time (v2)", file=sys.stderr)
+    print("   get_position_timeline (v2)", file=sys.stderr)
+    print("   get_fight_replay (v2)", file=sys.stderr)
 
     mcp.run()
 

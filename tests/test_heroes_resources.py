@@ -253,29 +253,35 @@ class TestHeroesResourceErrorHandling:
     @pytest.mark.asyncio
     async def test_resource_handles_missing_constants(self):
         """Test that resource handles missing constants gracefully."""
-        resource = HeroesResource()
-        resource.constants.get_heroes_constants = lambda: None
+        from unittest.mock import patch
 
-        heroes_data = await resource.get_all_heroes()
+        resource = HeroesResource()
+        with patch.object(resource.constants, 'get_heroes_constants', return_value=None):
+            with patch.object(resource.constants, 'fetch_constants_file', side_effect=Exception("Network error")):
+                heroes_data = await resource.get_all_heroes()
 
         assert heroes_data == {}
 
     @pytest.mark.asyncio
     async def test_get_all_heroes_with_empty_constants(self):
         """Test get_all_heroes behavior with empty constants data."""
-        resource = HeroesResource()
-        resource.constants.get_heroes_constants = lambda: None
+        from unittest.mock import patch
 
-        all_heroes = await resource.get_all_heroes()
+        resource = HeroesResource()
+        with patch.object(resource.constants, 'get_heroes_constants', return_value=None):
+            with patch.object(resource.constants, 'fetch_constants_file', side_effect=Exception("Network error")):
+                all_heroes = await resource.get_all_heroes()
 
         assert all_heroes == {}
 
     @pytest.mark.asyncio
     async def test_get_heroes_in_match_with_empty_constants(self):
         """Test get_heroes_in_match behavior with empty constants data."""
-        resource = HeroesResource()
-        resource.constants.get_heroes_constants = lambda: None
+        from unittest.mock import patch
 
-        match_heroes = await resource.get_heroes_in_match(123456)
+        resource = HeroesResource()
+        with patch.object(resource.constants, 'get_heroes_constants', return_value=None):
+            with patch.object(resource.constants, 'enrich_hero_picks', return_value=[]):
+                match_heroes = await resource.get_heroes_in_match(123456)
 
         assert match_heroes == {}

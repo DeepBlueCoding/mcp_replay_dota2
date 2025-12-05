@@ -1,6 +1,8 @@
 import logging
 from typing import Any, Dict, List
 
+from python_manta import Hero
+
 from src.utils.constants_fetcher import constants_fetcher
 from src.utils.match_fetcher import MatchFetcher
 from src.utils.replay_downloader import ReplayDownloader
@@ -131,18 +133,22 @@ class HeroesResource:
             return {}
 
         try:
-            from python_manta import MantaParser
+            from python_manta import Parser
 
-            parser = MantaParser()
-            game_info = parser.parse_game_info(str(replay_path))
+            parser = Parser(str(replay_path))
+            result = parser.parse(game_info=True)
 
-            if not game_info.success:
-                logger.error(f"Failed to parse game info for match {match_id}: {game_info.error}")
+            if not result.success:
+                logger.error(f"Failed to parse game info for match {match_id}: {result.error}")
                 return {}
 
-            picked_hero_ids = [pick.hero_id for pick in game_info.picks_bans
-                              if hasattr(pick, 'hero_id') and hasattr(pick, 'is_pick')
-                              and pick.hero_id > 0 and pick.is_pick]
+            if not result.game_info:
+                logger.error(f"No game info in parse result for match {match_id}")
+                return {}
+
+            picked_heroes = [Hero(pick.hero_id) for pick in result.game_info.picks_bans
+                            if pick.is_pick and pick.hero_id > 0]
+            picked_hero_ids = [hero.value for hero in picked_heroes]
 
             heroes_list = self.constants.enrich_hero_picks(picked_hero_ids)
 

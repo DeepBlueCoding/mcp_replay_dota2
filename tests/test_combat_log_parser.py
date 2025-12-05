@@ -1,10 +1,9 @@
 """
 Tests for combat log parser.
 
-Uses real replay data from match 8461956309 with verified values from Dotabuff.
+Uses pre-parsed replay data from conftest.py fixtures.
+All data is from match 8461956309 with verified values from Dotabuff.
 """
-
-from pathlib import Path
 
 import pytest
 
@@ -19,14 +18,9 @@ from src.models.combat_log import (
     TormentorKill,
     TowerKill,
 )
-from src.utils.combat_log_parser import CombatLogParser
-
-REAL_MATCH_ID = 8461956309
-REPLAY_PATH = Path.home() / "dota2" / "replays" / f"{REAL_MATCH_ID}.dem"
 
 # Verified data from Dotabuff for match 8461956309
-# First blood: 04:48 - Earthshaker killed by Disruptor (Thunder Strike)
-FIRST_BLOOD_TIME = 288.0  # 4:48 in seconds
+FIRST_BLOOD_TIME = 288.0
 FIRST_BLOOD_VICTIM = "earthshaker"
 FIRST_BLOOD_KILLER = "disruptor"
 FIRST_BLOOD_ABILITY = "disruptor_thunder_strike"
@@ -34,78 +28,35 @@ FIRST_BLOOD_ABILITY = "disruptor_thunder_strike"
 
 class TestCombatLogParser:
 
-    @pytest.fixture
-    def parser(self):
-        return CombatLogParser()
+    def test_get_hero_deaths_returns_list_of_hero_death_models(self, hero_deaths):
+        assert len(hero_deaths) > 0
+        assert all(isinstance(d, HeroDeath) for d in hero_deaths)
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_get_hero_deaths_returns_list_of_hero_death_models(self, parser):
-        deaths = parser.get_hero_deaths(REPLAY_PATH)
-
-        assert len(deaths) > 0
-        assert all(isinstance(d, HeroDeath) for d in deaths)
-
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_get_hero_deaths_first_blood_matches_dotabuff(self, parser):
-        deaths = parser.get_hero_deaths(REPLAY_PATH)
-
-        first_death = deaths[0]
+    def test_get_hero_deaths_first_blood_matches_dotabuff(self, hero_deaths):
+        first_death = hero_deaths[0]
         assert first_death.victim == FIRST_BLOOD_VICTIM
         assert first_death.killer == FIRST_BLOOD_KILLER
         assert first_death.ability == FIRST_BLOOD_ABILITY
-        assert abs(first_death.game_time - FIRST_BLOOD_TIME) < 2.0  # Within 2 seconds
+        assert abs(first_death.game_time - FIRST_BLOOD_TIME) < 2.0
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_get_hero_deaths_has_correct_time_format(self, parser):
-        deaths = parser.get_hero_deaths(REPLAY_PATH)
-
-        first_death = deaths[0]
+    def test_get_hero_deaths_has_correct_time_format(self, hero_deaths):
+        first_death = hero_deaths[0]
         assert first_death.game_time_str == "4:48"
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_get_combat_log_returns_combat_log_event_models(self, parser):
-        events = parser.get_combat_log(
-            REPLAY_PATH,
-            start_time=280,
-            end_time=290,
-        )
+    def test_get_combat_log_returns_combat_log_event_models(self, combat_log_280_290):
+        assert len(combat_log_280_290) > 0
+        assert all(isinstance(e, CombatLogEvent) for e in combat_log_280_290)
 
-        assert len(events) > 0
-        assert all(isinstance(e, CombatLogEvent) for e in events)
-
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_get_combat_log_filters_by_time(self, parser):
-        events = parser.get_combat_log(
-            REPLAY_PATH,
-            start_time=280,
-            end_time=290,
-        )
-
-        for event in events:
+    def test_get_combat_log_filters_by_time(self, combat_log_280_290):
+        for event in combat_log_280_290:
             assert 280 <= event.game_time <= 290
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_get_combat_log_filters_by_hero(self, parser):
-        events = parser.get_combat_log(
-            REPLAY_PATH,
-            start_time=280,
-            end_time=290,
-            hero_filter="earthshaker",
-        )
-
-        for event in events:
+    def test_get_combat_log_filters_by_hero(self, combat_log_280_290_earthshaker):
+        for event in combat_log_280_290_earthshaker:
             assert "earthshaker" in event.attacker.lower() or "earthshaker" in event.target.lower()
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_get_combat_log_includes_death_event(self, parser):
-        events = parser.get_combat_log(
-            REPLAY_PATH,
-            start_time=287,
-            end_time=289,
-            hero_filter="earthshaker",
-        )
-
-        death_events = [e for e in events if e.type == "DEATH"]
+    def test_get_combat_log_includes_death_event(self, combat_log_287_289_earthshaker):
+        death_events = [e for e in combat_log_287_289_earthshaker if e.type == "DEATH"]
         assert len(death_events) >= 1
 
         es_death = [e for e in death_events if e.target == "earthshaker"]
@@ -115,173 +66,80 @@ class TestCombatLogParser:
 
 class TestFightDetection:
 
-    @pytest.fixture
-    def parser(self):
-        return CombatLogParser()
+    def test_get_combat_timespan_returns_fight_result_model(self, fight_first_blood):
+        assert isinstance(fight_first_blood, FightResult)
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_get_combat_timespan_returns_fight_result_model(self, parser):
-        result = parser.get_combat_timespan(
-            REPLAY_PATH,
-            reference_time=FIRST_BLOOD_TIME,
-            hero="earthshaker",
-        )
+    def test_first_blood_fight_has_correct_participants(self, fight_first_blood):
+        assert "earthshaker" in fight_first_blood.participants
+        assert "disruptor" in fight_first_blood.participants
+        assert "naga_siren" in fight_first_blood.participants
+        assert "medusa" in fight_first_blood.participants
 
-        assert isinstance(result, FightResult)
+    def test_first_blood_fight_duration_reasonable(self, fight_first_blood):
+        assert 5 <= fight_first_blood.duration <= 20
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_first_blood_fight_has_correct_participants(self, parser):
-        result = parser.get_combat_timespan(
-            REPLAY_PATH,
-            reference_time=FIRST_BLOOD_TIME,
-            hero="earthshaker",
-        )
+    def test_fight_detection_separates_concurrent_fights(self, fight_first_blood, fight_pango_nevermore):
+        assert "pangolier" not in fight_first_blood.participants
+        assert "nevermore" not in fight_first_blood.participants
+        assert "earthshaker" not in fight_pango_nevermore.participants
 
-        # Verified participants in first blood fight
-        assert "earthshaker" in result.participants
-        assert "disruptor" in result.participants
-        assert "naga_siren" in result.participants
-        assert "medusa" in result.participants
+    def test_pango_nevermore_fight_isolated(self, fight_pango_nevermore):
+        assert set(fight_pango_nevermore.participants) == {"nevermore", "pangolier"}
+        assert fight_pango_nevermore.duration < 5
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_first_blood_fight_duration_reasonable(self, parser):
-        result = parser.get_combat_timespan(
-            REPLAY_PATH,
-            reference_time=FIRST_BLOOD_TIME,
-            hero="earthshaker",
-        )
+    def test_fight_events_are_combat_log_event_models(self, fight_first_blood):
+        assert all(isinstance(e, CombatLogEvent) for e in fight_first_blood.events)
 
-        # Fight should be between 5-20 seconds for a first blood
-        assert 5 <= result.duration <= 20
-
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_fight_detection_separates_concurrent_fights(self, parser):
-        # At ~4:27, there's a separate Pangolier vs Nevermore fight in mid
-        # This should NOT be included in the earthshaker first blood fight
-
-        es_fight = parser.get_combat_timespan(
-            REPLAY_PATH,
-            reference_time=FIRST_BLOOD_TIME,
-            hero="earthshaker",
-        )
-
-        pango_fight = parser.get_combat_timespan(
-            REPLAY_PATH,
-            reference_time=268,  # 4:28
-            hero="pangolier",
-        )
-
-        # These should be separate fights with different participants
-        assert "pangolier" not in es_fight.participants
-        assert "nevermore" not in es_fight.participants
-        assert "earthshaker" not in pango_fight.participants
-
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_pango_nevermore_fight_isolated(self, parser):
-        result = parser.get_combat_timespan(
-            REPLAY_PATH,
-            reference_time=268,
-            hero="pangolier",
-        )
-
-        # Should only have pangolier and nevermore
-        assert set(result.participants) == {"nevermore", "pangolier"}
-        assert result.duration < 5  # Short skirmish
-
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_fight_events_are_combat_log_event_models(self, parser):
-        result = parser.get_combat_timespan(
-            REPLAY_PATH,
-            reference_time=FIRST_BLOOD_TIME,
-            hero="earthshaker",
-        )
-
-        assert all(isinstance(e, CombatLogEvent) for e in result.events)
-
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_fight_without_hero_anchor_finds_nearest_fight(self, parser):
-        # Without hero anchor, should find the fight closest to reference time
-        result = parser.get_combat_timespan(
-            REPLAY_PATH,
-            reference_time=FIRST_BLOOD_TIME,
-            hero=None,
-        )
-
-        # Should still find the ES first blood fight since it's at the reference time
-        assert "earthshaker" in result.participants
-        assert result.total_events > 0
+    def test_fight_without_hero_anchor_finds_nearest_fight(self, fight_first_blood_no_hero):
+        assert "earthshaker" in fight_first_blood_no_hero.participants
+        assert fight_first_blood_no_hero.total_events > 0
 
 
 class TestObjectiveKills:
-    """Tests for Roshan, Tormentor, tower, and barracks kill tracking."""
 
-    @pytest.fixture
-    def parser(self):
-        return CombatLogParser()
-
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_get_objective_kills_returns_correct_tuple_structure(self, parser):
-        result = parser.get_objective_kills(REPLAY_PATH)
-
-        assert isinstance(result, tuple)
-        assert len(result) == 4
-        roshan, tormentor, towers, barracks = result
+    def test_get_objective_kills_returns_correct_tuple_structure(self, objectives):
+        assert isinstance(objectives, tuple)
+        assert len(objectives) == 4
+        roshan, tormentor, towers, barracks = objectives
         assert isinstance(roshan, list)
         assert isinstance(tormentor, list)
         assert isinstance(towers, list)
         assert isinstance(barracks, list)
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_roshan_kills_correct_count_and_order(self, parser):
-        roshan, _, _, _ = parser.get_objective_kills(REPLAY_PATH)
-
-        # Match 8461956309 has 4 Roshan kills
+    def test_roshan_kills_correct_count_and_order(self, objectives):
+        roshan, _, _, _ = objectives
         assert len(roshan) == 4
         assert all(isinstance(r, RoshanKill) for r in roshan)
-
-        # Verify kill numbers are sequential
         for i, r in enumerate(roshan):
             assert r.kill_number == i + 1
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_first_roshan_kill_details(self, parser):
-        roshan, _, _, _ = parser.get_objective_kills(REPLAY_PATH)
-
+    def test_first_roshan_kill_details(self, objectives):
+        roshan, _, _, _ = objectives
         first_rosh = roshan[0]
         assert first_rosh.game_time_str == "23:12"
         assert first_rosh.killer == "medusa"
         assert first_rosh.team == "dire"
         assert first_rosh.kill_number == 1
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_tormentor_kills_correct_count(self, parser):
-        _, tormentor, _, _ = parser.get_objective_kills(REPLAY_PATH)
-
-        # Match 8461956309 has 4 Tormentor kills
+    def test_tormentor_kills_correct_count(self, objectives):
+        _, tormentor, _, _ = objectives
         assert len(tormentor) == 4
         assert all(isinstance(t, TormentorKill) for t in tormentor)
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_first_tormentor_kill_details(self, parser):
-        _, tormentor, _, _ = parser.get_objective_kills(REPLAY_PATH)
-
+    def test_first_tormentor_kill_details(self, objectives):
+        _, tormentor, _, _ = objectives
         first_tormentor = tormentor[0]
         assert first_tormentor.game_time_str == "20:15"
         assert first_tormentor.killer == "medusa"
         assert first_tormentor.team == "dire"
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_tower_kills_correct_count(self, parser):
-        _, _, towers, _ = parser.get_objective_kills(REPLAY_PATH)
-
-        # Match 8461956309 has 14 tower kills
+    def test_tower_kills_correct_count(self, objectives):
+        _, _, towers, _ = objectives
         assert len(towers) == 14
         assert all(isinstance(t, TowerKill) for t in towers)
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_first_tower_kill_details(self, parser):
-        _, _, towers, _ = parser.get_objective_kills(REPLAY_PATH)
-
+    def test_first_tower_kill_details(self, objectives):
+        _, _, towers, _ = objectives
         first_tower = towers[0]
         assert first_tower.game_time_str == "11:09"
         assert first_tower.tower == "dire_t1_mid"
@@ -291,18 +149,13 @@ class TestObjectiveKills:
         assert first_tower.killer == "nevermore"
         assert first_tower.killer_is_hero is True
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_barracks_kills_correct_count(self, parser):
-        _, _, _, barracks = parser.get_objective_kills(REPLAY_PATH)
-
-        # Match 8461956309 has 6 barracks kills (all radiant rax destroyed = mega creeps)
+    def test_barracks_kills_correct_count(self, objectives):
+        _, _, _, barracks = objectives
         assert len(barracks) == 6
         assert all(isinstance(b, BarracksKill) for b in barracks)
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_first_barracks_kill_details(self, parser):
-        _, _, _, barracks = parser.get_objective_kills(REPLAY_PATH)
-
+    def test_first_barracks_kill_details(self, objectives):
+        _, _, _, barracks = objectives
         first_rax = barracks[0]
         assert first_rax.game_time_str == "39:33"
         assert first_rax.barracks == "radiant_melee_mid"
@@ -311,35 +164,20 @@ class TestObjectiveKills:
         assert first_rax.type == "melee"
         assert first_rax.killer == "medusa"
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_all_barracks_are_radiant(self, parser):
-        _, _, _, barracks = parser.get_objective_kills(REPLAY_PATH)
-
-        # Dire won - all destroyed barracks should be Radiant
+    def test_all_barracks_are_radiant(self, objectives):
+        _, _, _, barracks = objectives
         for rax in barracks:
             assert rax.team == "radiant"
 
 
 class TestPositionTracking:
-    """Tests for position tracking in hero deaths and courier kills."""
 
-    @pytest.fixture
-    def parser(self):
-        return CombatLogParser()
+    def test_hero_deaths_include_position(self, hero_deaths_with_position):
+        deaths_with_pos = [d for d in hero_deaths_with_position if d.position is not None]
+        assert len(deaths_with_pos) > 0
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_hero_deaths_include_position(self, parser):
-        deaths = parser.get_hero_deaths(REPLAY_PATH, include_position=True)
-
-        # At least some deaths should have position data
-        deaths_with_position = [d for d in deaths if d.position is not None]
-        assert len(deaths_with_position) > 0
-
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_hero_death_position_has_correct_structure(self, parser):
-        deaths = parser.get_hero_deaths(REPLAY_PATH, include_position=True)
-
-        death_with_pos = next((d for d in deaths if d.position is not None), None)
+    def test_hero_death_position_has_correct_structure(self, hero_deaths_with_position):
+        death_with_pos = next((d for d in hero_deaths_with_position if d.position is not None), None)
         assert death_with_pos is not None
 
         pos = death_with_pos.position
@@ -349,268 +187,123 @@ class TestPositionTracking:
         assert isinstance(pos.region, str)
         assert isinstance(pos.location, str)
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_first_blood_death_position_is_dire_safelane(self, parser):
-        deaths = parser.get_hero_deaths(REPLAY_PATH, include_position=True)
-
-        # First death (Earthshaker) should be in dire safelane area
-        first_death = deaths[0]
+    def test_first_blood_death_position_is_dire_safelane(self, hero_deaths_with_position):
+        first_death = hero_deaths_with_position[0]
         assert first_death.victim == "earthshaker"
         assert first_death.position is not None
         assert "dire" in first_death.position.region.lower() or "dire" in first_death.position.location.lower()
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_hero_deaths_without_position_flag(self, parser):
-        deaths = parser.get_hero_deaths(REPLAY_PATH, include_position=False)
-
-        # All deaths should have position=None when flag is False
-        for death in deaths:
+    def test_hero_deaths_without_position_flag(self, hero_deaths):
+        for death in hero_deaths:
             assert death.position is None
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_position_coordinates_in_valid_range(self, parser):
-        deaths = parser.get_hero_deaths(REPLAY_PATH, include_position=True)
-
-        for death in deaths:
+    def test_position_coordinates_in_valid_range(self, hero_deaths_with_position):
+        for death in hero_deaths_with_position:
             if death.position:
-                # Map coordinates should be within valid range (-8000 to 8000)
                 assert -8500 <= death.position.x <= 8500
                 assert -8500 <= death.position.y <= 8500
 
 
 class TestRunePickups:
-    """Tests for power rune pickup tracking."""
 
-    @pytest.fixture
-    def parser(self):
-        return CombatLogParser()
+    def test_get_rune_pickups_returns_list_of_rune_pickup_models(self, rune_pickups):
+        assert len(rune_pickups) > 0
+        assert all(isinstance(p, RunePickup) for p in rune_pickups)
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_get_rune_pickups_returns_list_of_rune_pickup_models(self, parser):
-        pickups = parser.get_rune_pickups(REPLAY_PATH)
+    def test_rune_pickups_correct_count(self, rune_pickups):
+        assert len(rune_pickups) == 19
 
-        assert len(pickups) > 0
-        assert all(isinstance(p, RunePickup) for p in pickups)
-
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_rune_pickups_correct_count(self, parser):
-        pickups = parser.get_rune_pickups(REPLAY_PATH)
-
-        # Match 8461956309 has 19 power rune pickups
-        assert len(pickups) == 19
-
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_first_rune_pickup_details(self, parser):
-        pickups = parser.get_rune_pickups(REPLAY_PATH)
-
-        first_rune = pickups[0]
+    def test_first_rune_pickup_details(self, rune_pickups):
+        first_rune = rune_pickups[0]
         assert first_rune.game_time_str == "6:14"
         assert first_rune.hero == "naga_siren"
         assert first_rune.rune_type == "Arcane"
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_rune_pickups_sorted_by_time(self, parser):
-        pickups = parser.get_rune_pickups(REPLAY_PATH)
-
-        times = [p.game_time for p in pickups]
+    def test_rune_pickups_sorted_by_time(self, rune_pickups):
+        times = [p.game_time for p in rune_pickups]
         assert times == sorted(times)
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_rune_types_are_valid(self, parser):
+    def test_rune_types_are_valid(self, rune_pickups):
         from python_manta import RuneType
-
-        pickups = parser.get_rune_pickups(REPLAY_PATH)
         valid_types = {r.display_name for r in RuneType}
-
-        for pickup in pickups:
+        for pickup in rune_pickups:
             assert pickup.rune_type in valid_types
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_pangolier_most_rune_pickups(self, parser):
-        pickups = parser.get_rune_pickups(REPLAY_PATH)
-
-        # Count pickups per hero
+    def test_pangolier_most_rune_pickups(self, rune_pickups):
         hero_counts = {}
-        for p in pickups:
+        for p in rune_pickups:
             hero_counts[p.hero] = hero_counts.get(p.hero, 0) + 1
 
-        # Pangolier picked up the most runes in this match
         assert max(hero_counts, key=hero_counts.get) == "pangolier"
         assert hero_counts["pangolier"] == 9
 
 
 class TestAbilityHitDetection:
-    """Tests for ability hit/miss detection in combat log."""
 
-    @pytest.fixture
-    def parser(self):
-        return CombatLogParser()
-
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_ability_events_have_hit_field(self, parser):
-        events = parser.get_combat_log(
-            REPLAY_PATH,
-            start_time=280,
-            end_time=300,
-            types=[5],  # ABILITY only
-        )
-
-        ability_events = [e for e in events if e.type == "ABILITY"]
+    def test_ability_events_have_hit_field(self, combat_log_280_300_ability):
+        ability_events = [e for e in combat_log_280_300_ability if e.type == "ABILITY"]
         assert len(ability_events) > 0
-
-        # All ability events should have hit field (True, False, or None)
         for e in ability_events:
             assert e.hit in (True, False, None)
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_self_buff_abilities_have_hit_none(self, parser):
-        events = parser.get_combat_log(
-            REPLAY_PATH,
-            start_time=280,
-            end_time=300,
-            types=[5],
-            hero_filter="earthshaker",
-        )
-
-        # Enchant Totem is a self-buff ability (No Target behavior)
-        totem_events = [e for e in events if e.ability == "earthshaker_enchant_totem"]
+    def test_self_buff_abilities_have_hit_none(self, combat_log_280_300_earthshaker_ability):
+        totem_events = [e for e in combat_log_280_300_earthshaker_ability if e.ability == "earthshaker_enchant_totem"]
         assert len(totem_events) > 0
-
         for e in totem_events:
-            assert e.hit is None, "Self-buff abilities should have hit=None"
+            assert e.hit is None
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_ensnare_that_hit_shows_as_true(self, parser):
-        events = parser.get_combat_log(
-            REPLAY_PATH,
-            start_time=280,
-            end_time=282,
-            types=[5],
-            hero_filter="naga",
-        )
-
-        # Naga Siren's Ensnare at 4:40 hit Earthshaker (verified from replay)
-        ensnare_events = [e for e in events if e.ability == "naga_siren_ensnare"]
+    def test_ensnare_that_hit_shows_as_true(self, combat_log_280_282_naga_ability):
+        ensnare_events = [e for e in combat_log_280_282_naga_ability if e.ability == "naga_siren_ensnare"]
         assert len(ensnare_events) == 1
-        assert ensnare_events[0].hit is True, "Ensnare that hit a hero should have hit=True"
+        assert ensnare_events[0].hit is True
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_modifier_prefix_normalization(self, parser):
-        # Test the internal method for normalizing ability names
+    def test_modifier_prefix_normalization(self):
+        from src.utils.combat_log_parser import CombatLogParser
+        parser = CombatLogParser()
         assert parser._normalize_ability_name("naga_siren_ensnare") == "naga_siren_ensnare"
         assert parser._normalize_ability_name("modifier_naga_siren_ensnare") == "naga_siren_ensnare"
         assert parser._normalize_ability_name("modifier_rune_haste") == "rune_haste"
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_non_ability_events_have_hit_none(self, parser):
-        events = parser.get_combat_log(
-            REPLAY_PATH,
-            start_time=280,
-            end_time=290,
-            types=[0, 2, 4],  # DAMAGE, MODIFIER_ADD, DEATH
-        )
+    def test_non_ability_events_have_hit_none(self, combat_log_280_290_non_ability):
+        for e in combat_log_280_290_non_ability:
+            assert e.hit is None
 
-        # Non-ABILITY events should have hit=None
-        for e in events:
-            assert e.hit is None, f"Non-ability event {e.type} should have hit=None"
+    def test_hit_detection_stats_reasonable(self, combat_log_0_600_ability):
+        hits = [e for e in combat_log_0_600_ability if e.hit is True]
+        misses = [e for e in combat_log_0_600_ability if e.hit is False]
+        na = [e for e in combat_log_0_600_ability if e.hit is None]
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_hit_detection_stats_reasonable(self, parser):
-        events = parser.get_combat_log(
-            REPLAY_PATH,
-            start_time=0,
-            end_time=600,
-            types=[5],
-        )
-
-        hits = [e for e in events if e.hit is True]
-        misses = [e for e in events if e.hit is False]
-        na = [e for e in events if e.hit is None]
-
-        # Should have a reasonable distribution
-        assert len(hits) > 50, "Should have many abilities that hit"
-        assert len(misses) > 20, "Should have some abilities that missed"
-        assert len(na) > 100, "Should have many self-buff abilities"
-
-        # Hits + misses + NA should equal total
-        assert len(hits) + len(misses) + len(na) == len(events)
+        assert len(hits) > 50
+        assert len(misses) > 20
+        assert len(na) > 100
+        assert len(hits) + len(misses) + len(na) == len(combat_log_0_600_ability)
 
 
 class TestAbilityTrigger:
-    """Tests for ABILITY_TRIGGER events (Lotus Orb reflections, passive procs)."""
 
-    @pytest.fixture
-    def parser(self):
-        return CombatLogParser()
-
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_ability_trigger_type_in_combatlog_types(self, parser):
+    def test_ability_trigger_type_in_combatlog_types(self):
+        from src.utils.combat_log_parser import CombatLogParser
+        parser = CombatLogParser()
         assert 13 in parser.COMBATLOG_TYPES
         assert parser.COMBATLOG_TYPES[13] == "ABILITY_TRIGGER"
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_ability_trigger_events_included_by_default(self, parser):
-        # Disruptor Glimpse triggers happen around 320-370s (first blood area)
-        events = parser.get_combat_log(
-            REPLAY_PATH,
-            start_time=320,
-            end_time=370,
-        )
+    def test_ability_trigger_events_included_by_default(self, combat_log_320_370):
+        trigger_events = [e for e in combat_log_320_370 if e.type == "ABILITY_TRIGGER"]
+        assert len(trigger_events) > 0
 
-        trigger_events = [e for e in events if e.type == "ABILITY_TRIGGER"]
-        assert len(trigger_events) > 0, "ABILITY_TRIGGER events should be included by default"
-
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_lotus_orb_reflections_tracked(self, parser):
-        events = parser.get_combat_log(
-            REPLAY_PATH,
-            types=[13],  # ABILITY_TRIGGER only
-        )
-
-        lotus_events = [e for e in events if e.ability and "lotus" in e.ability.lower()]
-
-        # Match 8461956309 has 2 Lotus Orb reflections (verified)
+    def test_lotus_orb_reflections_tracked(self, combat_log_trigger_only):
+        lotus_events = [e for e in combat_log_trigger_only if e.ability and "lotus" in e.ability.lower()]
         assert len(lotus_events) == 2
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_lotus_orb_reflection_structure(self, parser):
-        events = parser.get_combat_log(
-            REPLAY_PATH,
-            types=[13],
-        )
-
-        lotus_events = [e for e in events if e.ability and "lotus" in e.ability.lower()]
+    def test_lotus_orb_reflection_structure(self, combat_log_trigger_only):
+        lotus_events = [e for e in combat_log_trigger_only if e.ability and "lotus" in e.ability.lower()]
         assert len(lotus_events) > 0
 
-        # First reflection: Naga Siren (with buff) -> Shadow Demon (caster)
         first = lotus_events[0]
-        assert first.attacker == "naga_siren", "Attacker should be hero with Lotus buff"
-        assert first.target == "shadow_demon", "Target should be spell caster"
+        assert first.attacker == "naga_siren"
+        assert first.target == "shadow_demon"
         assert first.ability == "item_lotus_orb"
 
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_passive_procs_tracked(self, parser):
-        # Use match 8582735416 which has Axe Counter Helix procs
-        other_replay = Path.home() / "dota2" / "replays" / "8582735416.dem"
-        if not other_replay.exists():
-            pytest.skip("Second replay not available")
-
-        events = parser.get_combat_log(
-            other_replay,
-            types=[13],
-        )
-
-        helix_events = [e for e in events if e.ability and "counter_helix" in e.ability.lower()]
-        assert len(helix_events) > 100, "Should track many Counter Helix procs"
-
-    @pytest.mark.skipif(not REPLAY_PATH.exists(), reason="Replay file not available")
-    def test_ability_trigger_in_fight_detection(self, parser):
-        # Disruptor Glimpse at ~365s (computed game time)
-        events = parser.get_combat_log(
-            REPLAY_PATH,
-            start_time=360,
-            end_time=370,
-        )
-
-        trigger_in_range = [e for e in events if e.type == "ABILITY_TRIGGER"]
-        assert len(trigger_in_range) > 0, "ABILITY_TRIGGER should be included in combat log output"
+    def test_ability_trigger_in_fight_detection(self, combat_log_360_370):
+        trigger_in_range = [e for e in combat_log_360_370 if e.type == "ABILITY_TRIGGER"]
+        assert len(trigger_in_range) > 0

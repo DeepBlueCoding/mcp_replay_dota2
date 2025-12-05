@@ -11,6 +11,8 @@ import logging
 from pathlib import Path
 from typing import List, Optional, Tuple
 
+from python_manta import CombatLogType, Team
+
 from src.models.combat_log import (
     BarracksKill,
     CombatLogEvent,
@@ -174,7 +176,7 @@ class CombatLogParser:
         for entry in data.combat_log:
             game_time = replay_cache.tick_to_game_time(data, entry.tick)
 
-            if entry.type == 5:  # ABILITY
+            if entry.type == CombatLogType.ABILITY.value:
                 if self._is_hero(entry.attacker_name) and entry.inflictor_name:
                     ability_casts.append({
                         "caster": entry.attacker_name,
@@ -182,7 +184,7 @@ class CombatLogParser:
                         "time": game_time,
                         "tick": entry.tick,
                     })
-            elif entry.type in (0, 2):  # DAMAGE or MODIFIER_ADD
+            elif entry.type in (CombatLogType.DAMAGE.value, CombatLogType.MODIFIER_ADD.value):
                 if self._is_hero(entry.attacker_name) and self._is_hero(entry.target_name):
                     if entry.attacker_name != entry.target_name and entry.inflictor_name:
                         damage_effects.append({
@@ -238,10 +240,16 @@ class CombatLogParser:
         data = replay_cache.get_parsed_data(replay_path)
 
         if types is None:
-            types = [0, 2, 5, 4, 13]  # DAMAGE, MODIFIER_ADD, ABILITY, DEATH, ABILITY_TRIGGER
+            types = [
+                CombatLogType.DAMAGE.value,
+                CombatLogType.MODIFIER_ADD.value,
+                CombatLogType.ABILITY.value,
+                CombatLogType.DEATH.value,
+                CombatLogType.ABILITY_TRIGGER.value,
+            ]
 
         # Build hit index for ability events
-        hit_index = self._build_ability_hit_index(data) if 5 in types else {}
+        hit_index = self._build_ability_hit_index(data) if CombatLogType.ABILITY.value in types else {}
 
         events = []
         for entry in data.combat_log:
@@ -267,7 +275,7 @@ class CombatLogParser:
 
             # Determine hit status for ABILITY events
             hit = None
-            if entry.type == 5 and self._is_hero(entry.attacker_name) and entry.inflictor_name:
+            if entry.type == CombatLogType.ABILITY.value and self._is_hero(entry.attacker_name) and entry.inflictor_name:
                 key = (entry.attacker_name, entry.inflictor_name, entry.tick)
                 hit = hit_index.get(key, False)
 
@@ -535,9 +543,9 @@ class CombatLogParser:
             killer = self._clean_name(entry.attacker_name)
             owner = self._clean_name(entry.target_source_name)
 
-            if entry.target_team == 2:
+            if entry.target_team == Team.RADIANT.value:
                 team = "radiant"
-            elif entry.target_team == 3:
+            elif entry.target_team == Team.DIRE.value:
                 team = "dire"
             else:
                 team = "unknown"
@@ -590,9 +598,9 @@ class CombatLogParser:
             # Roshan kills
             if "roshan" in target:
                 roshan_count += 1
-                if entry.attacker_team == 2:
+                if entry.attacker_team == Team.RADIANT.value:
                     team = "radiant"
-                elif entry.attacker_team == 3:
+                elif entry.attacker_team == Team.DIRE.value:
                     team = "dire"
                 else:
                     team = "unknown"
@@ -607,10 +615,10 @@ class CombatLogParser:
 
             # Tormentor kills
             elif "miniboss" in target:
-                if entry.attacker_team == 2:
+                if entry.attacker_team == Team.RADIANT.value:
                     team = "radiant"
                     side = "radiant"
-                elif entry.attacker_team == 3:
+                elif entry.attacker_team == Team.DIRE.value:
                     team = "dire"
                     side = "dire"
                 else:

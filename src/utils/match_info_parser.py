@@ -1,7 +1,7 @@
 """
 Match info parser for extracting match metadata and draft from Dota 2 replays.
 
-Uses MantaParser.parse_game_info() to extract pro match data including
+Uses Parser.parse(game_info=True) to extract pro match data including
 teams, players, draft order, and match outcome.
 """
 
@@ -9,7 +9,7 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from python_manta import MantaParser
+from python_manta import Parser, Team
 
 from src.models.match_info import (
     DraftAction,
@@ -55,7 +55,7 @@ class MatchInfoParser:
     """Parses match info and draft data from Dota 2 replays."""
 
     def __init__(self):
-        self._parser = MantaParser()
+        pass
 
     def _get_hero_info(self, hero_id: int) -> tuple[str, str]:
         """Get hero internal name and localized name from hero_id."""
@@ -79,7 +79,7 @@ class MatchInfoParser:
 
     def get_draft(self, replay_path: Path) -> Optional[DraftResult]:
         """
-        Get draft information from a replay.
+        Get draft information from a replay using v2 API.
 
         Args:
             replay_path: Path to the .dem replay file
@@ -88,10 +88,16 @@ class MatchInfoParser:
             DraftResult with all picks and bans in order, or None on error
         """
         try:
-            result = self._parser.parse_game_info(str(replay_path))
+            parser = Parser(str(replay_path))
+            result = parser.parse(game_info=True)
 
             if not result.success:
                 logger.error(f"Failed to parse game info: {result.error}")
+                return None
+
+            game_info = result.game_info
+            if not game_info:
+                logger.error("No game info in parse result")
                 return None
 
             actions = []
@@ -100,8 +106,8 @@ class MatchInfoParser:
             dire_picks = []
             dire_bans = []
 
-            for i, pb in enumerate(result.picks_bans):
-                team = "radiant" if pb.team == 2 else "dire"
+            for i, pb in enumerate(game_info.picks_bans):
+                team = "radiant" if pb.team == Team.RADIANT.value else "dire"
                 hero_name, hero_localized = self._get_hero_info(pb.hero_id)
 
                 action = DraftAction(
@@ -126,9 +132,9 @@ class MatchInfoParser:
                         dire_bans.append(action)
 
             return DraftResult(
-                match_id=result.match_id,
-                game_mode=result.game_mode,
-                game_mode_name=GAME_MODES.get(result.game_mode, f"Unknown ({result.game_mode})"),
+                match_id=game_info.match_id,
+                game_mode=game_info.game_mode,
+                game_mode_name=GAME_MODES.get(game_info.game_mode, f"Unknown ({game_info.game_mode})"),
                 actions=actions,
                 radiant_picks=radiant_picks,
                 radiant_bans=radiant_bans,
@@ -142,7 +148,7 @@ class MatchInfoParser:
 
     def get_match_info(self, replay_path: Path) -> Optional[MatchInfoResult]:
         """
-        Get match information from a replay.
+        Get match information from a replay using v2 API.
 
         Args:
             replay_path: Path to the .dem replay file
@@ -151,31 +157,37 @@ class MatchInfoParser:
             MatchInfoResult with teams, players, winner, duration, etc.
         """
         try:
-            result = self._parser.parse_game_info(str(replay_path))
+            parser = Parser(str(replay_path))
+            result = parser.parse(game_info=True)
 
             if not result.success:
                 logger.error(f"Failed to parse game info: {result.error}")
                 return None
 
-            winner = "radiant" if result.game_winner == 2 else "dire"
+            game_info = result.game_info
+            if not game_info:
+                logger.error("No game info in parse result")
+                return None
+
+            winner = "radiant" if game_info.game_winner == Team.RADIANT.value else "dire"
 
             radiant_team = TeamInfo(
-                team_id=result.radiant_team_id,
-                team_tag=result.radiant_team_tag,
-                team_name=result.radiant_team_tag if result.radiant_team_tag else "Radiant",
+                team_id=game_info.radiant_team_id,
+                team_tag=game_info.radiant_team_tag,
+                team_name=game_info.radiant_team_tag if game_info.radiant_team_tag else "Radiant",
             )
 
             dire_team = TeamInfo(
-                team_id=result.dire_team_id,
-                team_tag=result.dire_team_tag,
-                team_name=result.dire_team_tag if result.dire_team_tag else "Dire",
+                team_id=game_info.dire_team_id,
+                team_tag=game_info.dire_team_tag,
+                team_name=game_info.dire_team_tag if game_info.dire_team_tag else "Dire",
             )
 
             players = []
             radiant_players = []
             dire_players = []
 
-            for p in result.players:
+            for p in game_info.players:
                 hero_name = p.hero_name
                 if hero_name.startswith("npc_dota_hero_"):
                     hero_internal = hero_name[14:]
@@ -193,7 +205,7 @@ class MatchInfoParser:
                     hero_id = 0
                     hero_localized = hero_internal.replace("_", " ").title()
 
-                team = "radiant" if p.team == 2 else "dire"
+                team = "radiant" if p.team == Team.RADIANT.value else "dire"
 
                 player_info = PlayerInfo(
                     player_name=p.player_name,
@@ -210,17 +222,17 @@ class MatchInfoParser:
                 else:
                     dire_players.append(player_info)
 
-            is_pro = result.radiant_team_id > 0 or result.dire_team_id > 0 or result.league_id > 0
+            is_pro = game_info.radiant_team_id > 0 or game_info.dire_team_id > 0 or game_info.league_id > 0
 
             return MatchInfoResult(
-                match_id=result.match_id,
+                match_id=game_info.match_id,
                 is_pro_match=is_pro,
-                league_id=result.league_id,
-                game_mode=result.game_mode,
-                game_mode_name=GAME_MODES.get(result.game_mode, f"Unknown ({result.game_mode})"),
+                league_id=game_info.league_id,
+                game_mode=game_info.game_mode,
+                game_mode_name=GAME_MODES.get(game_info.game_mode, f"Unknown ({game_info.game_mode})"),
                 winner=winner,
-                duration_seconds=result.playback_time,
-                duration_str=self._format_duration(result.playback_time),
+                duration_seconds=game_info.playback_time,
+                duration_str=self._format_duration(game_info.playback_time),
                 radiant_team=radiant_team,
                 dire_team=dire_team,
                 players=players,

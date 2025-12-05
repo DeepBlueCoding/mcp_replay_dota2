@@ -1,8 +1,8 @@
 # MCP Dota 2 Match Analysis Server
 
-??? info "🤖 AI Summary"
+??? info "AI Summary"
 
-    MCP server for Dota 2 match analysis. **Tools** (LLM calls these): `get_hero_deaths`, `get_combat_log`, `get_fight_combat_log`, `get_item_purchases`, `get_objective_kills`, `get_match_timeline`, `get_stats_at_minute`, `get_courier_kills`. **Resources** (static context): `dota2://heroes/all`, `dota2://map`, `dota2://match/{id}/heroes`, `dota2://match/{id}/players`. Connects to Claude Desktop, Claude Code, LangChain, LangGraph, CrewAI, or direct API integration.
+    MCP server for Dota 2 match analysis. **Tools** (LLM calls these): `get_match_heroes`, `get_match_players`, `get_hero_deaths`, `get_combat_log`, `get_fight_combat_log`, `get_item_purchases`, `get_objective_kills`, `get_match_timeline`, `get_stats_at_minute`, `get_courier_kills`, plus pro scene tools. **Resources** (static context): `dota2://heroes/all`, `dota2://map`, `dota2://pro/players`, `dota2://pro/teams`. Connects to Claude Desktop, Claude Code, LangChain, LangGraph, CrewAI, or direct API integration.
 
 A Model Context Protocol (MCP) server that gives LLMs the ability to analyze Dota 2 matches by parsing replay files and querying the OpenDota API.
 
@@ -76,17 +76,19 @@ The LLM will automatically call the appropriate tools and synthesize an analysis
 | Tool | What It Does |
 |------|--------------|
 | `download_replay` | Pre-cache replay file (call first for new matches) |
+| `get_match_info` | Match metadata (teams, players, winner) |
+| `get_match_heroes` | 10 heroes in match with KDA, items, stats |
+| `get_match_players` | 10 players with names and hero assignments |
+| `get_match_draft` | Complete draft order (bans/picks) |
+| `get_match_timeline` | Net worth, XP, KDA over time |
+| `get_stats_at_minute` | Snapshot of all players at a specific minute |
 | `get_hero_deaths` | All deaths with killer, victim, ability used |
 | `get_combat_log` | Damage events, abilities, modifiers in a time range |
 | `get_fight_combat_log` | Auto-detects fight boundaries around a death |
 | `get_item_purchases` | When each item was bought |
 | `get_objective_kills` | Roshan, towers, barracks timings |
-| `get_match_timeline` | Net worth, XP, KDA over time |
-| `get_stats_at_minute` | Snapshot of all players at a specific minute |
 | `get_courier_kills` | Courier snipes with position |
 | `get_rune_pickups` | Rune pickups by hero |
-| `get_match_draft` | Complete draft order (bans/picks) |
-| `get_match_info` | Match metadata (teams, players, winner) |
 
 ### Pro Scene
 
@@ -103,16 +105,17 @@ The LLM will automatically call the appropriate tools and synthesize an analysis
 
 ## Available Resources
 
+Static reference data (user attaches to context):
+
 | URI | Data |
 |-----|------|
 | `dota2://heroes/all` | All 124 heroes with attributes |
 | `dota2://map` | Tower, camp, rune, landmark positions |
-| `dota2://match/{id}/heroes` | 10 heroes in match with stats |
-| `dota2://match/{id}/players` | 10 players with names and heroes |
 | `dota2://pro/players` | All pro players |
 | `dota2://pro/teams` | All pro teams |
-| `dota2://pro/player/{id}` | Pro player details |
-| `dota2://pro/team/{id}` | Team details + roster |
+
+!!! note "Match-specific data uses tools"
+    For match heroes/players and detailed pro player/team info, use the corresponding tools (`get_match_heroes`, `get_match_players`, `get_pro_player`, `get_team`).
 
 ## Example Conversations
 

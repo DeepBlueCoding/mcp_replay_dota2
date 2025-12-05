@@ -1195,7 +1195,7 @@ requires-dist = [
     { name = "pip", marker = "extra == 'dev'", specifier = ">=25.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.4.2" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=1.3.0" },
-    { name = "python-manta", specifier = "==1.4.5.1.dev12", index = "https://test.pypi.org/simple/" },
+    { name = "python-manta", specifier = "==1.4.5.2.dev3", index = "https://test.pypi.org/simple/" },
     { name = "python-opendota-sdk", specifier = "==7.39.5.1.dev1", index = "https://test.pypi.org/simple/" },
     { name = "requests", specifier = ">=2.32.5" },
 ]
@@ -1941,16 +1941,16 @@ wheels = [
 
 [[package]]
 name = "python-manta"
-version = "1.4.5.1.dev12"
+version = "1.4.5.2.dev3"
 source = { registry = "https://test.pypi.org/simple/" }
 dependencies = [
     { name = "pydantic" },
 ]
 wheels = [
-    { url = "https://test-files.pythonhosted.org/packages/6f/19/d61439f212ef0a3aa82653daa5ce4b53f2d4d6d2de7139fd7d62d29ba241/python_manta-1.4.5.1.dev12-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:39da49594ab3bdfa80a9b1e4ad863574997e9f96553f93c07595bf166f41a765", size = 4640432, upload-time = "2025-12-02T16:33:52.923Z" },
-    { url = "https://test-files.pythonhosted.org/packages/8a/82/45dc751dc5171710e849edc7cc32a5768a84434386ffbda65f60540576ca/python_manta-1.4.5.1.dev12-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:13c9c059c83de87d92fd8e180b3c0bdd6de6c863c36985fe3e5d856a4aff6761", size = 4589623, upload-time = "2025-12-02T16:33:55.038Z" },
-    { url = "https://test-files.pythonhosted.org/packages/eb/9e/8dea99a5e46e4bfbe98a5cc2ea5289eb5f72b7ac92ad7d20b1d26d1c4713/python_manta-1.4.5.1.dev12-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl", hash = "sha256:30e0f28aab57057f525e2a79d8368b08de36aebb9a4c983a2863e3788cae6434", size = 8323770, upload-time = "2025-12-02T16:33:57.354Z" },
-    { url = "https://test-files.pythonhosted.org/packages/86/dd/75f258f1583e2faf99762f2fb8006715122815fcc902548d863bba3ad31d/python_manta-1.4.5.1.dev12-cp312-cp312-win_amd64.whl", hash = "sha256:87e7094ec4f405d67a2a754058de3d0ca7588d3fd099fce6d55d776151d7b4aa", size = 8459969, upload-time = "2025-12-02T16:33:59.653Z" },
+    { url = "https://test-files.pythonhosted.org/packages/90/f1/a1c6d6dcd32fb6b962a1967eaa40e3ad37663ee2b1002692e757a24ccaba/python_manta-1.4.5.2.dev3-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:f88fd415a3e2344c54f904c1b224a1d111dba29d253e3b6c630c1cf9c6a153c8", size = 4700197, upload-time = "2025-12-04T15:19:41.192Z" },
+    { url = "https://test-files.pythonhosted.org/packages/04/ff/4e94d618072649c515999c1c153d2ab7c403bb3504fad89f7d949012c15f/python_manta-1.4.5.2.dev3-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:4f668a4b6589c57a413bc43fe2d4fbedffa199a7e3a736fb6920521a4d22eae4", size = 4645058, upload-time = "2025-12-04T15:19:43.224Z" },
+    { url = "https://test-files.pythonhosted.org/packages/4a/1e/142bcef396f29df5396c11ec9f8342cab6e7461c757997520976880ef5a3/python_manta-1.4.5.2.dev3-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl", hash = "sha256:b1b7dd6f45614f7c3ee84e61f11dbc2ad8422f4185bf70f9ab264825ae6cfe25", size = 8426729, upload-time = "2025-12-04T15:19:44.915Z" },
+    { url = "https://test-files.pythonhosted.org/packages/bb/97/8af19f4f2af06f4420aeeedbb7f75498cb80398809477a84cfdd1157ec91/python_manta-1.4.5.2.dev3-cp312-cp312-win_amd64.whl", hash = "sha256:06b6e1e1fbf5c8cdfeda2c4e6860b877b7838ca70f413762df8cb61ea73c469e", size = 8565206, upload-time = "2025-12-04T15:19:47.064Z" },
 ]
 
 [[package]]
