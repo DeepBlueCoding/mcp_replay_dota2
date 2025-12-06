@@ -1147,9 +1147,22 @@ async def get_leagues(tier: Optional[str] = None) -> LeaguesResponse:
 
 
 @mcp.tool
-async def get_pro_matches(limit: int = 100) -> ProMatchesResponse:
+async def get_pro_matches(
+    limit: int = 100,
+    tier: Optional[str] = None,
+    team_name: Optional[str] = None,
+    league_name: Optional[str] = None,
+    days_back: Optional[int] = None,
+) -> ProMatchesResponse:
     """
     Get recent professional Dota 2 matches with series grouping.
+
+    **IMPORTANT**: By default returns ALL matches including low-tier leagues.
+    Use filters to narrow down to relevant matches:
+    - tier="premium" for top-tier tournaments (TI, Majors)
+    - tier="professional" for mid-tier pro leagues
+    - team_name="OG" to find matches for a specific team
+    - league_name="SLAM" to find matches in a specific tournament
 
     Returns both individual matches and series summaries:
 
@@ -1170,17 +1183,27 @@ async def get_pro_matches(limit: int = 100) -> ProMatchesResponse:
     - games: List of matches in the series with game_number
 
     Use this to answer questions like:
-    - "What pro matches happened recently?"
-    - "Show me the latest Team Spirit vs OG series"
-    - "What was the score in that Bo3?"
+    - "What pro matches happened recently?" -> get_pro_matches(tier="premium")
+    - "Show me the latest Team Spirit games" -> get_pro_matches(team_name="Team Spirit")
+    - "What matches are in the SLAM tournament?" -> get_pro_matches(league_name="SLAM")
 
     Args:
         limit: Maximum matches to return (default: 100)
+        tier: Filter by league tier - "premium" (TI, Majors), "professional", or "amateur"
+        team_name: Filter by team name (fuzzy match, e.g. "OG", "Spirit", "Navi")
+        league_name: Filter by league name (contains match, e.g. "SLAM", "ESL", "DreamLeague")
+        days_back: Only return matches from the last N days
 
     Returns:
         ProMatchesResponse with matches and series
     """
-    return await pro_scene_resource.get_pro_matches(limit=limit)
+    return await pro_scene_resource.get_pro_matches(
+        limit=limit,
+        tier=tier,
+        team_name=team_name,
+        league_name=league_name,
+        days_back=days_back,
+    )
 
 
 @mcp.tool
