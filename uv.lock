@@ -1196,7 +1196,7 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.4.2" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=1.3.0" },
     { name = "python-manta", specifier = "==1.4.5.2.dev8", index = "https://test.pypi.org/simple/" },
-    { name = "python-opendota-sdk", specifier = "==7.39.5.1.dev1", index = "https://test.pypi.org/simple/" },
+    { name = "python-opendota-sdk", specifier = "==7.39.5.1.dev4", index = "https://test.pypi.org/simple/" },
     { name = "requests", specifier = ">=2.32.5" },
 ]
 provides-extras = ["dev"]
@@ -1964,15 +1964,15 @@ wheels = [
 
 [[package]]
 name = "python-opendota-sdk"
-version = "7.39.5.1.dev1"
+version = "7.39.5.1.dev4"
 source = { registry = "https://test.pypi.org/simple/" }
 dependencies = [
     { name = "httpx" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://test-files.pythonhosted.org/packages/87/a2/7561c60e7a86c42c996035f888bba1d4f293efe744e7e8f5539f0f73585b/python_opendota_sdk-7.39.5.1.dev1.tar.gz", hash = "sha256:72acc56701cd0ff2f7d92a294687159aab6b6f315f1247063c479f400e0a4049", size = 32797, upload-time = "2025-12-02T04:22:06.514Z" }
+sdist = { url = "https://test-files.pythonhosted.org/packages/cc/ac/a31508b2334bf691331803532ce544079662f827476e89b269202a8c0211/python_opendota_sdk-7.39.5.1.dev4.tar.gz", hash = "sha256:cdf2c8bc6e3affec066b347489dc49650ca9c78eb353a4642d387ba26f73545f", size = 38317, upload-time = "2025-12-06T10:46:56.157Z" }
 wheels = [
-    { url = "https://test-files.pythonhosted.org/packages/54/1c/5f97261673eaa0bd6fc29909fa09be4ed42dd29a27c408a229d4fcf3bdd7/python_opendota_sdk-7.39.5.1.dev1-py3-none-any.whl", hash = "sha256:2c4873bac0653884d05331046fb3ad3d7b3d60b6348617395a8ffca19b70d588", size = 15622, upload-time = "2025-12-02T04:22:04.807Z" },
+    { url = "https://test-files.pythonhosted.org/packages/7b/50/cf1f9ea870612278f29987229dd8b98082491e70895dc4208176297a86a5/python_opendota_sdk-7.39.5.1.dev4-py3-none-any.whl", hash = "sha256:717b198c289ce14b299ea64c1977d0fee4c6a86407a10e2ca7bce7db1c9f7bc7", size = 18663, upload-time = "2025-12-06T10:46:54.339Z" },
 ]
 
 [[package]]

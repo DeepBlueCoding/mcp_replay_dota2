@@ -192,5 +192,25 @@ class ProSceneFetcher:
         """Clear in-memory cache."""
         self._cache.clear()
 
+    def resolve_pro_name(self, account_id: int) -> Optional[str]:
+        """Resolve pro player name from account_id.
+
+        Checks manual_pro_names.json first, then OpenDota proPlayers cache.
+        Returns None if no pro name found.
+        """
+        account_str = str(account_id)
+
+        manual_names = self.get_manual_pro_names()
+        if account_str in manual_names:
+            return manual_names[account_str]
+
+        pro_players = self._load_from_cache("pro_players.json")
+        if pro_players:
+            for player in pro_players:
+                if player.get("account_id") == account_id:
+                    return player.get("name")
+
+        return None
+
 
 pro_scene_fetcher = ProSceneFetcher()

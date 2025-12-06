@@ -23,7 +23,7 @@ classifiers = [
 
 dependencies = [
     "fastmcp>=2.12.3",
-    "python-opendota-sdk==7.39.5.1.dev1",
+    "python-opendota-sdk==7.39.5.1.dev4",
     "requests>=2.32.5",
     "python-manta==1.4.5.2.dev8",
     "aiohttp>=3.13.2",

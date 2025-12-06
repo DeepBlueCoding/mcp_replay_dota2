@@ -19,6 +19,7 @@ from src.models.match_info import (
     TeamInfo,
 )
 from src.utils.constants_fetcher import constants_fetcher
+from src.utils.pro_scene_fetcher import pro_scene_fetcher
 
 logger = logging.getLogger(__name__)
 
@@ -208,8 +209,13 @@ class MatchInfoParser:
 
                 team = "radiant" if p.team == Team.RADIANT.value else "dire"
 
+                # Convert Steam ID to account ID and resolve pro name
+                account_id = p.steam_id - 76561197960265728 if p.steam_id > 76561197960265728 else p.steam_id
+                pro_name = pro_scene_fetcher.resolve_pro_name(account_id)
+                display_name = pro_name if pro_name else p.player_name
+
                 player_info = PlayerInfo(
-                    player_name=p.player_name,
+                    player_name=display_name,
                     hero_name=hero_internal,
                     hero_localized=hero_localized,
                     hero_id=hero_id,
