@@ -1222,6 +1222,50 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#parallel-tool-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parallel Tool Execution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#farming-pattern-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Farming Pattern Analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rotation-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rotation Analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#game-state-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Game State Tools
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pro-scene-features" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1345,6 +1389,50 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#parallel-tool-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parallel Tool Execution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#farming-pattern-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Farming Pattern Analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rotation-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rotation Analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#game-state-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Game State Tools
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pro-scene-features" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1432,11 +1520,54 @@
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
 <details class="info">
 <summary>🤖 AI Summary</summary>
-<p>Project changelog following Keep a Changelog format. Current features: MCP resources (heroes, map, match data), MCP tools (deaths, combat log, fights, items, objectives, timeline), map geometry data, combat log parsing with fight detection, hero fuzzy search.</p>
+<p>Project changelog following Keep a Changelog format. Current features: MCP resources (heroes, map, match data), MCP tools (deaths, combat log, fights, items, objectives, timeline), map geometry data, combat log parsing with fight detection, hero fuzzy search, farming pattern analysis, rotation analysis with rune correlation.</p>
 </details>
 <p>All notable changes to this project will be documented in this file.</p>
 <h2 id="unreleased">[Unreleased]<a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<h4 id="parallel-tool-execution">Parallel Tool Execution<a class="headerlink" href="#parallel-tool-execution" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Added parallel-safe hints to tool descriptions for LLM optimization</li>
+<li>Tools marked as parallel-safe: <code>get_stats_at_minute</code>, <code>get_cs_at_minute</code>, <code>get_hero_positions</code>, <code>get_snapshot_at_time</code>, <code>get_fight</code>, <code>get_position_timeline</code>, <code>get_fight_replay</code></li>
+<li>Server instructions now include guidance on parallel tool calls for efficiency</li>
+</ul>
+<h4 id="farming-pattern-analysis">Farming Pattern Analysis<a class="headerlink" href="#farming-pattern-analysis" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>get_farming_pattern</code> - Analyze a hero's farming pattern with minute-by-minute breakdown</li>
+<li>Lane creeps vs neutral creeps killed per minute</li>
+<li>Neutral camp type identification (satyr, centaur, kobold, etc.)</li>
+<li>Hero position tracking across the map</li>
+<li>Key transitions: first jungle kill, first large camp, when they left lane</li>
+<li>Summary stats: jungle %, GPM, CS/min, camps cleared by type</li>
+<li>Reduces 25+ tool calls to a single tool call for "farming pattern" questions</li>
+<li>Designed to answer: "How did X farm?", "When did they start jungling?", "Which camps did they clear?"</li>
+</ul>
+<h4 id="rotation-analysis">Rotation Analysis<a class="headerlink" href="#rotation-analysis" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>get_rotation_analysis</code> - Analyze hero rotations between lanes</li>
+<li>Rotation detection: tracks when heroes leave assigned lane</li>
+<li>Rune correlation: links power rune pickups to subsequent rotations</li>
+<li>Fight outcome: kill, died, traded, fight, or no_engagement</li>
+<li>Fight linking: provides <code>fight_id</code> to use with <code>get_fight()</code> for combat details</li>
+<li>Power rune events: tracks 6:00, 8:00, etc. spawns with who took them</li>
+<li>Wisdom rune events: detects contested wisdom runes with deaths nearby</li>
+<li>Per-hero statistics: total rotations, success rate, rune-assisted rotations</li>
+<li>Designed to answer: "Did mid rotate after runes?", "Which rotations resulted in kills?", "Were wisdom runes contested?"</li>
+</ul>
+<h4 id="game-state-tools">Game State Tools<a class="headerlink" href="#game-state-tools" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>list_fights</code> - List all fights with teamfight/skirmish classification</li>
+<li><code>get_teamfights</code> - Get major teamfights (3+ deaths)</li>
+<li><code>get_fight</code> - Detailed fight information with positions</li>
+<li><code>get_camp_stacks</code> - Neutral camp stacking events</li>
+<li><code>get_jungle_summary</code> - Stacking efficiency by hero</li>
+<li><code>get_lane_summary</code> - Laning phase winners and hero stats</li>
+<li><code>get_cs_at_minute</code> - CS/gold/level at specific minute</li>
+<li><code>get_hero_positions</code> - Hero positions at specific minute</li>
+<li><code>get_snapshot_at_time</code> - High-resolution game state at specific time</li>
+<li><code>get_position_timeline</code> - Hero movement over time range</li>
+<li><code>get_fight_replay</code> - High-resolution replay data for fights</li>
+</ul>
 <h4 id="pro-scene-features">Pro Scene Features<a class="headerlink" href="#pro-scene-features" title="Permanent link">&para;</a></h4>
 <ul>
 <li>Pro scene resources: <code>dota2://pro/players</code>, <code>dota2://pro/teams</code></li>

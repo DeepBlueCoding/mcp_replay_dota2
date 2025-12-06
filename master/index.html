@@ -562,6 +562,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#game-state-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Game State Analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pro-scene" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1504,6 +1515,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#game-state-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Game State Analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pro-scene" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1564,7 +1586,7 @@
 <h1 id="mcp-dota-2-match-analysis-server">MCP Dota 2 Match Analysis Server<a class="headerlink" href="#mcp-dota-2-match-analysis-server" title="Permanent link">&para;</a></h1>
 <details class="info">
 <summary>AI Summary</summary>
-<p>MCP server for Dota 2 match analysis. <strong>Tools</strong> (LLM calls these): <code>get_match_heroes</code>, <code>get_match_players</code>, <code>get_hero_deaths</code>, <code>get_combat_log</code>, <code>get_fight_combat_log</code>, <code>get_item_purchases</code>, <code>get_objective_kills</code>, <code>get_match_timeline</code>, <code>get_stats_at_minute</code>, <code>get_courier_kills</code>, plus pro scene tools. <strong>Resources</strong> (static context): <code>dota2://heroes/all</code>, <code>dota2://map</code>, <code>dota2://pro/players</code>, <code>dota2://pro/teams</code>. Connects to Claude Desktop, Claude Code, LangChain, LangGraph, CrewAI, or direct API integration.</p>
+<p>MCP server for Dota 2 match analysis. <strong>Tools</strong> (LLM calls these): <code>get_match_heroes</code>, <code>get_match_players</code>, <code>get_hero_deaths</code>, <code>get_combat_log</code>, <code>get_fight_combat_log</code>, <code>get_item_purchases</code>, <code>get_objective_kills</code>, <code>get_match_timeline</code>, <code>get_stats_at_minute</code>, <code>get_courier_kills</code>, plus pro scene tools. <strong>Game State Tools</strong>: <code>list_fights</code>, <code>get_teamfights</code>, <code>get_fight</code>, <code>get_lane_summary</code>, <code>get_cs_at_minute</code>, <code>get_snapshot_at_time</code>, <code>get_farming_pattern</code>. <strong>Resources</strong> (static context): <code>dota2://heroes/all</code>, <code>dota2://map</code>, <code>dota2://pro/players</code>, <code>dota2://pro/teams</code>. Many tools are <strong>parallel-safe</strong> for efficient multi-point analysis. Connects to Claude Desktop, Claude Code, LangChain, LangGraph, CrewAI, or direct API integration.</p>
 </details>
 <p>A Model Context Protocol (MCP) server that gives LLMs the ability to analyze Dota 2 matches by parsing replay files and querying the OpenDota API.</p>
 <h2 id="coaching-philosophy">Coaching Philosophy<a class="headerlink" href="#coaching-philosophy" title="Permanent link">&para;</a></h2>
@@ -1668,7 +1690,7 @@
 </tr>
 <tr>
 <td><code>get_stats_at_minute</code></td>
-<td>Snapshot of all players at a specific minute</td>
+<td>Snapshot of all players at a specific minute ⚡</td>
 </tr>
 <tr>
 <td><code>get_hero_deaths</code></td>
@@ -1700,6 +1722,66 @@
 </tr>
 </tbody>
 </table>
+<h3 id="game-state-analysis">Game State Analysis<a class="headerlink" href="#game-state-analysis" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>What It Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list_fights</code></td>
+<td>All fights with teamfight/skirmish classification</td>
+</tr>
+<tr>
+<td><code>get_teamfights</code></td>
+<td>Major teamfights (3+ deaths)</td>
+</tr>
+<tr>
+<td><code>get_fight</code></td>
+<td>Detailed fight info with positions ⚡</td>
+</tr>
+<tr>
+<td><code>get_camp_stacks</code></td>
+<td>Neutral camp stacking events</td>
+</tr>
+<tr>
+<td><code>get_jungle_summary</code></td>
+<td>Stacking efficiency by hero</td>
+</tr>
+<tr>
+<td><code>get_lane_summary</code></td>
+<td>Laning phase winners and hero stats</td>
+</tr>
+<tr>
+<td><code>get_cs_at_minute</code></td>
+<td>CS/gold/level at specific minute ⚡</td>
+</tr>
+<tr>
+<td><code>get_hero_positions</code></td>
+<td>Hero positions at specific minute ⚡</td>
+</tr>
+<tr>
+<td><code>get_snapshot_at_time</code></td>
+<td>High-resolution game state at specific time ⚡</td>
+</tr>
+<tr>
+<td><code>get_position_timeline</code></td>
+<td>Hero movement over time range ⚡</td>
+</tr>
+<tr>
+<td><code>get_fight_replay</code></td>
+<td>High-resolution replay data for fights ⚡</td>
+</tr>
+<tr>
+<td><code>get_farming_pattern</code></td>
+<td>Analyze farming pattern (creeps, camps, movement)</td>
+</tr>
+</tbody>
+</table>
+<p>⚡ = <strong>Parallel-safe</strong>: Call multiple times with different parameters in parallel for faster analysis.</p>
 <h3 id="pro-scene">Pro Scene<a class="headerlink" href="#pro-scene" title="Permanent link">&para;</a></h3>
 <table>
 <thead>

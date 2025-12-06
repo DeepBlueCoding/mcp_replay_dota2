@@ -1110,6 +1110,28 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#analyzing-carry-farming-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Analyzing Carry Farming Pattern
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#analyzing-mid-rotations-after-runes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Analyzing Mid Rotations After Runes
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1343,6 +1365,28 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#analyzing-carry-farming-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Analyzing Carry Farming Pattern
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#analyzing-mid-rotations-after-runes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Analyzing Mid Rotations After Runes
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1366,7 +1410,7 @@
 <h1 id="real-use-cases">Real Use Cases<a class="headerlink" href="#real-use-cases" title="Permanent link">&para;</a></h1>
 <details class="info">
 <summary>🤖 AI Summary</summary>
-<p>Example LLM conversations: <strong>Lost teamfight</strong> - <code>get_hero_deaths</code> → <code>get_fight_combat_log</code> → analyze initiation, counters, positioning. <strong>Carry farm tracking</strong> - <code>get_item_purchases</code> → <code>get_stats_at_minute</code> → compare CS, deaths, item timings. <strong>Gank analysis</strong> - deaths with position → fight log → identify root, damage chain, positioning mistake. <strong>Roshan control</strong> - <code>get_objective_kills</code> → timeline of objectives. <strong>Laning comparison</strong> - <code>get_stats_at_minute(10)</code> → compare LH, denies, net worth, level.</p>
+<p>Example LLM conversations: <strong>Lost teamfight</strong> - <code>get_hero_deaths</code> → <code>get_fight_combat_log</code> → analyze initiation, counters, positioning. <strong>Carry farm tracking</strong> - <code>get_item_purchases</code> → <code>get_stats_at_minute</code> → compare CS, deaths, item timings. <strong>Farming pattern</strong> - <code>get_farming_pattern</code> → minute-by-minute lane/jungle breakdown, camp types, transitions. <strong>Rotation analysis</strong> - <code>get_rotation_analysis</code> → detect mid rotations after runes, outcomes (kill/died/traded), wisdom rune fights. <strong>Gank analysis</strong> - deaths with position → fight log → identify root, damage chain, positioning mistake. <strong>Roshan control</strong> - <code>get_objective_kills</code> → timeline of objectives. <strong>Laning comparison</strong> - <code>get_stats_at_minute(10)</code> → compare LH, denies, net worth, level.</p>
 </details>
 <p>These are example conversations showing how an LLM uses the MCP tools to analyze matches.</p>
 <h2 id="analyzing-a-lost-teamfight">Analyzing a Lost Teamfight<a class="headerlink" href="#analyzing-a-lost-teamfight" title="Permanent link">&para;</a></h2>
@@ -1614,6 +1658,207 @@
 - +1,600 net worth
 - +2 levels</p>
 <p>Shadow Fiend's early damage from Necromastery stacks makes him strong in the 1v1. Pangolier likely struggled to last hit under tower after SF established raze control.</p>
+</blockquote>
+<hr />
+<h2 id="analyzing-carry-farming-pattern">Analyzing Carry Farming Pattern<a class="headerlink" href="#analyzing-carry-farming-pattern" title="Permanent link">&para;</a></h2>
+<p><strong>User:</strong> "What was Anti-Mage's farming pattern in the first 10 minutes? When did he start jungling?"</p>
+<p><strong>LLM calls:</strong> <code>get_farming_pattern(match_id=8461956309, hero="antimage", start_minute=0, end_minute=10)</code></p>
+<p><strong>Tool returns:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="nt">&quot;hero&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;antimage&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span><span class="nt">&quot;minutes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;minute&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;lane_creeps_killed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;neutral_creeps_killed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;map_area&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire_safelane&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;gold&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">320</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;last_hits&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">},</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;minute&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;lane_creeps_killed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;neutral_creeps_killed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;map_area&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire_safelane&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;gold&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">580</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;last_hits&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">},</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;minute&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;lane_creeps_killed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;neutral_creeps_killed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;map_area&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire_safelane&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;gold&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">890</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;last_hits&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">18</span><span class="p">},</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;minute&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;lane_creeps_killed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;neutral_creeps_killed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;map_area&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire_safelane&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;gold&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1150</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;last_hits&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">},</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;minute&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;lane_creeps_killed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;neutral_creeps_killed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;neutral_camps_detail&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;medium wolf&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;small kobold&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span><span class="w"> </span><span class="nt">&quot;map_area&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire_jungle&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;gold&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1580</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;last_hits&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">33</span><span class="p">},</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;minute&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;lane_creeps_killed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;neutral_creeps_killed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;neutral_camps_detail&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;large centaur&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;medium wolf&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">},</span><span class="w"> </span><span class="nt">&quot;map_area&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire_jungle&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;gold&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2100</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;last_hits&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">},</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;minute&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;lane_creeps_killed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;neutral_creeps_killed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;neutral_camps_detail&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;large satyr&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;medium harpy&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">},</span><span class="w"> </span><span class="nt">&quot;map_area&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire_jungle&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;gold&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2680</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;last_hits&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">51</span><span class="p">},</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;minute&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;lane_creeps_killed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;neutral_creeps_killed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;map_area&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire_safelane&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;gold&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3200</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;last_hits&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span><span class="p">},</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;minute&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;lane_creeps_killed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;neutral_creeps_killed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;map_area&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire_triangle&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;gold&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3850</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;last_hits&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">71</span><span class="p">},</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;minute&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;lane_creeps_killed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;neutral_creeps_killed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;map_area&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire_jungle&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;gold&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4520</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;last_hits&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">81</span><span class="p">}</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="w">  </span><span class="p">],</span>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="w">  </span><span class="nt">&quot;transitions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="w">    </span><span class="nt">&quot;first_jungle_kill_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">278.5</span><span class="p">,</span>
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a><span class="w">    </span><span class="nt">&quot;first_jungle_kill_str&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;4:38&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="w">    </span><span class="nt">&quot;first_large_camp_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">336.2</span><span class="p">,</span>
+<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a><span class="w">    </span><span class="nt">&quot;first_large_camp_str&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;5:36&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a><span class="w">    </span><span class="nt">&quot;left_lane_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">360.0</span><span class="p">,</span>
+<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a><span class="w">    </span><span class="nt">&quot;left_lane_str&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;6:00&quot;</span>
+<a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a><span class="w">  </span><span class="nt">&quot;summary&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a><span class="w">    </span><span class="nt">&quot;total_lane_creeps&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">52</span><span class="p">,</span>
+<a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a><span class="w">    </span><span class="nt">&quot;total_neutral_creeps&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">29</span><span class="p">,</span>
+<a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a><span class="w">    </span><span class="nt">&quot;jungle_percentage&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">35.8</span><span class="p">,</span>
+<a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a><span class="w">    </span><span class="nt">&quot;gpm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">452.0</span><span class="p">,</span>
+<a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a><span class="w">    </span><span class="nt">&quot;cs_per_min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">8.1</span><span class="p">,</span>
+<a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a><span class="w">    </span><span class="nt">&quot;camps_cleared&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;large centaur&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;large satyr&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;medium wolf&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;medium harpy&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;small kobold&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">}</span>
+<a id="__codelineno-8-31" name="__codelineno-8-31" href="#__codelineno-8-31"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-8-32" name="__codelineno-8-32" href="#__codelineno-8-32"></a><span class="p">}</span>
+</code></pre></div></p>
+<p><strong>LLM responds:</strong></p>
+<blockquote>
+<p><strong>Anti-Mage's Farming Pattern (0-10 min):</strong></p>
+<p><strong>Key Transitions:</strong></p>
+<ul>
+<li><strong>4:38</strong> - First jungle creep killed (medium wolf camp)</li>
+<li><strong>5:36</strong> - First large camp cleared (centaur)</li>
+<li><strong>6:00</strong> - Transitioned to full jungle rotation pattern</li>
+</ul>
+<p><strong>Minute-by-Minute Movement:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Min</th>
+<th>Lane CS</th>
+<th>Jungle CS</th>
+<th>Location</th>
+<th>Gold</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1-4</td>
+<td>25</td>
+<td>0</td>
+<td>Dire safelane</td>
+<td>1,150</td>
+</tr>
+<tr>
+<td>5</td>
+<td>5</td>
+<td>3</td>
+<td>Starting jungle</td>
+<td>1,580</td>
+</tr>
+<tr>
+<td>6-7</td>
+<td>7</td>
+<td>11</td>
+<td>Full jungle mode</td>
+<td>2,680</td>
+</tr>
+<tr>
+<td>8-10</td>
+<td>15</td>
+<td>15</td>
+<td>Lane-jungle rotation</td>
+<td>4,520</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Summary:</strong>
+- <strong>81 CS in 10 minutes</strong> (8.1 CS/min) - excellent farming
+- <strong>36% jungle farm</strong> - healthy mix of lane and camps
+- Cleared mostly large camps (satyr, centaur) for efficiency</p>
+<p><strong>Pattern Analysis:</strong>
+AM had an uncontested lane for 4 minutes, then started adding jungle camps at minute 5. By minute 6, he was doing the classic "shove wave → clear 2 camps → return for next wave" rotation. The transition timing (5:36 for first large camp) suggests he got his Ring of Health and immediately started sustaining through jungle.</p>
+</blockquote>
+<hr />
+<h2 id="analyzing-mid-rotations-after-runes">Analyzing Mid Rotations After Runes<a class="headerlink" href="#analyzing-mid-rotations-after-runes" title="Permanent link">&para;</a></h2>
+<p><strong>User:</strong> "Did the mid player rotate after rune pickups in the early game?"</p>
+<p><strong>LLM thinks:</strong> I need to analyze rotations and correlate them with rune pickups.</p>
+<p><strong>LLM calls:</strong> <code>get_rotation_analysis(match_id=8461956309, start_minute=0, end_minute=15)</code></p>
+<p><strong>Tool returns:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="nt">&quot;rotations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">      </span><span class="nt">&quot;rotation_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rot_1&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">      </span><span class="nt">&quot;hero&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;nevermore&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">      </span><span class="nt">&quot;role&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mid&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">      </span><span class="nt">&quot;game_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">365.0</span><span class="p">,</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">      </span><span class="nt">&quot;game_time_str&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;6:05&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">      </span><span class="nt">&quot;from_lane&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mid&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">      </span><span class="nt">&quot;to_lane&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bot&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">      </span><span class="nt">&quot;rune_before&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">        </span><span class="nt">&quot;rune_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;haste&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="w">        </span><span class="nt">&quot;pickup_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">362.0</span><span class="p">,</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="w">        </span><span class="nt">&quot;seconds_before_rotation&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">3.0</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="w">      </span><span class="p">},</span>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="w">      </span><span class="nt">&quot;outcome&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;kill&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="w">        </span><span class="nt">&quot;fight_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fight_2&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="w">        </span><span class="nt">&quot;kills_by_rotation_hero&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;antimage&quot;</span><span class="p">]</span>
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a><span class="w">      </span><span class="nt">&quot;rotation_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rot_2&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a><span class="w">      </span><span class="nt">&quot;hero&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;nevermore&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a><span class="w">      </span><span class="nt">&quot;role&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mid&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a><span class="w">      </span><span class="nt">&quot;game_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">485.0</span><span class="p">,</span>
+<a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a><span class="w">      </span><span class="nt">&quot;game_time_str&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;8:05&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a><span class="w">      </span><span class="nt">&quot;from_lane&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mid&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a><span class="w">      </span><span class="nt">&quot;to_lane&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;top&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-31" name="__codelineno-9-31" href="#__codelineno-9-31"></a><span class="w">      </span><span class="nt">&quot;rune_before&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-32" name="__codelineno-9-32" href="#__codelineno-9-32"></a><span class="w">        </span><span class="nt">&quot;rune_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;double_damage&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-33" name="__codelineno-9-33" href="#__codelineno-9-33"></a><span class="w">        </span><span class="nt">&quot;pickup_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">482.0</span><span class="p">,</span>
+<a id="__codelineno-9-34" name="__codelineno-9-34" href="#__codelineno-9-34"></a><span class="w">        </span><span class="nt">&quot;seconds_before_rotation&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">3.0</span>
+<a id="__codelineno-9-35" name="__codelineno-9-35" href="#__codelineno-9-35"></a><span class="w">      </span><span class="p">},</span>
+<a id="__codelineno-9-36" name="__codelineno-9-36" href="#__codelineno-9-36"></a><span class="w">      </span><span class="nt">&quot;outcome&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-37" name="__codelineno-9-37" href="#__codelineno-9-37"></a><span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;traded&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-38" name="__codelineno-9-38" href="#__codelineno-9-38"></a><span class="w">        </span><span class="nt">&quot;fight_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fight_4&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-39" name="__codelineno-9-39" href="#__codelineno-9-39"></a><span class="w">        </span><span class="nt">&quot;rotation_hero_died&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-9-40" name="__codelineno-9-40" href="#__codelineno-9-40"></a><span class="w">        </span><span class="nt">&quot;kills_by_rotation_hero&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;earthshaker&quot;</span><span class="p">]</span>
+<a id="__codelineno-9-41" name="__codelineno-9-41" href="#__codelineno-9-41"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-9-42" name="__codelineno-9-42" href="#__codelineno-9-42"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-9-43" name="__codelineno-9-43" href="#__codelineno-9-43"></a><span class="w">  </span><span class="p">],</span>
+<a id="__codelineno-9-44" name="__codelineno-9-44" href="#__codelineno-9-44"></a><span class="w">  </span><span class="nt">&quot;summary&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-45" name="__codelineno-9-45" href="#__codelineno-9-45"></a><span class="w">    </span><span class="nt">&quot;total_rotations&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<a id="__codelineno-9-46" name="__codelineno-9-46" href="#__codelineno-9-46"></a><span class="w">    </span><span class="nt">&quot;by_hero&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-47" name="__codelineno-9-47" href="#__codelineno-9-47"></a><span class="w">      </span><span class="nt">&quot;nevermore&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-48" name="__codelineno-9-48" href="#__codelineno-9-48"></a><span class="w">        </span><span class="nt">&quot;total_rotations&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<a id="__codelineno-9-49" name="__codelineno-9-49" href="#__codelineno-9-49"></a><span class="w">        </span><span class="nt">&quot;successful_ganks&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<a id="__codelineno-9-50" name="__codelineno-9-50" href="#__codelineno-9-50"></a><span class="w">        </span><span class="nt">&quot;failed_ganks&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<a id="__codelineno-9-51" name="__codelineno-9-51" href="#__codelineno-9-51"></a><span class="w">        </span><span class="nt">&quot;trades&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<a id="__codelineno-9-52" name="__codelineno-9-52" href="#__codelineno-9-52"></a><span class="w">        </span><span class="nt">&quot;rune_rotations&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span>
+<a id="__codelineno-9-53" name="__codelineno-9-53" href="#__codelineno-9-53"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-9-54" name="__codelineno-9-54" href="#__codelineno-9-54"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-9-55" name="__codelineno-9-55" href="#__codelineno-9-55"></a><span class="w">    </span><span class="nt">&quot;runes_leading_to_kills&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<a id="__codelineno-9-56" name="__codelineno-9-56" href="#__codelineno-9-56"></a><span class="w">    </span><span class="nt">&quot;most_active_rotator&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;nevermore&quot;</span>
+<a id="__codelineno-9-57" name="__codelineno-9-57" href="#__codelineno-9-57"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-9-58" name="__codelineno-9-58" href="#__codelineno-9-58"></a><span class="p">}</span>
+</code></pre></div></p>
+<p><strong>LLM responds:</strong></p>
+<blockquote>
+<p><strong>Shadow Fiend's Rotation Pattern (0-15 min):</strong></p>
+<p>SF rotated 3 times in the early game, <strong>all 3 after picking up power runes</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Time</th>
+<th>Rune</th>
+<th>Target Lane</th>
+<th>Outcome</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>6:05</td>
+<td>Haste</td>
+<td>Bot</td>
+<td>Kill on Anti-Mage</td>
+</tr>
+<tr>
+<td>8:05</td>
+<td>DD</td>
+<td>Top</td>
+<td>Traded - killed ES but died</td>
+</tr>
+<tr>
+<td>10:02</td>
+<td>Arcane</td>
+<td>Bot</td>
+<td>No engagement</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Analysis:</strong>
+- <strong>Rune discipline</strong>: SF consistently contested and secured power runes
+- <strong>Rotation efficiency</strong>: 2/3 rotations resulted in kills (67% success)
+- <strong>Risk management</strong>: The 8:05 rotation was greedy - diving with DD against a counter-gank setup</p>
+<p><strong>Coaching point</strong>: The DD rotation at 8:05 shows good aggression but poor awareness. Check the fight log with <code>get_fight(fight_id="fight_4")</code> to see if the counter-gank was telegraphed (TPs, missing enemies).</p>
 </blockquote>
 
 
