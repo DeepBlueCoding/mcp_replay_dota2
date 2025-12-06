@@ -6,6 +6,17 @@
 
 A Model Context Protocol (MCP) server that gives LLMs the ability to analyze Dota 2 matches by parsing replay files and querying the OpenDota API.
 
+## Coaching Philosophy
+
+This server includes **built-in coaching instructions** that guide LLM responses to provide meaningful analysis, not just raw data dumps:
+
+- **Pattern Recognition**: Identify repetitive death patterns (support positioning, smoke ganks, vision-related deaths)
+- **Objective Analysis**: Link tower kills to hero rotations (mid with rune, supports via portal, defender TPs)
+- **Economy Tracking**: Explain networth swings in context of teamfights and objectives taken
+- **Actionable Advice**: Every analysis ends with specific, actionable coaching points
+
+The LLM is instructed to analyze the "why" behind the data, connecting statistics to game-changing decisions.
+
 ## What This Does
 
 This server exposes **tools** and **resources** that an LLM can call to answer questions about Dota 2 matches:
@@ -44,13 +55,23 @@ The LLM reads the replay data and provides analysis based on actual game events,
 
 ## Quick Start
 
-### 1. Install
+### Option A: Local Install
 
 ```bash
 git clone https://github.com/DeepBlueCoding/mcp_replay_dota2.git
 cd mcp_replay_dota2
 uv sync
+uv run python dota_match_mcp_server.py
 ```
+
+### Option B: Docker
+
+```bash
+docker build -t dota2-mcp-server .
+docker run -p 8081:8081 dota2-mcp-server --transport sse
+```
+
+Connect to `http://localhost:8081/sse`. See [Docker Guide](getting-started/docker.md) for details.
 
 ### 2. Connect to Your LLM
 
