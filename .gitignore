@@ -117,3 +117,8 @@ v2-architecture.md
 data/replays/
 data/temp/
 .data/
+
+# Pro scene cache files (auto-generated from OpenDota API)
+data/pro_scene/pro_players.json
+data/pro_scene/teams.json
+data/pro_scene/leagues.json
