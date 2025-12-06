@@ -135,8 +135,16 @@ def test_match_id():
 
 
 @pytest.fixture(scope="session", autouse=True)
-def preparse_replay():
-    """Auto-run fixture that pre-parses the replay at session start."""
+def preparse_replay(request):
+    """Auto-run fixture that pre-parses the replay at session start.
+
+    Skips pre-parsing when running only fast tests (no replay needed).
+    """
+    # Check if we're only running fast tests - if so, skip pre-parsing
+    markexpr = getattr(request.config.option, 'markexpr', None)
+    if markexpr and 'fast' in markexpr:
+        return
+
     _ensure_parsed()
 
 

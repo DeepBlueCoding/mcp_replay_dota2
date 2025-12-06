@@ -2,7 +2,7 @@
 
 ??? info "🤖 AI Summary"
 
-    Example LLM conversations: **Lost teamfight** - `get_hero_deaths` → `get_fight_combat_log` → analyze initiation, counters, positioning. **Carry farm tracking** - `get_item_purchases` → `get_stats_at_minute` → compare CS, deaths, item timings. **Gank analysis** - deaths with position → fight log → identify root, damage chain, positioning mistake. **Roshan control** - `get_objective_kills` → timeline of objectives. **Laning comparison** - `get_stats_at_minute(10)` → compare LH, denies, net worth, level.
+    Example LLM conversations: **Lost teamfight** - `get_hero_deaths` → `get_fight_combat_log` → analyze initiation, counters, positioning. **Carry farm tracking** - `get_item_purchases` → `get_stats_at_minute` → compare CS, deaths, item timings. **Farming pattern** - `get_farming_pattern` → minute-by-minute lane/jungle breakdown, camp types, transitions. **Rotation analysis** - `get_rotation_analysis` → detect mid rotations after runes, outcomes (kill/died/traded), wisdom rune fights. **Gank analysis** - deaths with position → fight log → identify root, damage chain, positioning mistake. **Roshan control** - `get_objective_kills` → timeline of objectives. **Laning comparison** - `get_stats_at_minute(10)` → compare LH, denies, net worth, level.
 
 These are example conversations showing how an LLM uses the MCP tools to analyze matches.
 
@@ -235,3 +235,165 @@ These are example conversations showing how an LLM uses the MCP tools to analyze
 > - +2 levels
 >
 > Shadow Fiend's early damage from Necromastery stacks makes him strong in the 1v1. Pangolier likely struggled to last hit under tower after SF established raze control.
+
+---
+
+## Analyzing Carry Farming Pattern
+
+**User:** "What was Anti-Mage's farming pattern in the first 10 minutes? When did he start jungling?"
+
+**LLM calls:** `get_farming_pattern(match_id=8461956309, hero="antimage", start_minute=0, end_minute=10)`
+
+**Tool returns:**
+```json
+{
+  "success": true,
+  "hero": "antimage",
+  "minutes": [
+    {"minute": 1, "lane_creeps_killed": 4, "neutral_creeps_killed": 0, "map_area": "dire_safelane", "gold": 320, "last_hits": 4},
+    {"minute": 2, "lane_creeps_killed": 6, "neutral_creeps_killed": 0, "map_area": "dire_safelane", "gold": 580, "last_hits": 10},
+    {"minute": 3, "lane_creeps_killed": 8, "neutral_creeps_killed": 0, "map_area": "dire_safelane", "gold": 890, "last_hits": 18},
+    {"minute": 4, "lane_creeps_killed": 7, "neutral_creeps_killed": 0, "map_area": "dire_safelane", "gold": 1150, "last_hits": 25},
+    {"minute": 5, "lane_creeps_killed": 5, "neutral_creeps_killed": 3, "neutral_camps_detail": {"medium wolf": 2, "small kobold": 1}, "map_area": "dire_jungle", "gold": 1580, "last_hits": 33},
+    {"minute": 6, "lane_creeps_killed": 4, "neutral_creeps_killed": 5, "neutral_camps_detail": {"large centaur": 3, "medium wolf": 2}, "map_area": "dire_jungle", "gold": 2100, "last_hits": 42},
+    {"minute": 7, "lane_creeps_killed": 3, "neutral_creeps_killed": 6, "neutral_camps_detail": {"large satyr": 4, "medium harpy": 2}, "map_area": "dire_jungle", "gold": 2680, "last_hits": 51},
+    {"minute": 8, "lane_creeps_killed": 5, "neutral_creeps_killed": 4, "map_area": "dire_safelane", "gold": 3200, "last_hits": 60},
+    {"minute": 9, "lane_creeps_killed": 6, "neutral_creeps_killed": 5, "map_area": "dire_triangle", "gold": 3850, "last_hits": 71},
+    {"minute": 10, "lane_creeps_killed": 4, "neutral_creeps_killed": 6, "map_area": "dire_jungle", "gold": 4520, "last_hits": 81}
+  ],
+  "transitions": {
+    "first_jungle_kill_time": 278.5,
+    "first_jungle_kill_str": "4:38",
+    "first_large_camp_time": 336.2,
+    "first_large_camp_str": "5:36",
+    "left_lane_time": 360.0,
+    "left_lane_str": "6:00"
+  },
+  "summary": {
+    "total_lane_creeps": 52,
+    "total_neutral_creeps": 29,
+    "jungle_percentage": 35.8,
+    "gpm": 452.0,
+    "cs_per_min": 8.1,
+    "camps_cleared": {"large centaur": 3, "large satyr": 4, "medium wolf": 4, "medium harpy": 2, "small kobold": 1}
+  }
+}
+```
+
+**LLM responds:**
+
+> **Anti-Mage's Farming Pattern (0-10 min):**
+>
+> **Key Transitions:**
+>
+> - **4:38** - First jungle creep killed (medium wolf camp)
+> - **5:36** - First large camp cleared (centaur)
+> - **6:00** - Transitioned to full jungle rotation pattern
+>
+> **Minute-by-Minute Movement:**
+>
+> | Min | Lane CS | Jungle CS | Location | Gold |
+> |-----|---------|-----------|----------|------|
+> | 1-4 | 25 | 0 | Dire safelane | 1,150 |
+> | 5 | 5 | 3 | Starting jungle | 1,580 |
+> | 6-7 | 7 | 11 | Full jungle mode | 2,680 |
+> | 8-10 | 15 | 15 | Lane-jungle rotation | 4,520 |
+>
+> **Summary:**
+> - **81 CS in 10 minutes** (8.1 CS/min) - excellent farming
+> - **36% jungle farm** - healthy mix of lane and camps
+> - Cleared mostly large camps (satyr, centaur) for efficiency
+>
+> **Pattern Analysis:**
+> AM had an uncontested lane for 4 minutes, then started adding jungle camps at minute 5. By minute 6, he was doing the classic "shove wave → clear 2 camps → return for next wave" rotation. The transition timing (5:36 for first large camp) suggests he got his Ring of Health and immediately started sustaining through jungle.
+
+---
+
+## Analyzing Mid Rotations After Runes
+
+**User:** "Did the mid player rotate after rune pickups in the early game?"
+
+**LLM thinks:** I need to analyze rotations and correlate them with rune pickups.
+
+**LLM calls:** `get_rotation_analysis(match_id=8461956309, start_minute=0, end_minute=15)`
+
+**Tool returns:**
+```json
+{
+  "success": true,
+  "rotations": [
+    {
+      "rotation_id": "rot_1",
+      "hero": "nevermore",
+      "role": "mid",
+      "game_time": 365.0,
+      "game_time_str": "6:05",
+      "from_lane": "mid",
+      "to_lane": "bot",
+      "rune_before": {
+        "rune_type": "haste",
+        "pickup_time": 362.0,
+        "seconds_before_rotation": 3.0
+      },
+      "outcome": {
+        "type": "kill",
+        "fight_id": "fight_2",
+        "kills_by_rotation_hero": ["antimage"]
+      }
+    },
+    {
+      "rotation_id": "rot_2",
+      "hero": "nevermore",
+      "role": "mid",
+      "game_time": 485.0,
+      "game_time_str": "8:05",
+      "from_lane": "mid",
+      "to_lane": "top",
+      "rune_before": {
+        "rune_type": "double_damage",
+        "pickup_time": 482.0,
+        "seconds_before_rotation": 3.0
+      },
+      "outcome": {
+        "type": "traded",
+        "fight_id": "fight_4",
+        "rotation_hero_died": true,
+        "kills_by_rotation_hero": ["earthshaker"]
+      }
+    }
+  ],
+  "summary": {
+    "total_rotations": 5,
+    "by_hero": {
+      "nevermore": {
+        "total_rotations": 3,
+        "successful_ganks": 1,
+        "failed_ganks": 1,
+        "trades": 1,
+        "rune_rotations": 3
+      }
+    },
+    "runes_leading_to_kills": 2,
+    "most_active_rotator": "nevermore"
+  }
+}
+```
+
+**LLM responds:**
+
+> **Shadow Fiend's Rotation Pattern (0-15 min):**
+>
+> SF rotated 3 times in the early game, **all 3 after picking up power runes**.
+>
+> | Time | Rune | Target Lane | Outcome |
+> |------|------|-------------|---------|
+> | 6:05 | Haste | Bot | Kill on Anti-Mage |
+> | 8:05 | DD | Top | Traded - killed ES but died |
+> | 10:02 | Arcane | Bot | No engagement |
+>
+> **Analysis:**
+> - **Rune discipline**: SF consistently contested and secured power runes
+> - **Rotation efficiency**: 2/3 rotations resulted in kills (67% success)
+> - **Risk management**: The 8:05 rotation was greedy - diving with DD against a counter-gank setup
+>
+> **Coaching point**: The DD rotation at 8:05 shows good aggression but poor awareness. Check the fight log with `get_fight(fight_id="fight_4")` to see if the counter-gank was telegraphed (TPs, missing enemies).

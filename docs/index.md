@@ -2,7 +2,7 @@
 
 ??? info "AI Summary"
 
-    MCP server for Dota 2 match analysis. **Tools** (LLM calls these): `get_match_heroes`, `get_match_players`, `get_hero_deaths`, `get_combat_log`, `get_fight_combat_log`, `get_item_purchases`, `get_objective_kills`, `get_match_timeline`, `get_stats_at_minute`, `get_courier_kills`, plus pro scene tools. **Resources** (static context): `dota2://heroes/all`, `dota2://map`, `dota2://pro/players`, `dota2://pro/teams`. Connects to Claude Desktop, Claude Code, LangChain, LangGraph, CrewAI, or direct API integration.
+    MCP server for Dota 2 match analysis. **Tools** (LLM calls these): `get_match_heroes`, `get_match_players`, `get_hero_deaths`, `get_combat_log`, `get_fight_combat_log`, `get_item_purchases`, `get_objective_kills`, `get_match_timeline`, `get_stats_at_minute`, `get_courier_kills`, plus pro scene tools. **Game State Tools**: `list_fights`, `get_teamfights`, `get_fight`, `get_lane_summary`, `get_cs_at_minute`, `get_snapshot_at_time`, `get_farming_pattern`. **Resources** (static context): `dota2://heroes/all`, `dota2://map`, `dota2://pro/players`, `dota2://pro/teams`. Many tools are **parallel-safe** for efficient multi-point analysis. Connects to Claude Desktop, Claude Code, LangChain, LangGraph, CrewAI, or direct API integration.
 
 A Model Context Protocol (MCP) server that gives LLMs the ability to analyze Dota 2 matches by parsing replay files and querying the OpenDota API.
 
@@ -102,7 +102,7 @@ The LLM will automatically call the appropriate tools and synthesize an analysis
 | `get_match_players` | 10 players with names and hero assignments |
 | `get_match_draft` | Complete draft order (bans/picks) |
 | `get_match_timeline` | Net worth, XP, KDA over time |
-| `get_stats_at_minute` | Snapshot of all players at a specific minute |
+| `get_stats_at_minute` | Snapshot of all players at a specific minute ⚡ |
 | `get_hero_deaths` | All deaths with killer, victim, ability used |
 | `get_combat_log` | Damage events, abilities, modifiers in a time range |
 | `get_fight_combat_log` | Auto-detects fight boundaries around a death |
@@ -110,6 +110,25 @@ The LLM will automatically call the appropriate tools and synthesize an analysis
 | `get_objective_kills` | Roshan, towers, barracks timings |
 | `get_courier_kills` | Courier snipes with position |
 | `get_rune_pickups` | Rune pickups by hero |
+
+### Game State Analysis
+
+| Tool | What It Does |
+|------|--------------|
+| `list_fights` | All fights with teamfight/skirmish classification |
+| `get_teamfights` | Major teamfights (3+ deaths) |
+| `get_fight` | Detailed fight info with positions ⚡ |
+| `get_camp_stacks` | Neutral camp stacking events |
+| `get_jungle_summary` | Stacking efficiency by hero |
+| `get_lane_summary` | Laning phase winners and hero stats |
+| `get_cs_at_minute` | CS/gold/level at specific minute ⚡ |
+| `get_hero_positions` | Hero positions at specific minute ⚡ |
+| `get_snapshot_at_time` | High-resolution game state at specific time ⚡ |
+| `get_position_timeline` | Hero movement over time range ⚡ |
+| `get_fight_replay` | High-resolution replay data for fights ⚡ |
+| `get_farming_pattern` | Analyze farming pattern (creeps, camps, movement) |
+
+⚡ = **Parallel-safe**: Call multiple times with different parameters in parallel for faster analysis.
 
 ### Pro Scene
 

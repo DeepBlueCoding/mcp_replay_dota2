@@ -45,7 +45,7 @@ src/
   resources/               # Data providers (heroes, map, pro_scene)
   models/                  # Pydantic response models
   utils/                   # Parsers, downloaders, caches
-  services/                # v2 services layer (NO MCP deps)
+  services/                # Services layer (NO MCP deps)
 tests/
   conftest.py              # Session-scoped fixtures - reuses parsed data
 data/
@@ -73,14 +73,14 @@ for player in snapshot.players:
     hero = player['hero_name']       # NO!
 ```
 
-### v2 Services Layer (src/services/)
+### Services Layer (src/services/)
 
-The v2 services use python-manta types directly:
+Services use python-manta types directly:
 - `ReplayService` returns `ParsedReplayData` wrapping python-manta `ParseResult`
 - `EntitySnapshot.players` contains `List[PlayerState]` (Pydantic models)
 - `CombatLogResult.entries` contains `List[CombatLogEntry]` (Pydantic models)
 
-### Single-Pass Parsing with python_manta v2
+### Single-Pass Parsing with python-manta
 
 ```python
 from python_manta import Parser, CombatLogType
@@ -154,7 +154,7 @@ Use `hero_fuzzy_search` for name matching.
 
 ## Dependencies
 
-- **python-manta** (>=1.4.5): Replay parser with v2 API
+- **python-manta** (>=1.4.5): Replay parser
 - **python-opendota**: OpenDota API client (local at `../python-opendota-sdk`)
 - **fastmcp**: MCP server framework
 - **diskcache**: Persistent replay cache

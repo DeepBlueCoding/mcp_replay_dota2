@@ -4,9 +4,53 @@
 
     **Match Analysis Tools** (require `match_id`): `download_replay` (call first), `get_hero_deaths`, `get_combat_log`, `get_fight_combat_log`, `get_item_purchases`, `get_objective_kills`, `get_match_timeline`, `get_stats_at_minute`, `get_courier_kills`, `get_rune_pickups`, `get_match_draft`, `get_match_info`.
 
-**Pro Scene Tools**: `search_pro_player(query)`, `search_team(query)`, `get_pro_player(account_id)`, `get_pro_player_by_name(name)`, `get_team(team_id)`, `get_team_by_name(name)`, `get_team_matches(team_id)`, `get_leagues(tier?)`, `get_pro_matches(limit?, tier?, team_name?, league_name?, days_back?)`, `get_league_matches(league_id)`.
+    **Game State Tools**: `list_fights`, `get_teamfights`, `get_fight`, `get_camp_stacks`, `get_jungle_summary`, `get_lane_summary`, `get_cs_at_minute`, `get_hero_positions`, `get_snapshot_at_time`, `get_position_timeline`, `get_fight_replay`.
 
-Tools are functions the LLM can call. All tools take `match_id` as required parameter.
+    **Farming Analysis**: `get_farming_pattern(hero, start_minute, end_minute)` - THE tool for "how did X farm?" questions. Returns minute-by-minute lane/neutral kills, camp types, positions, transitions (first jungle, first large camp), and summary stats. **Replaces 25+ tool calls with 1 call.**
+
+    **Rotation Analysis**: `get_rotation_analysis(start_minute, end_minute)` - THE tool for "what rotations happened?" questions. Detects when heroes leave assigned lanes, correlates with rune pickups, links outcomes to fight_ids. Returns rotations, power/wisdom rune events, and per-hero statistics.
+
+    **Pro Scene Tools**: `search_pro_player(query)`, `search_team(query)`, `get_pro_player(account_id)`, `get_pro_player_by_name(name)`, `get_team(team_id)`, `get_team_by_name(name)`, `get_team_matches(team_id)`, `get_leagues(tier?)`, `get_pro_matches(limit?, tier?, team_name?, league_name?, days_back?)`, `get_league_matches(league_id)`.
+
+    **Parallel-safe tools**: `get_stats_at_minute`, `get_cs_at_minute`, `get_hero_positions`, `get_snapshot_at_time`, `get_fight`, `get_position_timeline`, `get_fight_replay` - call multiple times with different parameters in parallel for efficiency.
+
+Tools are functions the LLM can call. All match analysis tools take `match_id` as required parameter.
+
+## Parallel Tool Execution
+
+Many tools are **parallel-safe** and can be called simultaneously with different parameters. This significantly speeds up analysis when comparing multiple time points or fights.
+
+### Parallel-Safe Tools
+
+| Tool | Parallelize By |
+|------|----------------|
+| `get_stats_at_minute` | Different minutes (e.g., 10, 20, 30) |
+| `get_cs_at_minute` | Different minutes (e.g., 5, 10, 15) |
+| `get_hero_positions` | Different minutes |
+| `get_snapshot_at_time` | Different game times |
+| `get_fight` | Different fight_ids |
+| `get_position_timeline` | Different time ranges or heroes |
+| `get_fight_replay` | Different fights |
+
+### Example: Laning Analysis
+
+Instead of calling sequentially:
+```python
+# Slow - sequential calls
+get_cs_at_minute(match_id=123, minute=5)
+get_cs_at_minute(match_id=123, minute=10)
+```
+
+Call both in parallel:
+```python
+# Fast - parallel calls in same LLM response
+get_cs_at_minute(match_id=123, minute=5)  # AND
+get_cs_at_minute(match_id=123, minute=10)
+```
+
+The LLM can issue multiple tool calls in a single response, and the runtime executes them concurrently.
+
+---
 
 ## download_replay
 
@@ -609,3 +653,475 @@ get_league_matches(league_id=15728, limit=50)
   "matches": [...]
 }
 ```
+
+---
+
+# Game State Tools
+
+High-resolution game state analysis tools.
+
+## list_fights
+
+List all fights in a match. Fights are grouped by deaths occurring within 15 seconds of each other.
+
+```python
+list_fights(match_id=8461956309)
+```
+
+**Returns:**
+```json
+{
+  "success": true,
+  "total_fights": 12,
+  "teamfights": 5,
+  "skirmishes": 7,
+  "total_deaths": 45,
+  "fights": [
+    {
+      "fight_id": "fight_1",
+      "start_time": "4:48",
+      "total_deaths": 2,
+      "participants": ["earthshaker", "disruptor"]
+    }
+  ]
+}
+```
+
+---
+
+## get_teamfights
+
+Get only major teamfights (3+ deaths by default).
+
+```python
+get_teamfights(match_id=8461956309, min_deaths=3)
+```
+
+---
+
+## get_fight
+
+Get detailed information about a specific fight. **Parallel-safe**: call with multiple fight_ids.
+
+```python
+get_fight(match_id=8461956309, fight_id="fight_5")
+```
+
+**Returns:**
+```json
+{
+  "success": true,
+  "fight_id": "fight_5",
+  "start_time": "23:15",
+  "end_time": "23:42",
+  "duration_seconds": 27,
+  "is_teamfight": true,
+  "total_deaths": 4,
+  "participants": ["medusa", "earthshaker", "naga_siren", "disruptor", "pangolier"],
+  "deaths": [
+    {"game_time": "23:18", "killer": "medusa", "victim": "earthshaker", "ability": "medusa_stone_gaze"}
+  ]
+}
+```
+
+---
+
+## get_camp_stacks
+
+Get all neutral camp stacks in the match.
+
+```python
+get_camp_stacks(match_id=8461956309, hero_filter="crystal_maiden")
+```
+
+**Returns:**
+```json
+{
+  "success": true,
+  "total_stacks": 8,
+  "stacks": [
+    {"game_time": "0:53", "stacker": "crystal_maiden", "camp_type": "large", "stack_count": 2}
+  ]
+}
+```
+
+---
+
+## get_jungle_summary
+
+Overview of jungle activity - stacking efficiency by hero.
+
+```python
+get_jungle_summary(match_id=8461956309)
+```
+
+**Returns:**
+```json
+{
+  "success": true,
+  "total_stacks": 15,
+  "stacks_by_hero": {"crystal_maiden": 5, "chen": 4, "medusa": 6},
+  "stack_efficiency_per_10min": {"crystal_maiden": 1.2, "chen": 1.0, "medusa": 1.5}
+}
+```
+
+---
+
+## get_lane_summary
+
+Laning phase analysis (first 10 minutes).
+
+```python
+get_lane_summary(match_id=8461956309)
+```
+
+**Returns:**
+```json
+{
+  "success": true,
+  "lane_winners": {"top": "dire", "mid": "radiant", "bot": "even"},
+  "team_scores": {"radiant": 2.5, "dire": 1.5},
+  "hero_stats": [
+    {
+      "hero": "antimage",
+      "lane": "bot",
+      "role": "core",
+      "team": "dire",
+      "last_hits_5min": 35,
+      "last_hits_10min": 82,
+      "gold_10min": 4850,
+      "level_10min": 10
+    }
+  ]
+}
+```
+
+---
+
+## get_cs_at_minute
+
+Get CS, gold, and level for all heroes at a specific minute. **Parallel-safe**: call for multiple minutes.
+
+```python
+get_cs_at_minute(match_id=8461956309, minute=10)
+```
+
+**Returns:**
+```json
+{
+  "success": true,
+  "minute": 10,
+  "heroes": [
+    {"hero": "antimage", "team": "dire", "last_hits": 82, "denies": 5, "gold": 4850, "level": 10}
+  ]
+}
+```
+
+---
+
+## get_hero_positions
+
+Get X,Y coordinates for all heroes at a specific minute. **Parallel-safe**: call for multiple minutes.
+
+```python
+get_hero_positions(match_id=8461956309, minute=5)
+```
+
+**Returns:**
+```json
+{
+  "success": true,
+  "minute": 5,
+  "positions": [
+    {"hero": "antimage", "team": "dire", "x": -5200.5, "y": -4100.2, "game_time": 300}
+  ]
+}
+```
+
+---
+
+## get_snapshot_at_time
+
+High-resolution game state at a specific second. **Parallel-safe**: call for multiple times.
+
+```python
+get_snapshot_at_time(match_id=8461956309, game_time=300.0)
+```
+
+**Returns:**
+```json
+{
+  "success": true,
+  "tick": 18000,
+  "game_time": 300.0,
+  "game_time_str": "5:00",
+  "radiant_gold": 12500,
+  "dire_gold": 11800,
+  "heroes": [
+    {
+      "hero": "antimage",
+      "team": "dire",
+      "x": -5200.5,
+      "y": -4100.2,
+      "health": 720,
+      "max_health": 720,
+      "mana": 291,
+      "max_mana": 291,
+      "level": 7,
+      "alive": true
+    }
+  ]
+}
+```
+
+---
+
+## get_position_timeline
+
+Hero positions over a time range. **Parallel-safe**: call for different ranges or heroes.
+
+```python
+get_position_timeline(
+    match_id=8461956309,
+    start_time=300.0,
+    end_time=360.0,
+    hero_filter="antimage",
+    interval_seconds=1.0
+)
+```
+
+**Returns:**
+```json
+{
+  "success": true,
+  "heroes": [
+    {
+      "hero": "antimage",
+      "team": "dire",
+      "positions": [
+        {"tick": 18000, "game_time": 300.0, "x": -5200.5, "y": -4100.2},
+        {"tick": 18060, "game_time": 301.0, "x": -5180.3, "y": -4120.1}
+      ]
+    }
+  ]
+}
+```
+
+---
+
+## get_fight_replay
+
+High-resolution replay data for a fight. **Parallel-safe**: call for multiple fights.
+
+```python
+get_fight_replay(
+    match_id=8461956309,
+    start_time=1395.0,
+    end_time=1420.0,
+    interval_seconds=0.5
+)
+```
+
+**Returns:**
+```json
+{
+  "success": true,
+  "start_time": 1395.0,
+  "end_time": 1420.0,
+  "total_snapshots": 50,
+  "snapshots": [
+    {
+      "tick": 83700,
+      "game_time": 1395.0,
+      "game_time_str": "23:15",
+      "heroes": [
+        {"hero": "medusa", "team": "dire", "x": 1200.5, "y": 800.2, "health": 2100, "alive": true}
+      ]
+    }
+  ]
+}
+```
+
+---
+
+## get_farming_pattern
+
+Analyze a hero's farming pattern - creep kills, camp rotations, and map movement.
+
+This is THE tool for questions about "farming pattern", "how did X farm", "when did they start jungling", or "show me the farming movement minute by minute".
+
+```python
+get_farming_pattern(
+    match_id=8461956309,
+    hero="antimage",
+    start_minute=0,
+    end_minute=15
+)
+```
+
+**Returns:**
+```json
+{
+  "success": true,
+  "match_id": 8461956309,
+  "hero": "antimage",
+  "start_minute": 0,
+  "end_minute": 15,
+  "minutes": [
+    {
+      "minute": 5,
+      "lane_creeps": 28,
+      "neutral_creeps": 2,
+      "position": {"x": -5200, "y": -4100},
+      "gold": 2100,
+      "level": 6
+    },
+    {
+      "minute": 10,
+      "lane_creeps": 52,
+      "neutral_creeps": 18,
+      "position": {"x": -4800, "y": -3200},
+      "gold": 5200,
+      "level": 11
+    }
+  ],
+  "transitions": {
+    "first_jungle_kill": "4:23",
+    "first_large_camp": "5:12",
+    "left_lane": "6:45"
+  },
+  "summary": {
+    "total_lane_creeps": 85,
+    "total_neutral_creeps": 42,
+    "jungle_percentage": 33.1,
+    "gpm": 520,
+    "cs_per_min": 8.5
+  }
+}
+```
+
+**Example Questions This Tool Answers:**
+
+- "What was Terrorblade's farming pattern in the first 10 minutes?"
+- "When did Anti-Mage start jungling?"
+- "Which camps did Luna clear between minutes 5-15?"
+- "How did the carry move across the map while farming?"
+
+---
+
+## get_rotation_analysis
+
+Analyze hero rotations - movement patterns between lanes, rune correlations, and outcomes.
+
+This is THE tool for questions about rotations, ganks, mid rotations after rune pickups, or support movements between lanes.
+
+```python
+get_rotation_analysis(
+    match_id=8461956309,
+    start_minute=0,
+    end_minute=20
+)
+```
+
+**Returns:**
+```json
+{
+  "success": true,
+  "match_id": 8461956309,
+  "start_minute": 0,
+  "end_minute": 20,
+  "rotations": [
+    {
+      "rotation_id": "rot_1",
+      "hero": "nevermore",
+      "role": "mid",
+      "game_time": 365.0,
+      "game_time_str": "6:05",
+      "from_lane": "mid",
+      "to_lane": "bot",
+      "rune_before": {
+        "rune_type": "haste",
+        "pickup_time": 362.0,
+        "pickup_time_str": "6:02",
+        "seconds_before_rotation": 3.0
+      },
+      "outcome": {
+        "type": "kill",
+        "fight_id": "fight_3",
+        "deaths_in_window": 1,
+        "rotation_hero_died": false,
+        "kills_by_rotation_hero": ["antimage"]
+      },
+      "travel_time_seconds": 45.0,
+      "returned_to_lane": true,
+      "return_time_str": "7:30"
+    }
+  ],
+  "rune_events": {
+    "power_runes": [
+      {
+        "spawn_time": 360.0,
+        "spawn_time_str": "6:00",
+        "location": "top",
+        "taken_by": "nevermore",
+        "pickup_time": 362.0,
+        "led_to_rotation": true,
+        "rotation_id": "rot_1"
+      }
+    ],
+    "wisdom_runes": [
+      {
+        "spawn_time": 420.0,
+        "spawn_time_str": "7:00",
+        "location": "radiant_jungle",
+        "contested": true,
+        "fight_id": "fight_4",
+        "deaths_nearby": 2
+      }
+    ]
+  },
+  "summary": {
+    "total_rotations": 8,
+    "by_hero": {
+      "nevermore": {
+        "hero": "nevermore",
+        "role": "mid",
+        "total_rotations": 3,
+        "successful_ganks": 2,
+        "failed_ganks": 0,
+        "trades": 1,
+        "rune_rotations": 3
+      }
+    },
+    "runes_leading_to_kills": 4,
+    "wisdom_rune_fights": 2,
+    "most_active_rotator": "nevermore"
+  }
+}
+```
+
+**Key Features:**
+
+- **Rotation Detection**: Tracks when heroes leave their assigned lane and go to another lane
+- **Rune Correlation**: Links power rune pickups (within 60s) to subsequent rotations
+- **Fight Outcome**: Determines if rotation resulted in kill, death, trade, or no engagement
+- **Fight Linking**: Provides `fight_id` - use `get_fight(fight_id)` for detailed combat log
+- **Wisdom Rune Fights**: Detects contested wisdom rune spawns with deaths nearby
+
+**Outcome Types:**
+
+| Type | Description |
+|------|-------------|
+| `kill` | Rotating hero got a kill without dying |
+| `died` | Rotating hero died without getting a kill |
+| `traded` | Rotating hero got a kill but also died |
+| `fight` | Rotation led to a fight but no kills by/on rotating hero |
+| `no_engagement` | No deaths occurred within 60s of rotation |
+
+**Example Questions This Tool Answers:**
+
+- "How many rotations did the mid player make after power runes?"
+- "Which rotations resulted in kills vs deaths?"
+- "Were there any fights at wisdom rune spawns?"
+- "Who was the most active rotator in the early game?"
+- "Did the mid rotate after the 6-minute rune?"

@@ -86,6 +86,29 @@ dangerous territory. Consider defensive ward spots that can be placed safely."
 | 12:58 | CM | PA |
 ..."
 (Raw table without analysis adds no value)
+
+## Parallel Tool Calls for Efficiency
+Many analysis tools are independent and can be called in parallel for faster results.
+
+**Parallelizable tools** (same match, different parameters):
+- get_cs_at_minute: Call for minutes 5, 10, 15 simultaneously
+- get_stats_at_minute: Call for multiple time points at once
+- get_hero_positions: Call for multiple minutes in parallel
+- get_snapshot_at_time: Call for multiple game times at once
+
+**Example - Laning phase analysis:**
+Instead of calling sequentially:
+1. get_cs_at_minute(match_id, 5)
+2. get_cs_at_minute(match_id, 10)
+
+Call BOTH in the same response for 2x speed:
+- get_cs_at_minute(match_id, 5) AND get_cs_at_minute(match_id, 10)
+
+**When to parallelize:**
+- Comparing stats at multiple time points
+- Tracking progression (CS at 5/10/15 min)
+- Analyzing multiple fights in the same match
+- Getting snapshots before/after key events
 """
 
 mcp = FastMCP(
@@ -126,28 +149,43 @@ from src.utils.match_info_parser import match_info_parser
 from src.utils.pro_scene_fetcher import pro_scene_fetcher
 from src.utils.replay_downloader import ReplayDownloader
 
-# Initialize v2 services (for new tools with progress reporting)
-_replay_cache_v2 = ReplayCacheV2()
-_replay_service = ReplayService(cache=_replay_cache_v2)
+# Initialize services
+_replay_cache = ReplayCacheV2()
+_replay_service = ReplayService(cache=_replay_cache)
 
-# Phase 2: Combat and Fight services
+# Combat and Fight services
 from src.services.combat.combat_service import CombatService
 from src.services.combat.fight_service import FightService
 
 _combat_service = CombatService()
 _fight_service = FightService(combat_service=_combat_service)
 
-# Phase 3: Jungle and Lane services
+# Jungle and Lane services
 from src.services.jungle.jungle_service import JungleService
 from src.services.lane.lane_service import LaneService
 
 _jungle_service = JungleService()
 _lane_service = LaneService()
 
-# Phase 4: Dense Seek services
+# Seek services (tick-level game state)
 from src.services.seek.seek_service import SeekService
 
 _seek_service = SeekService()
+
+# Farming pattern analysis
+from src.services.farming.farming_service import FarmingService
+from src.services.models.farming_data import FarmingPatternResponse
+
+_farming_service = FarmingService()
+
+# Rotation analysis
+from src.services.models.rotation_data import RotationAnalysisResponse
+from src.services.rotation.rotation_service import RotationService
+
+_rotation_service = RotationService(
+    combat_service=_combat_service,
+    fight_service=_fight_service,
+)
 
 from src.utils.timeline_parser import timeline_parser
 
@@ -281,7 +319,7 @@ async def download_replay(match_id: int, ctx: Context) -> DownloadReplayResponse
     - 0-10%: Checking cache and getting replay URL
     - 10-40%: Downloading compressed file
     - 40-50%: Extracting replay
-    - 50-95%: Parsing replay (uses python-manta v2)
+    - 50-95%: Parsing replay
     - 95-100%: Caching results
 
     Args:
@@ -387,6 +425,9 @@ async def get_stats_at_minute(match_id: int, minute: int) -> Dict[str, Any]:
     - hero_damage: Cumulative hero damage at that minute
     - kills, deaths, assists: KDA at that minute
     - level: Hero level at that minute
+
+    **Parallel-safe**: Call multiple times with different minutes in parallel
+    (e.g., minutes 10, 20, 30) to compare stats across game phases.
 
     Args:
         match_id: The Dota 2 match ID
@@ -1245,7 +1286,7 @@ async def get_league_matches(
     return await pro_scene_resource.get_league_matches(league_id, limit=limit)
 
 
-# Phase 2: Fight Analysis Tools (v2 services)
+# Fight Analysis Tools
 @mcp.tool
 async def list_fights(match_id: int, ctx: Context) -> Dict[str, Any]:
     """
@@ -1393,6 +1434,9 @@ async def get_fight(
     - All deaths with killer, victim, ability, position
     - Damage breakdown (if available)
 
+    **Parallel-safe**: Call multiple times with different fight_ids in parallel
+    to analyze multiple fights from the same match efficiently.
+
     Args:
         match_id: The Dota 2 match ID
         fight_id: Fight identifier (e.g., "fight_1", "fight_5")
@@ -1450,7 +1494,7 @@ async def get_fight(
         }
 
 
-# Phase 3: Jungle and Lane Analysis Tools (v2 services)
+# Jungle and Lane Analysis Tools
 @mcp.tool
 async def get_camp_stacks(
     match_id: int,
@@ -1661,6 +1705,9 @@ async def get_cs_at_minute(
 
     Useful for tracking CS progression and comparing farm at key timings.
 
+    **Parallel-safe**: Call multiple times with different minutes in parallel
+    (e.g., 5, 10, 15) to track laning progression efficiently.
+
     Args:
         match_id: The Dota 2 match ID
         minute: Game minute to query (e.g., 5, 10, 15)
@@ -1709,6 +1756,9 @@ async def get_hero_positions(
     Returns X,Y coordinates for all 10 heroes at the specified game minute.
     Useful for understanding lane assignments and rotations.
 
+    **Parallel-safe**: Call multiple times with different minutes in parallel
+    to track rotations and map movements efficiently.
+
     Args:
         match_id: The Dota 2 match ID
         minute: Game minute to query (e.g., 0, 5, 10)
@@ -1754,7 +1804,7 @@ async def get_hero_positions(
         }
 
 
-# Phase 4: Dense Seek Tools (v2 services)
+# Game State Tools
 @mcp.tool
 async def get_snapshot_at_time(
     match_id: int,
@@ -1765,7 +1815,10 @@ async def get_snapshot_at_time(
     Get game state snapshot at a specific game time.
 
     Returns high-resolution state including all hero positions, health, mana, and levels.
-    Uses python-manta v2's tick-level seeking for precise snapshots.
+    Uses tick-level seeking for precise snapshots.
+
+    **Parallel-safe**: Call multiple times with different game_time values in parallel
+    (e.g., before and after a fight) to compare game states efficiently.
 
     Args:
         match_id: The Dota 2 match ID
@@ -1845,6 +1898,9 @@ async def get_position_timeline(
     Get hero positions over a time range at regular intervals.
 
     Useful for tracking hero movement patterns, rotations, and positioning.
+
+    **Parallel-safe**: Call multiple times with different time ranges or heroes
+    in parallel to analyze movement across different game phases efficiently.
 
     Args:
         match_id: The Dota 2 match ID
@@ -1926,6 +1982,9 @@ async def get_fight_replay(
 
     Use get_fight to get fight boundaries, then use this for detailed analysis.
 
+    **Parallel-safe**: Call multiple times with different time ranges in parallel
+    to analyze multiple fights from the same match efficiently.
+
     Args:
         match_id: The Dota 2 match ID
         start_time: Fight start time in seconds
@@ -1996,6 +2055,158 @@ async def get_fight_replay(
         }
 
 
+# Farming Pattern Analysis Tools
+@mcp.tool
+async def get_farming_pattern(
+    match_id: int,
+    hero: str,
+    start_minute: int = 0,
+    end_minute: int = 10,
+    ctx: Optional[Context] = None,
+) -> FarmingPatternResponse:
+    """
+    Analyze a hero's farming pattern - creep kills, camp rotations, and map movement.
+
+    This is THE tool for questions about "farming pattern", "how did X farm",
+    "when did they start jungling", "which camps did they clear", or
+    "show me the farming movement minute by minute".
+
+    Returns minute-by-minute breakdown including:
+    - Lane creeps killed vs neutral creeps killed each minute
+    - Which specific neutral camps were farmed (satyr, centaur, kobold, etc.)
+    - Hero position on the map at each minute
+    - Gold, CS, and level progression
+    - Key transitions: first jungle rotation, first large camp, when they left lane
+
+    Example questions this tool answers:
+    - "What was Terrorblade's farming pattern in the first 10 minutes?"
+    - "When did Anti-Mage start jungling?"
+    - "Which camps did Luna clear between minutes 5-15?"
+    - "How did the carry move across the map while farming?"
+
+    Args:
+        match_id: The Dota 2 match ID
+        hero: Hero name to analyze (e.g., "terrorblade", "antimage")
+        start_minute: Start of analysis range (default: 0)
+        end_minute: End of analysis range (default: 10)
+
+    Returns:
+        FarmingPatternResponse with complete farming analysis:
+        - minutes: Minute-by-minute breakdown with creeps, position, gold, level
+        - transitions: Key moments (first jungle kill, first large camp, left lane)
+        - summary: Total lane vs neutral creeps, jungle %, GPM, CS/min
+        - creep_kills: All creep kills with timestamps and types
+    """
+    async def progress_callback(current: int, total: int, message: str) -> None:
+        if ctx:
+            await ctx.report_progress(current, total)
+
+    try:
+        data = await _replay_service.get_parsed_data(match_id, progress=progress_callback)
+
+        result = _farming_service.get_farming_pattern(
+            data=data,
+            hero=hero,
+            start_minute=start_minute,
+            end_minute=end_minute,
+        )
+
+        return result
+
+    except ValueError as e:
+        return FarmingPatternResponse(
+            success=False,
+            match_id=match_id,
+            hero=hero,
+            start_minute=start_minute,
+            end_minute=end_minute,
+            error=str(e),
+        )
+    except Exception as e:
+        return FarmingPatternResponse(
+            success=False,
+            match_id=match_id,
+            hero=hero,
+            start_minute=start_minute,
+            end_minute=end_minute,
+            error=f"Failed to analyze farming pattern: {e}",
+        )
+
+
+# Rotation Analysis Tools
+@mcp.tool
+async def get_rotation_analysis(
+    match_id: int,
+    start_minute: int = 0,
+    end_minute: int = 20,
+    ctx: Optional[Context] = None,
+) -> RotationAnalysisResponse:
+    """
+    Analyze hero rotations - movement patterns between lanes, rune correlations, and outcomes.
+
+    This tool detects when heroes leave their assigned lane and tracks:
+    - Where they rotated to and from
+    - Whether they picked up a power rune before rotating
+    - What happened after the rotation (kill, death, traded, no engagement)
+    - Link to fight_id for detailed combat log analysis
+
+    Also tracks rune-related events:
+    - Power rune pickups and whether they led to rotations
+    - Wisdom rune spawns and whether they were contested (fights nearby)
+
+    Use this to answer questions like:
+    - "How many mid rotations happened in the laning phase?"
+    - "Did the mid player rotate after picking up runes?"
+    - "Which rotations resulted in kills vs deaths?"
+    - "Were there any fights at wisdom rune spawns?"
+    - "Who was the most active rotator?"
+
+    The outcome field links to fight_id - use get_fight(fight_id) for detailed combat log.
+
+    Args:
+        match_id: The Dota 2 match ID
+        start_minute: Start of analysis range (default: 0)
+        end_minute: End of analysis range (default: 20, covers laning + early mid game)
+
+    Returns:
+        RotationAnalysisResponse with:
+        - rotations: List of detected rotations with rune/outcome data
+        - rune_events: Power rune and wisdom rune events
+        - summary: Statistics by hero including success rates
+    """
+    async def progress_callback(current: int, total: int, message: str) -> None:
+        if ctx:
+            await ctx.report_progress(current, total)
+
+    try:
+        data = await _replay_service.get_parsed_data(match_id, progress=progress_callback)
+
+        result = _rotation_service.get_rotation_analysis(
+            data=data,
+            start_minute=start_minute,
+            end_minute=end_minute,
+        )
+
+        return result
+
+    except ValueError as e:
+        return RotationAnalysisResponse(
+            success=False,
+            match_id=match_id,
+            start_minute=start_minute,
+            end_minute=end_minute,
+            error=str(e),
+        )
+    except Exception as e:
+        return RotationAnalysisResponse(
+            success=False,
+            match_id=match_id,
+            start_minute=start_minute,
+            end_minute=end_minute,
+            error=f"Failed to analyze rotations: {e}",
+        )
+
+
 def main():
     """Main entry point for the server."""
     import argparse
@@ -2060,17 +2271,19 @@ def main():
     print("   get_leagues", file=sys.stderr)
     print("   get_pro_matches", file=sys.stderr)
     print("   get_league_matches", file=sys.stderr)
-    print("   list_fights (v2)", file=sys.stderr)
-    print("   get_teamfights (v2)", file=sys.stderr)
-    print("   get_fight (v2)", file=sys.stderr)
-    print("   get_camp_stacks (v2)", file=sys.stderr)
-    print("   get_jungle_summary (v2)", file=sys.stderr)
-    print("   get_lane_summary (v2)", file=sys.stderr)
-    print("   get_cs_at_minute (v2)", file=sys.stderr)
-    print("   get_hero_positions (v2)", file=sys.stderr)
-    print("   get_snapshot_at_time (v2)", file=sys.stderr)
-    print("   get_position_timeline (v2)", file=sys.stderr)
-    print("   get_fight_replay (v2)", file=sys.stderr)
+    print("   list_fights", file=sys.stderr)
+    print("   get_teamfights", file=sys.stderr)
+    print("   get_fight", file=sys.stderr)
+    print("   get_camp_stacks", file=sys.stderr)
+    print("   get_jungle_summary", file=sys.stderr)
+    print("   get_lane_summary", file=sys.stderr)
+    print("   get_cs_at_minute", file=sys.stderr)
+    print("   get_hero_positions", file=sys.stderr)
+    print("   get_snapshot_at_time", file=sys.stderr)
+    print("   get_position_timeline", file=sys.stderr)
+    print("   get_fight_replay", file=sys.stderr)
+    print("   get_farming_pattern", file=sys.stderr)
+    print("   get_rotation_analysis", file=sys.stderr)
 
     if args.transport == "sse":
         mcp.run(transport="sse", host=args.host, port=args.port)

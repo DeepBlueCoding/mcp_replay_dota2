@@ -13,7 +13,25 @@ from .combat_data import (
     ObjectiveKill,
     RunePickup,
 )
+from .farming_data import (
+    CreepKill,
+    FarmingPatternResponse,
+    FarmingSummary,
+    FarmingTransitions,
+    MinuteFarmingData,
+)
 from .jungle_data import CampStack, JungleSummary
+from .rotation_data import (
+    HeroRotationStats,
+    PowerRuneEvent,
+    Rotation,
+    RotationAnalysisResponse,
+    RotationOutcome,
+    RotationSummary,
+    RuneCorrelation,
+    RuneRotations,
+    WisdomRuneEvent,
+)
 from .lane_data import HeroLaneStats, HeroPosition, LaneSnapshot, LaneSummary
 from .replay_data import ParsedReplayData, ProgressCallback
 from .seek_data import FightReplay, GameSnapshot, HeroSnapshot, PositionTimeline
@@ -38,4 +56,18 @@ __all__ = [
     "GameSnapshot",
     "HeroSnapshot",
     "PositionTimeline",
+    "CreepKill",
+    "FarmingPatternResponse",
+    "FarmingSummary",
+    "FarmingTransitions",
+    "MinuteFarmingData",
+    "HeroRotationStats",
+    "PowerRuneEvent",
+    "Rotation",
+    "RotationAnalysisResponse",
+    "RotationOutcome",
+    "RotationSummary",
+    "RuneCorrelation",
+    "RuneRotations",
+    "WisdomRuneEvent",
 ]
