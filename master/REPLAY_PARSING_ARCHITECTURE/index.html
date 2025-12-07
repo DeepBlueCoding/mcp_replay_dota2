@@ -1678,15 +1678,15 @@
 <a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>│                         SERVICES LAYER                                  │
 <a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>│                        src/services/                                    │
 <a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>│                                                                         │
-<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>│   replay/                         opendota/                             │
-<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>│   ├── replay_service.py           ├── match_service.py                 │
-<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>│   ├── combat_service.py           ├── player_service.py                │
-<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>│   ├── fight_service.py            └── hero_service.py                  │
-<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>│   ├── lane_service.py                                                  │
-<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>│   ├── jungle_service.py           cache/                               │
-<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>│   ├── objective_service.py        ├── replay_cache.py                  │
-<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>│   ├── vision_service.py           └── api_cache.py                     │
-<a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>│   └── timeline_service.py                                              │
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>│   combat/                         src/utils/                           │
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>│   ├── combat_service.py           ├── replay_cache.py  (disk cache)    │
+<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>│   └── fight_service.py            ├── match_fetcher.py                 │
+<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>│                                   └── ...                              │
+<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>│   replay/                                                              │
+<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>│   └── replay_service.py           (uses replay_cache singleton)        │
+<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>│                                                                        │
+<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>│   farming/                        rotation/                            │
+<a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>│   └── farming_service.py          └── rotation_service.py              │
 <a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>│                                                                         │
 <a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a>│   analyzers/                      models/                               │
 <a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a>│   ├── fight_detector.py           ├── replay_data.py                   │
@@ -1720,7 +1720,7 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># src/services/replay/replay_service.py</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">python_manta</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parser</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">..cache.replay_cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReplayCache</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">src.utils.replay_cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">replay_cache</span>
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">..models.replay_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParsedReplayData</span>
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="kn">from</span><span class="w"> </span><span class="nn">.analyzers</span><span class="w"> </span><span class="kn">import</span> <span class="n">FightDetector</span><span class="p">,</span> <span class="n">LaneAnalyzer</span><span class="p">,</span> <span class="n">JungleAnalyzer</span>
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
@@ -2575,11 +2575,11 @@
 </code></pre></div>
 <hr />
 <h2 id="cache-strategy">Cache Strategy<a class="headerlink" href="#cache-strategy" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1"># src/services/cache/replay_cache.py</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1"># src/utils/replay_cache.py</span>
 <a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>
 <a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">diskcache</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cache</span>
-<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">..models.replay_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParsedReplayData</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>
 <a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">ReplayCache</span><span class="p">:</span>
 <a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2636,55 +2636,57 @@
 <a id="__codelineno-20-16" name="__codelineno-20-16" href="#__codelineno-20-16"></a>│       ├── heroes_resource.py        # Hero data resources
 <a id="__codelineno-20-17" name="__codelineno-20-17" href="#__codelineno-20-17"></a>│       └── map_resource.py           # Map data resources
 <a id="__codelineno-20-18" name="__codelineno-20-18" href="#__codelineno-20-18"></a>│
-<a id="__codelineno-20-19" name="__codelineno-20-19" href="#__codelineno-20-19"></a>├── services/                         # Services Layer (business logic)
-<a id="__codelineno-20-20" name="__codelineno-20-20" href="#__codelineno-20-20"></a>│   ├── __init__.py
-<a id="__codelineno-20-21" name="__codelineno-20-21" href="#__codelineno-20-21"></a>│   │
-<a id="__codelineno-20-22" name="__codelineno-20-22" href="#__codelineno-20-22"></a>│   ├── replay/                       # Replay parsing services
-<a id="__codelineno-20-23" name="__codelineno-20-23" href="#__codelineno-20-23"></a>│   │   ├── __init__.py
-<a id="__codelineno-20-24" name="__codelineno-20-24" href="#__codelineno-20-24"></a>│   │   ├── replay_service.py         # Main entry, orchestrates parsing
-<a id="__codelineno-20-25" name="__codelineno-20-25" href="#__codelineno-20-25"></a>│   │   ├── combat_service.py         # Combat queries
-<a id="__codelineno-20-26" name="__codelineno-20-26" href="#__codelineno-20-26"></a>│   │   ├── fight_service.py          # Fight queries
-<a id="__codelineno-20-27" name="__codelineno-20-27" href="#__codelineno-20-27"></a>│   │   ├── lane_service.py           # Lane queries
-<a id="__codelineno-20-28" name="__codelineno-20-28" href="#__codelineno-20-28"></a>│   │   ├── jungle_service.py         # Jungle queries
-<a id="__codelineno-20-29" name="__codelineno-20-29" href="#__codelineno-20-29"></a>│   │   ├── objective_service.py      # Objective queries
-<a id="__codelineno-20-30" name="__codelineno-20-30" href="#__codelineno-20-30"></a>│   │   ├── vision_service.py         # Ward/smoke queries
-<a id="__codelineno-20-31" name="__codelineno-20-31" href="#__codelineno-20-31"></a>│   │   └── timeline_service.py       # Timeline queries
-<a id="__codelineno-20-32" name="__codelineno-20-32" href="#__codelineno-20-32"></a>│   │
-<a id="__codelineno-20-33" name="__codelineno-20-33" href="#__codelineno-20-33"></a>│   ├── opendota/                     # OpenDota API services
-<a id="__codelineno-20-34" name="__codelineno-20-34" href="#__codelineno-20-34"></a>│   │   ├── __init__.py
-<a id="__codelineno-20-35" name="__codelineno-20-35" href="#__codelineno-20-35"></a>│   │   ├── match_service.py          # Match data from API
-<a id="__codelineno-20-36" name="__codelineno-20-36" href="#__codelineno-20-36"></a>│   │   ├── player_service.py         # Player data
-<a id="__codelineno-20-37" name="__codelineno-20-37" href="#__codelineno-20-37"></a>│   │   └── hero_service.py           # Hero metadata
-<a id="__codelineno-20-38" name="__codelineno-20-38" href="#__codelineno-20-38"></a>│   │
-<a id="__codelineno-20-39" name="__codelineno-20-39" href="#__codelineno-20-39"></a>│   ├── analyzers/                    # Post-parse analyzers
-<a id="__codelineno-20-40" name="__codelineno-20-40" href="#__codelineno-20-40"></a>│   │   ├── __init__.py
-<a id="__codelineno-20-41" name="__codelineno-20-41" href="#__codelineno-20-41"></a>│   │   ├── fight_detector.py         # Fight detection
-<a id="__codelineno-20-42" name="__codelineno-20-42" href="#__codelineno-20-42"></a>│   │   ├── lane_analyzer.py          # Lane equilibrium
-<a id="__codelineno-20-43" name="__codelineno-20-43" href="#__codelineno-20-43"></a>│   │   ├── jungle_analyzer.py        # Pulls, stacks
-<a id="__codelineno-20-44" name="__codelineno-20-44" href="#__codelineno-20-44"></a>│   │   ├── objective_analyzer.py     # Roshan, towers
-<a id="__codelineno-20-45" name="__codelineno-20-45" href="#__codelineno-20-45"></a>│   │   └── vision_analyzer.py        # Wards, smokes
-<a id="__codelineno-20-46" name="__codelineno-20-46" href="#__codelineno-20-46"></a>│   │
-<a id="__codelineno-20-47" name="__codelineno-20-47" href="#__codelineno-20-47"></a>│   ├── cache/                        # Caching
-<a id="__codelineno-20-48" name="__codelineno-20-48" href="#__codelineno-20-48"></a>│   │   ├── __init__.py
-<a id="__codelineno-20-49" name="__codelineno-20-49" href="#__codelineno-20-49"></a>│   │   ├── replay_cache.py           # Replay data cache
-<a id="__codelineno-20-50" name="__codelineno-20-50" href="#__codelineno-20-50"></a>│   │   └── api_cache.py              # OpenDota API cache
-<a id="__codelineno-20-51" name="__codelineno-20-51" href="#__codelineno-20-51"></a>│   │
-<a id="__codelineno-20-52" name="__codelineno-20-52" href="#__codelineno-20-52"></a>│   └── models/                       # Data models (Pydantic)
-<a id="__codelineno-20-53" name="__codelineno-20-53" href="#__codelineno-20-53"></a>│       ├── __init__.py
-<a id="__codelineno-20-54" name="__codelineno-20-54" href="#__codelineno-20-54"></a>│       ├── replay_data.py            # ParsedReplayData
-<a id="__codelineno-20-55" name="__codelineno-20-55" href="#__codelineno-20-55"></a>│       ├── combat.py                 # CombatLogEntry, DamageSource
-<a id="__codelineno-20-56" name="__codelineno-20-56" href="#__codelineno-20-56"></a>│       ├── fights.py                 # Fight, Kill
-<a id="__codelineno-20-57" name="__codelineno-20-57" href="#__codelineno-20-57"></a>│       ├── lanes.py                  # LaneState, CreepAggroEvent
-<a id="__codelineno-20-58" name="__codelineno-20-58" href="#__codelineno-20-58"></a>│       ├── jungle.py                 # CampPull, CampStack
-<a id="__codelineno-20-59" name="__codelineno-20-59" href="#__codelineno-20-59"></a>│       ├── objectives.py             # ObjectiveEvent
-<a id="__codelineno-20-60" name="__codelineno-20-60" href="#__codelineno-20-60"></a>│       ├── vision.py                 # WardEvent, SmokeEvent
-<a id="__codelineno-20-61" name="__codelineno-20-61" href="#__codelineno-20-61"></a>│       ├── entities.py               # EntitySnapshot, HeroState
-<a id="__codelineno-20-62" name="__codelineno-20-62" href="#__codelineno-20-62"></a>│       └── common.py                 # Position, TimeRange, etc.
-<a id="__codelineno-20-63" name="__codelineno-20-63" href="#__codelineno-20-63"></a>│
-<a id="__codelineno-20-64" name="__codelineno-20-64" href="#__codelineno-20-64"></a>└── __init__.py
-<a id="__codelineno-20-65" name="__codelineno-20-65" href="#__codelineno-20-65"></a>
-<a id="__codelineno-20-66" name="__codelineno-20-66" href="#__codelineno-20-66"></a># Entry point
-<a id="__codelineno-20-67" name="__codelineno-20-67" href="#__codelineno-20-67"></a>dota_match_mcp_server.py              # Imports and runs src/mcp/server.py
+<a id="__codelineno-20-19" name="__codelineno-20-19" href="#__codelineno-20-19"></a>├── utils/                            # Utilities (caching, helpers)
+<a id="__codelineno-20-20" name="__codelineno-20-20" href="#__codelineno-20-20"></a>│   ├── replay_cache.py               # Disk-based replay data cache (singleton)
+<a id="__codelineno-20-21" name="__codelineno-20-21" href="#__codelineno-20-21"></a>│   ├── match_fetcher.py              # OpenDota API fetcher
+<a id="__codelineno-20-22" name="__codelineno-20-22" href="#__codelineno-20-22"></a>│   ├── timeline_parser.py            # Timeline extraction (uses cache)
+<a id="__codelineno-20-23" name="__codelineno-20-23" href="#__codelineno-20-23"></a>│   ├── match_info_parser.py          # Match info extraction (uses cache)
+<a id="__codelineno-20-24" name="__codelineno-20-24" href="#__codelineno-20-24"></a>│   └── ...
+<a id="__codelineno-20-25" name="__codelineno-20-25" href="#__codelineno-20-25"></a>│
+<a id="__codelineno-20-26" name="__codelineno-20-26" href="#__codelineno-20-26"></a>├── services/                         # Services Layer (business logic)
+<a id="__codelineno-20-27" name="__codelineno-20-27" href="#__codelineno-20-27"></a>│   ├── __init__.py
+<a id="__codelineno-20-28" name="__codelineno-20-28" href="#__codelineno-20-28"></a>│   │
+<a id="__codelineno-20-29" name="__codelineno-20-29" href="#__codelineno-20-29"></a>│   ├── replay/                       # Replay parsing services
+<a id="__codelineno-20-30" name="__codelineno-20-30" href="#__codelineno-20-30"></a>│   │   ├── __init__.py
+<a id="__codelineno-20-31" name="__codelineno-20-31" href="#__codelineno-20-31"></a>│   │   ├── replay_service.py         # Main entry, orchestrates parsing
+<a id="__codelineno-20-32" name="__codelineno-20-32" href="#__codelineno-20-32"></a>│   │   ├── combat_service.py         # Combat queries
+<a id="__codelineno-20-33" name="__codelineno-20-33" href="#__codelineno-20-33"></a>│   │   ├── fight_service.py          # Fight queries
+<a id="__codelineno-20-34" name="__codelineno-20-34" href="#__codelineno-20-34"></a>│   │   ├── lane_service.py           # Lane queries
+<a id="__codelineno-20-35" name="__codelineno-20-35" href="#__codelineno-20-35"></a>│   │   ├── jungle_service.py         # Jungle queries
+<a id="__codelineno-20-36" name="__codelineno-20-36" href="#__codelineno-20-36"></a>│   │   ├── objective_service.py      # Objective queries
+<a id="__codelineno-20-37" name="__codelineno-20-37" href="#__codelineno-20-37"></a>│   │   ├── vision_service.py         # Ward/smoke queries
+<a id="__codelineno-20-38" name="__codelineno-20-38" href="#__codelineno-20-38"></a>│   │   └── timeline_service.py       # Timeline queries
+<a id="__codelineno-20-39" name="__codelineno-20-39" href="#__codelineno-20-39"></a>│   │
+<a id="__codelineno-20-40" name="__codelineno-20-40" href="#__codelineno-20-40"></a>│   ├── opendota/                     # OpenDota API services
+<a id="__codelineno-20-41" name="__codelineno-20-41" href="#__codelineno-20-41"></a>│   │   ├── __init__.py
+<a id="__codelineno-20-42" name="__codelineno-20-42" href="#__codelineno-20-42"></a>│   │   ├── match_service.py          # Match data from API
+<a id="__codelineno-20-43" name="__codelineno-20-43" href="#__codelineno-20-43"></a>│   │   ├── player_service.py         # Player data
+<a id="__codelineno-20-44" name="__codelineno-20-44" href="#__codelineno-20-44"></a>│   │   └── hero_service.py           # Hero metadata
+<a id="__codelineno-20-45" name="__codelineno-20-45" href="#__codelineno-20-45"></a>│   │
+<a id="__codelineno-20-46" name="__codelineno-20-46" href="#__codelineno-20-46"></a>│   ├── analyzers/                    # Post-parse analyzers
+<a id="__codelineno-20-47" name="__codelineno-20-47" href="#__codelineno-20-47"></a>│   │   ├── __init__.py
+<a id="__codelineno-20-48" name="__codelineno-20-48" href="#__codelineno-20-48"></a>│   │   ├── fight_detector.py         # Fight detection
+<a id="__codelineno-20-49" name="__codelineno-20-49" href="#__codelineno-20-49"></a>│   │   ├── lane_analyzer.py          # Lane equilibrium
+<a id="__codelineno-20-50" name="__codelineno-20-50" href="#__codelineno-20-50"></a>│   │   ├── jungle_analyzer.py        # Pulls, stacks
+<a id="__codelineno-20-51" name="__codelineno-20-51" href="#__codelineno-20-51"></a>│   │   ├── objective_analyzer.py     # Roshan, towers
+<a id="__codelineno-20-52" name="__codelineno-20-52" href="#__codelineno-20-52"></a>│   │   └── vision_analyzer.py        # Wards, smokes
+<a id="__codelineno-20-53" name="__codelineno-20-53" href="#__codelineno-20-53"></a>│   │
+<a id="__codelineno-20-54" name="__codelineno-20-54" href="#__codelineno-20-54"></a>│   └── models/                       # Data models (Pydantic)
+<a id="__codelineno-20-55" name="__codelineno-20-55" href="#__codelineno-20-55"></a>│       ├── __init__.py
+<a id="__codelineno-20-56" name="__codelineno-20-56" href="#__codelineno-20-56"></a>│       ├── replay_data.py            # ParsedReplayData
+<a id="__codelineno-20-57" name="__codelineno-20-57" href="#__codelineno-20-57"></a>│       ├── combat.py                 # CombatLogEntry, DamageSource
+<a id="__codelineno-20-58" name="__codelineno-20-58" href="#__codelineno-20-58"></a>│       ├── fights.py                 # Fight, Kill
+<a id="__codelineno-20-59" name="__codelineno-20-59" href="#__codelineno-20-59"></a>│       ├── lanes.py                  # LaneState, CreepAggroEvent
+<a id="__codelineno-20-60" name="__codelineno-20-60" href="#__codelineno-20-60"></a>│       ├── jungle.py                 # CampPull, CampStack
+<a id="__codelineno-20-61" name="__codelineno-20-61" href="#__codelineno-20-61"></a>│       ├── objectives.py             # ObjectiveEvent
+<a id="__codelineno-20-62" name="__codelineno-20-62" href="#__codelineno-20-62"></a>│       ├── vision.py                 # WardEvent, SmokeEvent
+<a id="__codelineno-20-63" name="__codelineno-20-63" href="#__codelineno-20-63"></a>│       ├── entities.py               # EntitySnapshot, HeroState
+<a id="__codelineno-20-64" name="__codelineno-20-64" href="#__codelineno-20-64"></a>│       └── common.py                 # Position, TimeRange, etc.
+<a id="__codelineno-20-65" name="__codelineno-20-65" href="#__codelineno-20-65"></a>│
+<a id="__codelineno-20-66" name="__codelineno-20-66" href="#__codelineno-20-66"></a>└── __init__.py
+<a id="__codelineno-20-67" name="__codelineno-20-67" href="#__codelineno-20-67"></a>
+<a id="__codelineno-20-68" name="__codelineno-20-68" href="#__codelineno-20-68"></a># Entry point
+<a id="__codelineno-20-69" name="__codelineno-20-69" href="#__codelineno-20-69"></a>dota_match_mcp_server.py              # Imports and runs src/mcp/server.py
 </code></pre></div>
 <hr />
 <h2 id="data-flow">Data Flow<a class="headerlink" href="#data-flow" title="Permanent link">&para;</a></h2>
