@@ -1801,13 +1801,23 @@
 <hr />
 <h2 id="get_combat_log">get_combat_log<a class="headerlink" href="#get_combat_log" title="Permanent link">&para;</a></h2>
 <p>Raw combat events with optional filters.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">get_combat_log</span><span class="p">(</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">,</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">start_time</span><span class="o">=</span><span class="mi">280</span><span class="p">,</span>      <span class="c1"># optional: filter by time range</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">end_time</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">hero_filter</span><span class="o">=</span><span class="s2">&quot;earthshaker&quot;</span><span class="p">,</span>  <span class="c1"># optional: only events involving this hero</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">significant_only</span><span class="o">=</span><span class="kc">False</span>      <span class="c1"># optional: filter to story-telling events only</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Short time window (20 seconds) - can use significant_only=False</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">get_combat_log</span><span class="p">(</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">,</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">start_time</span><span class="o">=</span><span class="mi">280</span><span class="p">,</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">end_time</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">hero_filter</span><span class="o">=</span><span class="s2">&quot;earthshaker&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="n">significant_only</span><span class="o">=</span><span class="kc">False</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="p">)</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="c1"># Include pre-game purchases (strategy phase)</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="n">get_combat_log</span><span class="p">(</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>    <span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">,</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>    <span class="n">start_time</span><span class="o">=-</span><span class="mi">90</span><span class="p">,</span>  <span class="c1"># negative time captures pre-horn purchases</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>    <span class="n">end_time</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>    <span class="n">hero_filter</span><span class="o">=</span><span class="s2">&quot;jakiro&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>    <span class="n">significant_only</span><span class="o">=</span><span class="kc">True</span>  <span class="c1"># REQUIRED for &gt;5 min ranges</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="p">)</span>
 </code></pre></div>
 <p><strong>Parameters:</strong></p>
 <table>
@@ -1827,7 +1837,7 @@
 <tr>
 <td><code>start_time</code></td>
 <td>float</td>
-<td>Optional. Filter events after this game time (seconds)</td>
+<td>Optional. Filter events after this game time (seconds). <strong>Note:</strong> Pre-game purchases happen at negative times (~-80s). Use <code>-90</code> to include strategy phase, or omit entirely. <code>start_time=0</code> excludes pre-game.</td>
 </tr>
 <tr>
 <td><code>end_time</code></td>
@@ -1842,7 +1852,7 @@
 <tr>
 <td><code>significant_only</code></td>
 <td>bool</td>
-<td>Optional. If <code>true</code>, returns only story-telling events. Default: <code>false</code></td>
+<td>Optional. If <code>true</code>, returns only story-telling events. Default: <code>false</code>. <strong>⚠️ WARNING:</strong> <code>false</code> with time ranges &gt;5 minutes produces 50,000+ events and will fail. Always use <code>true</code> for ranges &gt;300 seconds.</td>
 </tr>
 </tbody>
 </table>
