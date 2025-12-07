@@ -63,6 +63,11 @@ nav:
           - OpenAI API: integrations/openai-api.md
   - Use Cases: examples/use-cases.md
   - API Reference:
-      - Tools: api/tools.md
+      - Tools:
+          - Overview: api/tools/index.md
+          - Match Analysis: api/tools/match-analysis.md
+          - Pro Scene: api/tools/pro-scene.md
+          - Game State: api/tools/game-state.md
+          - Farming & Rotation: api/tools/farming-rotation.md
       - Resources: api/resources.md
   - Changelog: changelog.md
