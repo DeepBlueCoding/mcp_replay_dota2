@@ -219,28 +219,28 @@ class ReplayCache:
                 players = []
                 hero_pos_at_tick: Dict[str, Tuple[float, float]] = {}
 
-                for p in snap.players:
+                for h in snap.heroes:
                     # Extract hero name from full name (e.g., npc_dota_hero_juggernaut -> juggernaut)
-                    hero_name = p.hero_name
+                    hero_name = h.hero_name
                     if hero_name and hero_name.startswith("npc_dota_hero_"):
                         hero_name_clean = hero_name[14:].lower()
                     else:
                         hero_name_clean = hero_name.lower() if hero_name else ""
 
                     players.append({
-                        "player_id": p.player_id,
-                        "hero_id": getattr(p, 'hero_id', 0),
-                        "last_hits": p.last_hits,
-                        "denies": p.denies,
-                        "gold": p.gold,
-                        "level": p.level,
-                        "position_x": p.position_x,
-                        "position_y": p.position_y,
+                        "player_id": h.player_id,
+                        "hero_id": getattr(h, 'hero_id', 0),
+                        "last_hits": h.last_hits,
+                        "denies": h.denies,
+                        "gold": h.gold,
+                        "level": h.level,
+                        "position_x": h.x,
+                        "position_y": h.y,
                     })
 
                     # Store hero positions by cleaned name
-                    if hero_name_clean and (p.position_x != 0.0 or p.position_y != 0.0):
-                        hero_pos_at_tick[hero_name_clean] = (p.position_x, p.position_y)
+                    if hero_name_clean and (h.x != 0.0 or h.y != 0.0):
+                        hero_pos_at_tick[hero_name_clean] = (h.x, h.y)
 
                 if hero_pos_at_tick:
                     hero_positions[snap.tick] = hero_pos_at_tick

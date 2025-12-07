@@ -15,10 +15,14 @@ from python_manta import CombatLogType
 
 from ...utils.position_tracker import classify_map_position
 from ..models.farming_data import (
+    CampClear,
     CreepKill,
     FarmingPatternResponse,
     FarmingSummary,
     FarmingTransitions,
+    ItemTiming,
+    LevelTiming,
+    MapPositionSnapshot,
     MinuteFarmingData,
 )
 from ..models.replay_data import ParsedReplayData
@@ -192,12 +196,18 @@ class FarmingService:
             if creep_type == "other":
                 continue  # Skip summons, wards, etc.
 
+            # Get hero position at kill time
+            x, y, map_area = self._get_position_at_time(data, hero, entry.game_time)
+
             kills.append(CreepKill(
                 game_time=round(entry.game_time, 1),
                 game_time_str=self._format_time(entry.game_time),
                 creep_name=entry.target_name,
                 creep_type=creep_type,
                 neutral_camp=neutral_camp,
+                position_x=round(x, 1) if x else None,
+                position_y=round(y, 1) if y else None,
+                map_area=map_area,
             ))
 
         return sorted(kills, key=lambda k: k.game_time)
@@ -227,11 +237,11 @@ class FarmingService:
         if not best_snapshot:
             return (None, None, None)
 
-        for player in best_snapshot.players:
-            player_hero = self._clean_hero_name(player.hero_name)
+        for hero_snap in best_snapshot.heroes:
+            player_hero = self._clean_hero_name(hero_snap.hero_name)
             if hero_lower in player_hero.lower():
-                pos = classify_map_position(player.position_x, player.position_y)
-                return (player.position_x, player.position_y, pos.region)
+                pos = classify_map_position(hero_snap.x, hero_snap.y)
+                return (hero_snap.x, hero_snap.y, pos.region)
 
         return (None, None, None)
 
@@ -260,14 +270,14 @@ class FarmingService:
         if not best_snapshot:
             return {"gold": 0, "last_hits": 0, "denies": 0, "level": 1}
 
-        for player in best_snapshot.players:
-            player_hero = self._clean_hero_name(player.hero_name)
+        for hero_snap in best_snapshot.heroes:
+            player_hero = self._clean_hero_name(hero_snap.hero_name)
             if hero_lower in player_hero.lower():
                 return {
-                    "gold": player.gold,
-                    "last_hits": player.last_hits,
-                    "denies": player.denies,
-                    "level": player.level,
+                    "gold": hero_snap.gold,
+                    "last_hits": hero_snap.last_hits,
+                    "denies": hero_snap.denies,
+                    "level": hero_snap.level,
                 }
 
         return {"gold": 0, "last_hits": 0, "denies": 0, "level": 1}
@@ -306,15 +316,58 @@ class FarmingService:
                     break
 
         # Detect when hero left lane for jungle rotation pattern
-        # Look for first minute where jungle kills >= lane kills and map_area is jungle
+        # Look for first minute where camps_cleared > 0 and position is in jungle
         for m in minute_data:
-            if m.neutral_creeps_killed >= m.lane_creeps_killed and m.neutral_creeps_killed > 0:
-                if m.map_area and "jungle" in m.map_area:
+            if m.camps_cleared > 0 and m.camps_cleared >= m.lane_creeps_killed:
+                if m.position_at_start and "jungle" in m.position_at_start.area:
                     transitions.left_lane_time = float(m.minute * 60)
                     transitions.left_lane_str = f"{m.minute}:00"
                     break
 
         return transitions
+
+    def _get_level_timings(
+        self,
+        data: ParsedReplayData,
+        hero: str,
+        start_time: float,
+        end_time: float,
+    ) -> List[LevelTiming]:
+        """
+        Extract level timings from entity snapshots.
+
+        Args:
+            data: ParsedReplayData
+            hero: Hero name
+            start_time: Start time in seconds
+            end_time: End time in seconds
+
+        Returns:
+            List of LevelTiming for levels reached in the time range
+        """
+        hero_lower = hero.lower()
+        level_timings: List[LevelTiming] = []
+        last_level = 0
+
+        for snapshot in sorted(data.entity_snapshots, key=lambda s: s.game_time):
+            if snapshot.game_time < start_time or snapshot.game_time > end_time:
+                continue
+
+            for hero_snap in snapshot.heroes:
+                player_hero = self._clean_hero_name(hero_snap.hero_name)
+                if hero_lower in player_hero.lower():
+                    current_level = hero_snap.level
+                    # Record each new level
+                    while last_level < current_level:
+                        last_level += 1
+                        level_timings.append(LevelTiming(
+                            level=last_level,
+                            time=round(snapshot.game_time, 1),
+                            time_str=self._format_time(snapshot.game_time),
+                        ))
+                    break
+
+        return level_timings
 
     def get_farming_pattern(
         self,
@@ -322,6 +375,7 @@ class FarmingService:
         hero: str,
         start_minute: int = 0,
         end_minute: int = 10,
+        item_timings: Optional[List[ItemTiming]] = None,
     ) -> FarmingPatternResponse:
         """
         Analyze a hero's farming pattern.
@@ -331,6 +385,7 @@ class FarmingService:
             hero: Hero name to analyze (fuzzy match supported)
             start_minute: Start of analysis range (default: 0)
             end_minute: End of analysis range (default: 10)
+            item_timings: Optional list of item purchase timings from OpenDota
 
         Returns:
             FarmingPatternResponse with complete farming analysis
@@ -341,7 +396,10 @@ class FarmingService:
         # Get all creep kills in time range
         creep_kills = self._get_creep_kills(data, hero, start_time, end_time)
 
-        # Build minute-by-minute data
+        # Get level timings
+        level_timings = self._get_level_timings(data, hero, start_time, end_time)
+
+        # Build minute-by-minute data with camp sequences
         minute_data: List[MinuteFarmingData] = []
         all_camps: Dict[str, int] = defaultdict(int)
 
@@ -349,47 +407,75 @@ class FarmingService:
             minute_start = minute * 60.0
             minute_end = (minute + 1) * 60.0
 
-            # Count kills in this minute
+            # Get position at start and end of minute
+            start_x, start_y, start_area = self._get_position_at_time(
+                data, hero, minute_start
+            )
+            end_x, end_y, end_area = self._get_position_at_time(
+                data, hero, minute_end - 1  # X:59
+            )
+
+            position_at_start = None
+            if start_x is not None and start_y is not None and start_area:
+                position_at_start = MapPositionSnapshot(
+                    x=round(start_x, 1),
+                    y=round(start_y, 1),
+                    area=start_area,
+                )
+
+            position_at_end = None
+            if end_x is not None and end_y is not None and end_area:
+                position_at_end = MapPositionSnapshot(
+                    x=round(end_x, 1),
+                    y=round(end_y, 1),
+                    area=end_area,
+                )
+
+            # Build ordered camp sequence for this minute
+            camp_sequence: List[CampClear] = []
+            seen_camps: set = set()  # Track unique camps cleared
             lane_kills = 0
-            neutral_kills = 0
-            camps_this_minute: Dict[str, int] = defaultdict(int)
 
             for kill in creep_kills:
                 if minute_start <= kill.game_time < minute_end:
                     if kill.creep_type == "lane":
                         lane_kills += 1
-                    elif kill.creep_type == "neutral":
-                        neutral_kills += 1
-                        if kill.neutral_camp:
-                            # Extract readable camp name
-                            camp_name = kill.neutral_camp.replace("_", " ")
-                            camps_this_minute[camp_name] += 1
-                            all_camps[camp_name] += 1
+                    elif kill.creep_type == "neutral" and kill.neutral_camp:
+                        tier = self._get_camp_tier(kill.neutral_camp) or "unknown"
+                        area = kill.map_area or "unknown"
 
-            # Get position at minute mark
-            x, y, area = self._get_position_at_time(data, hero, float(minute * 60))
+                        # Track unique camps (use camp type + approximate time as key)
+                        # Group kills within 5 seconds as same camp clear
+                        camp_key = f"{kill.neutral_camp}_{int(kill.game_time // 5)}"
+                        if camp_key not in seen_camps:
+                            seen_camps.add(camp_key)
+                            camp_sequence.append(CampClear(
+                                time_str=kill.game_time_str,
+                                camp=kill.neutral_camp,
+                                tier=tier,
+                                area=area,
+                            ))
+                            all_camps[kill.neutral_camp] += 1
 
-            # Get stats at minute mark
-            stats = self._get_stats_at_time(data, hero, float(minute * 60))
+            # Get stats at end of minute
+            stats = self._get_stats_at_time(data, hero, minute_end)
 
             minute_data.append(MinuteFarmingData(
                 minute=minute,
+                position_at_start=position_at_start,
+                position_at_end=position_at_end,
+                camp_sequence=camp_sequence,
                 lane_creeps_killed=lane_kills,
-                neutral_creeps_killed=neutral_kills,
-                neutral_camps_detail=dict(camps_this_minute),
-                position_x=round(x, 1) if x else None,
-                position_y=round(y, 1) if y else None,
-                map_area=area,
+                camps_cleared=len(camp_sequence),
                 gold=stats["gold"],
                 last_hits=stats["last_hits"],
-                denies=stats["denies"],
                 level=stats["level"],
             ))
 
         # Calculate summary
         total_lane = sum(m.lane_creeps_killed for m in minute_data)
-        total_neutral = sum(m.neutral_creeps_killed for m in minute_data)
-        total_creeps = total_lane + total_neutral
+        total_camps = sum(m.camps_cleared for m in minute_data)
+        total_creeps = total_lane + total_camps
 
         # Get gold at start and end for GPM calculation
         start_gold = minute_data[0].gold if minute_data else 0
@@ -404,8 +490,8 @@ class FarmingService:
 
         summary = FarmingSummary(
             total_lane_creeps=total_lane,
-            total_neutral_creeps=total_neutral,
-            jungle_percentage=round(total_neutral / total_creeps * 100, 1) if total_creeps > 0 else 0.0,
+            total_neutral_creeps=total_camps,
+            jungle_percentage=round(total_camps / total_creeps * 100, 1) if total_creeps > 0 else 0.0,
             gpm=gpm,
             cs_per_min=cs_per_min,
             camps_cleared=dict(all_camps),
@@ -420,6 +506,8 @@ class FarmingService:
             hero=hero,
             start_minute=start_minute,
             end_minute=end_minute,
+            level_timings=level_timings,
+            item_timings=item_timings or [],
             minutes=minute_data,
             transitions=transitions,
             summary=summary,

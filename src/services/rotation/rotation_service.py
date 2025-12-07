@@ -130,12 +130,12 @@ class RotationService:
             if snapshot.game_time < target_start or snapshot.game_time > target_end:
                 continue
 
-            for player in snapshot.players:
-                hero = self._clean_hero_name(player.hero_name)
+            for hero_snap in snapshot.heroes:
+                hero = self._clean_hero_name(hero_snap.hero_name)
                 if not hero:
                     continue
 
-                lane = self._classify_lane(player.position_x, player.position_y)
+                lane = self._classify_lane(hero_snap.x, hero_snap.y)
                 lane_counts[hero][lane] += 1
 
         # Assign each hero to their most common lane
@@ -183,11 +183,11 @@ class RotationService:
         if not best_snapshot or min_diff > 30:  # Too far from target time
             return None
 
-        for player in best_snapshot.players:
-            player_hero = self._clean_hero_name(player.hero_name)
+        for hero_snap in best_snapshot.heroes:
+            player_hero = self._clean_hero_name(hero_snap.hero_name)
             if hero_lower in player_hero.lower():
-                lane = self._classify_lane(player.position_x, player.position_y)
-                return (player.position_x, player.position_y, lane)
+                lane = self._classify_lane(hero_snap.x, hero_snap.y)
+                return (hero_snap.x, hero_snap.y, lane)
 
         return None
 
