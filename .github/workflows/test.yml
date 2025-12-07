@@ -45,6 +45,13 @@ jobs:
           path: ~/dota2/replays
           key: replay-${{ env.TEST_MATCH_ID }}-v2
 
+      - name: Cache parsed replay data
+        id: cache-parsed
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/mcp_dota2/parsed_replays
+          key: parsed-${{ env.TEST_MATCH_ID }}-v3
+
       - name: Download test replay
         if: steps.cache-replay.outputs.cache-hit != 'true'
         run: |
@@ -73,4 +80,5 @@ jobs:
           echo "Replay file verified OK"
 
       - name: Run tests
+        timeout-minutes: 15
         run: uv run pytest tests/ -v
