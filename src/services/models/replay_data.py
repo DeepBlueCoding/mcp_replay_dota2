@@ -60,6 +60,9 @@ class ParsedReplayData:
     game_events: Optional[GameEventsResult] = None
     modifiers: Optional[ModifiersResult] = None
 
+    # Metadata from CDOTAMatchMetadataFile (for timeline data)
+    metadata: Optional[Dict[str, Any]] = None
+
     # Index for seeking (built on first parse)
     demo_index: Optional[DemoIndex] = None
 
@@ -133,6 +136,7 @@ class ParsedReplayData:
             "entities": self.entities.model_dump() if self.entities else None,
             "game_events": self.game_events.model_dump() if self.game_events else None,
             "modifiers": self.modifiers.model_dump() if self.modifiers else None,
+            "metadata": self.metadata,
             "demo_index": self.demo_index.model_dump() if self.demo_index else None,
         }
 
@@ -149,6 +153,7 @@ class ParsedReplayData:
             entities=EntityParseResult(**data["entities"]) if data.get("entities") else None,
             game_events=GameEventsResult(**data["game_events"]) if data.get("game_events") else None,
             modifiers=ModifiersResult(**data["modifiers"]) if data.get("modifiers") else None,
+            metadata=data.get("metadata"),
             demo_index=DemoIndex(**data["demo_index"]) if data.get("demo_index") else None,
         )
 
@@ -158,6 +163,7 @@ class ParsedReplayData:
         match_id: int,
         replay_path: str,
         result: ParseResult,
+        metadata: Optional[Dict[str, Any]] = None,
         demo_index: Optional[DemoIndex] = None,
     ) -> "ParsedReplayData":
         """Create from python-manta v2 ParseResult."""
@@ -170,5 +176,6 @@ class ParsedReplayData:
             entities=result.entities,
             game_events=result.game_events,
             modifiers=result.modifiers,
+            metadata=metadata,
             demo_index=demo_index,
         )

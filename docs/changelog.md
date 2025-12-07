@@ -10,6 +10,40 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+#### Dota 2 Game Knowledge in Server Instructions
+- Added comprehensive laning phase roles documentation (Position 1-5 responsibilities)
+- Added "Common Analysis Mistakes to AVOID" section for better match analysis
+- Added "What Actually Creates Space" guidance for strategic understanding
+
+#### Enhanced Lane Summary
+- `get_lane_summary` now fetches OpenDota data for authoritative lane assignments
+- Lane names and roles from OpenDota override replay-derived heuristics
+
+#### Constants Fetcher
+- Added `get_hero_name(hero_id)` method to convert hero IDs to internal names
+
+### Changed
+
+#### ReplayService as Main Entry Point
+- `ReplayService.get_parsed_data(match_id)` is now the single entry point for all replay data
+- Parses `CDOTAMatchMetadataFile` for timeline metadata in addition to combat log
+- All tools now use `get_parsed_data()` instead of `download_only()` + separate parsing
+
+#### Parsers Use ParsedReplayData Directly
+- `timeline_parser.parse_timeline()` now accepts `ParsedReplayData` instead of `Path`
+- `match_info_parser.get_draft()` now accepts `ParsedReplayData` instead of `Path`
+- `match_info_parser.get_match_info()` now accepts `ParsedReplayData` instead of `Path`
+- Entity snapshots now use v2 `snap.heroes` instead of `snap.players`
+
+#### FightService Default
+- `get_fight_combat_log` now defaults to `significant_only=True` for cleaner output
+
+### Removed
+
+#### Deprecated Modules
+- Removed `src/utils/combat_log_parser.py` (replaced by v2 services)
+- Removed `src/utils/replay_cache.py` (replaced by `src/services/cache/replay_cache.py`)
+
 #### Parallel Tool Execution
 - Added parallel-safe hints to tool descriptions for LLM optimization
 - Tools marked as parallel-safe: `get_stats_at_minute`, `get_cs_at_minute`, `get_hero_positions`, `get_snapshot_at_time`, `get_fight`, `get_position_timeline`, `get_fight_replay`

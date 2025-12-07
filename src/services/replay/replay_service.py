@@ -348,8 +348,8 @@ class ReplayService:
         if not result.success:
             raise ValueError(f"Parsing failed: {result.error}")
 
-        # Build index for seeking (optional, for Phase 4)
-        # demo_index = parser.build_index()
+        # Parse metadata separately (CDOTAMatchMetadataFile for timeline data)
+        metadata = self._parse_metadata(replay_str)
 
         logger.info(f"Parsed {len(result.combat_log.entries) if result.combat_log else 0} combat log entries")
         logger.info(f"Parsed {len(result.entities.snapshots) if result.entities else 0} entity snapshots")
@@ -358,8 +358,34 @@ class ReplayService:
             match_id=match_id,
             replay_path=replay_str,
             result=result,
+            metadata=metadata,
             demo_index=None,  # Will be added in Phase 4
         )
+
+    def _parse_metadata(self, replay_str: str) -> Optional[dict]:
+        """Parse CDOTAMatchMetadataFile for timeline data.
+
+        This message is at the end of the replay file among millions of messages,
+        so we must parse all messages and filter for it.
+        """
+        try:
+            parser = Parser(replay_str)
+            # Must parse ALL messages - CDOTAMatchMetadataFile is at the very end
+            result = parser.parse(
+                messages={
+                    "message_types": ['CDOTAMatchMetadataFile'],
+                    "max_messages": 0,  # No limit - parse entire file
+                }
+            )
+            if result.messages and result.messages.messages:
+                # Find the CDOTAMatchMetadataFile message
+                for msg in result.messages.messages:
+                    if msg.type == 'CDOTAMatchMetadataFile':
+                        logger.info("Found CDOTAMatchMetadataFile metadata")
+                        return msg.data
+        except Exception as e:
+            logger.warning(f"Failed to parse metadata: {e}")
+        return None
 
     def get_replay_file_size(self, match_id: int) -> Optional[float]:
         """Get replay file size in MB."""

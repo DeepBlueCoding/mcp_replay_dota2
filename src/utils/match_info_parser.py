@@ -1,17 +1,13 @@
 """
 Match info parser for extracting match metadata and draft from Dota 2 replays.
 
-Uses Parser.parse(game_info=True) to extract pro match data including
-teams, players, draft order, and match outcome.
-
-Uses replay_cache for duration calculation to avoid duplicate parsing.
+Uses v2 ParsedReplayData which contains game_info from python-manta.
 """
 
 import logging
-from pathlib import Path
 from typing import Optional
 
-from python_manta import Parser, Team
+from python_manta import Team
 
 from src.models.match_info import (
     DraftAction,
@@ -20,9 +16,9 @@ from src.models.match_info import (
     PlayerInfo,
     TeamInfo,
 )
+from src.services.models.replay_data import ParsedReplayData
 from src.utils.constants_fetcher import constants_fetcher
 from src.utils.pro_scene_fetcher import pro_scene_fetcher
-from src.utils.replay_cache import replay_cache
 
 logger = logging.getLogger(__name__)
 
@@ -81,27 +77,20 @@ class MatchInfoParser:
         secs = int(seconds % 60)
         return f"{minutes}:{secs:02d}"
 
-    def get_draft(self, replay_path: Path) -> Optional[DraftResult]:
+    def get_draft(self, data: ParsedReplayData) -> Optional[DraftResult]:
         """
-        Get draft information from a replay using v2 API.
+        Get draft information from parsed replay data.
 
         Args:
-            replay_path: Path to the .dem replay file
+            data: ParsedReplayData from ReplayService
 
         Returns:
             DraftResult with all picks and bans in order, or None on error
         """
         try:
-            parser = Parser(str(replay_path))
-            result = parser.parse(game_info=True)
-
-            if not result.success:
-                logger.error(f"Failed to parse game info: {result.error}")
-                return None
-
-            game_info = result.game_info
+            game_info = data.game_info
             if not game_info:
-                logger.error("No game info in parse result")
+                logger.error("No game info in parsed data")
                 return None
 
             actions = []
@@ -150,30 +139,20 @@ class MatchInfoParser:
             logger.error(f"Error parsing draft: {e}")
             return None
 
-    def get_match_info(self, replay_path: Path) -> Optional[MatchInfoResult]:
+    def get_match_info(self, data: ParsedReplayData) -> Optional[MatchInfoResult]:
         """
-        Get match information from a replay using v2 API.
-
-        Uses replay_cache for duration to avoid duplicate parsing.
+        Get match information from parsed replay data.
 
         Args:
-            replay_path: Path to the .dem replay file
+            data: ParsedReplayData from ReplayService
 
         Returns:
             MatchInfoResult with teams, players, winner, duration, etc.
         """
         try:
-            parser = Parser(str(replay_path))
-            # Only parse game_info (fast), use cache for duration
-            result = parser.parse(game_info=True)
-
-            if not result.success:
-                logger.error(f"Failed to parse game info: {result.error}")
-                return None
-
-            game_info = result.game_info
+            game_info = data.game_info
             if not game_info:
-                logger.error("No game info in parse result")
+                logger.error("No game info in parsed data")
                 return None
 
             winner = "radiant" if game_info.game_winner == Team.RADIANT.value else "dire"
@@ -236,13 +215,8 @@ class MatchInfoParser:
 
             is_pro = game_info.radiant_team_id > 0 or game_info.dire_team_id > 0 or game_info.league_id > 0
 
-            # Get actual game duration from cached combat log (avoids re-parsing)
-            duration_seconds = game_info.playback_time
-            cached_data = replay_cache.get_parsed_data(replay_path)
-            if cached_data.combat_log:
-                max_game_time = max((e.game_time for e in cached_data.combat_log), default=0.0)
-                if max_game_time > 0:
-                    duration_seconds = max_game_time
+            # Use duration_seconds from ParsedReplayData (uses combat log max time)
+            duration_seconds = data.duration_seconds
 
             return MatchInfoResult(
                 match_id=game_info.match_id,

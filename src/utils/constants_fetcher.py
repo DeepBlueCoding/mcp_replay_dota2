@@ -251,6 +251,24 @@ class ConstantsFetcher:
             return heroes.get(str(hero_id))
         return None
 
+    def get_hero_name(self, hero_id: int) -> Optional[str]:
+        """
+        Get hero internal name from hero ID.
+
+        Args:
+            hero_id: The hero ID to look up
+
+        Returns:
+            Hero internal name (e.g., 'juggernaut') or None if not found
+        """
+        hero_data = self.convert_hero_by_id(hero_id)
+        if hero_data:
+            name = hero_data.get("name", "")
+            if name.startswith("npc_dota_hero_"):
+                return name[14:]
+            return name
+        return None
+
     def convert_hero_by_name(self, name: str) -> Optional[Dict[str, Any]]:
         """
         Get a specific hero by localized name from local constants.

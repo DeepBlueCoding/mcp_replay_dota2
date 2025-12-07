@@ -81,13 +81,14 @@ V2 services provide all replay data extraction:
 - `FightService` - fight detection with participants and deaths
 - `ReplayService` - replay downloading and path management
 
-All services use `replay_cache` for cached `ParsedReplayData`:
+Use `ReplayService` to get cached `ParsedReplayData`:
 
 ```python
-from src.utils.replay_cache import replay_cache
+from src.services.replay.replay_service import ReplayService
 from src.services.combat.combat_service import CombatService
 
-data = replay_cache.get_parsed_data(replay_path)  # Cached on disk
+rs = ReplayService()
+data = await rs.get_parsed_data(match_id)  # Cached on disk
 combat = CombatService()
 deaths = combat.get_hero_deaths(data)
 fights = FightService().get_all_fights(data)
@@ -146,7 +147,7 @@ entry.neutral_camp_team  # which team's jungle
 
 ### Tests: Use conftest.py Fixtures
 
-Tests use `replay_cache` via session-scoped fixtures. With disk caching, tests run in ~3 seconds:
+Tests use `ReplayService` via session-scoped fixtures. With disk caching, tests run in ~3 seconds:
 
 ```python
 def test_something(hero_deaths, combat_log_280_290):  # fixtures inject cached data
@@ -251,7 +252,7 @@ Multi-camp detection example:
    uv run pytest -m "not integration"
    ```
 
-With disk caching (`replay_cache`), the full test suite runs in ~3 seconds once the replay is cached.
+With disk caching (`ReplayService`), the full test suite runs in ~3 seconds once the replay is cached.
 
 ### Adding New Tests
 
@@ -266,16 +267,17 @@ With disk caching (`replay_cache`), the full test suite runs in ~3 seconds once 
 
 ### Adding New Parsers/Tools
 
-1. Use `replay_cache.get_parsed_data(replay_path)` to get cached `ParsedReplayData`
+1. Use `ReplayService.get_parsed_data(match_id)` to get cached `ParsedReplayData`
 2. Use v2 services (`CombatService`, `FightService`) for data extraction
 3. Access python-manta types via attributes (not dicts)
 4. Return Pydantic models, not raw dicts
 
 ```python
-from src.utils.replay_cache import replay_cache
+from src.services.replay.replay_service import ReplayService
 from src.services.combat.combat_service import CombatService
 
-data = replay_cache.get_parsed_data(replay_path)
+rs = ReplayService()
+data = await rs.get_parsed_data(match_id)
 combat = CombatService()
 deaths = combat.get_hero_deaths(data)
 ```

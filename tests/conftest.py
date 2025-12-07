@@ -4,6 +4,7 @@ Shared pytest fixtures for Dota 2 MCP server tests.
 Uses v2 services exclusively. Parses replay data ONCE at session start.
 """
 
+import asyncio
 from pathlib import Path
 from typing import Optional
 
@@ -11,7 +12,8 @@ import pytest
 
 from src.services.combat.combat_service import CombatService
 from src.services.combat.fight_service import FightService
-from src.utils.replay_cache import ParsedReplayData, replay_cache
+from src.services.models.replay_data import ParsedReplayData
+from src.services.replay.replay_service import ReplayService
 
 # Test match ID with known verified data
 TEST_MATCH_ID = 8461956309
@@ -28,9 +30,18 @@ FIRST_BLOOD_KILLER = "disruptor"
 # =============================================================================
 
 _parsed_data: Optional[ParsedReplayData] = None
+_replay_service: Optional[ReplayService] = None
 _combat_service: Optional[CombatService] = None
 _fight_service: Optional[FightService] = None
 _cache = {}
+
+
+def _get_replay_service() -> ReplayService:
+    """Get or create ReplayService singleton."""
+    global _replay_service
+    if _replay_service is None:
+        _replay_service = ReplayService()
+    return _replay_service
 
 
 def _get_parsed_data() -> Optional[ParsedReplayData]:
@@ -42,9 +53,12 @@ def _get_parsed_data() -> Optional[ParsedReplayData]:
     if not REPLAY_PATH.exists():
         return None
 
-    print(f"\n[conftest] Loading replay {TEST_MATCH_ID} via v2 cache...")
-    _parsed_data = replay_cache.get_parsed_data(REPLAY_PATH)
-    print(f"[conftest] Loaded {len(_parsed_data.combat_log)} combat log entries")
+    print(f"\n[conftest] Loading replay {TEST_MATCH_ID} via v2 ReplayService...")
+    rs = _get_replay_service()
+    _parsed_data = asyncio.get_event_loop().run_until_complete(
+        rs.get_parsed_data(TEST_MATCH_ID)
+    )
+    print(f"[conftest] Loaded {len(_parsed_data.combat_log_entries)} combat log entries")
     return _parsed_data
 
 

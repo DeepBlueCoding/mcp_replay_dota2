@@ -98,22 +98,18 @@ This separation allows the services to be reused in other systems (CLI tools, we
 │                         SERVICES LAYER                                  │
 │                        src/services/                                    │
 │                                                                         │
-│   combat/                         src/utils/                           │
-│   ├── combat_service.py           ├── replay_cache.py  (disk cache)    │
-│   └── fight_service.py            ├── match_fetcher.py                 │
-│                                   └── ...                              │
-│   replay/                                                              │
-│   └── replay_service.py           (uses replay_cache singleton)        │
+│   combat/                         cache/                               │
+│   ├── combat_service.py           └── replay_cache.py  (disk cache)    │
+│   └── fight_service.py                                                 │
+│                                   replay/                              │
+│   farming/                        └── replay_service.py  (main entry)  │
+│   └── farming_service.py                                               │
 │                                                                        │
-│   farming/                        rotation/                            │
-│   └── farming_service.py          └── rotation_service.py              │
+│   rotation/                       lane/                                │
+│   └── rotation_service.py         └── lane_service.py                  │
 │                                                                         │
-│   analyzers/                      models/                               │
-│   ├── fight_detector.py           ├── replay_data.py                   │
-│   ├── lane_analyzer.py            ├── combat.py                        │
-│   ├── jungle_analyzer.py          ├── fights.py                        │
-│   ├── objective_analyzer.py       ├── lanes.py                         │
-│   └── vision_analyzer.py          └── ...                              │
+│   models/                                                              │
+│   └── replay_data.py                                                   │
 │                                                                         │
 │   All business logic. Zero MCP dependencies.                            │
 │   Can be imported and used by CLI, web API, tests, etc.                │
@@ -1128,26 +1124,30 @@ src/
 │       ├── heroes_resource.py        # Hero data resources
 │       └── map_resource.py           # Map data resources
 │
-├── utils/                            # Utilities (caching, helpers)
-│   ├── replay_cache.py               # Disk-based replay data cache (singleton)
+├── utils/                            # Utilities (helpers)
 │   ├── match_fetcher.py              # OpenDota API fetcher
-│   ├── timeline_parser.py            # Timeline extraction (uses cache)
-│   ├── match_info_parser.py          # Match info extraction (uses cache)
+│   ├── timeline_parser.py            # Timeline extraction (uses ParsedReplayData)
+│   ├── match_info_parser.py          # Match info extraction (uses ParsedReplayData)
 │   └── ...
 │
 ├── services/                         # Services Layer (business logic)
 │   ├── __init__.py
 │   │
-│   ├── replay/                       # Replay parsing services
-│   │   ├── __init__.py
-│   │   ├── replay_service.py         # Main entry, orchestrates parsing
-│   │   ├── combat_service.py         # Combat queries
-│   │   ├── fight_service.py          # Fight queries
-│   │   ├── lane_service.py           # Lane queries
-│   │   ├── jungle_service.py         # Jungle queries
-│   │   ├── objective_service.py      # Objective queries
-│   │   ├── vision_service.py         # Ward/smoke queries
-│   │   └── timeline_service.py       # Timeline queries
+│   ├── cache/                        # Caching layer
+│   │   └── replay_cache.py           # Disk-based replay data cache
+│   │
+│   ├── replay/                       # Replay services
+│   │   └── replay_service.py         # Main entry, download + parse + cache
+│   │
+│   ├── combat/                       # Combat services
+│   │   ├── combat_service.py         # Hero deaths, combat log
+│   │   └── fight_service.py          # Fight detection
+│   │
+│   ├── farming/                      # Farming services
+│   │   └── farming_service.py        # Farming pattern analysis
+│   │
+│   ├── lane/                         # Lane services
+│   │   └── lane_service.py           # Laning phase analysis
 │   │
 │   ├── opendota/                     # OpenDota API services
 │   │   ├── __init__.py

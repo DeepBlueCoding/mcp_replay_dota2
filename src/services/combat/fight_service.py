@@ -207,7 +207,7 @@ class FightService:
             data,
             start_time=start_time,
             end_time=end_time,
-            significant_only=False,
+            significant_only=True,
         )
 
         return {

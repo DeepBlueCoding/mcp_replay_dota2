@@ -1,33 +1,30 @@
 """
 Timeline parser for extracting time-series data from Dota 2 replays.
 
-Uses replay_cache to avoid repeated parsing of large replay files.
+Uses v2 ParsedReplayData from ReplayService.
 """
 
 import logging
-from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from src.utils.replay_cache import replay_cache
+from src.services.models.replay_data import ParsedReplayData
 
 logger = logging.getLogger(__name__)
 
 
 class TimelineParser:
-    """Parses replay files to extract timeline data using cached replay data."""
+    """Parses replay files to extract timeline data using v2 ParsedReplayData."""
 
-    def parse_timeline(self, replay_path: Path) -> Optional[Dict[str, Any]]:
+    def parse_timeline(self, data: ParsedReplayData) -> Optional[Dict[str, Any]]:
         """
-        Parse timeline data from a replay file.
+        Parse timeline data from parsed replay data.
 
         Args:
-            replay_path: Path to the .dem replay file
+            data: ParsedReplayData from ReplayService
 
         Returns:
             Dictionary with timeline data for all players, or None on error
         """
-        data = replay_cache.get_parsed_data(replay_path)
-
         if data.metadata is None:
             logger.error("No metadata found in replay")
             return None
@@ -109,21 +106,21 @@ class TimelineParser:
 
         Args:
             players: List of player timeline dicts to update in place
-            entity_snapshots: Entity snapshots from cache
+            entity_snapshots: Entity snapshots from v2 (python-manta EntitySnapshot)
         """
         # Build player_id to timeline data mapping
         player_timeline: Dict[int, List[Dict[str, Any]]] = {}
 
         for snap in entity_snapshots:
             # Skip draft phase snapshots (game_time is 0.0 during draft)
-            # Game time becomes positive when actual gameplay starts
             if snap.game_time <= 0:
                 continue
 
             game_min = int(snap.game_time / 60)
 
-            for p in snap.players:
-                player_id = p.get('player_id')
+            # v2 uses snap.heroes instead of snap.players
+            for hero in snap.heroes:
+                player_id = hero.player_id
                 if player_id is None:
                     continue
 
@@ -133,11 +130,11 @@ class TimelineParser:
                 player_timeline[player_id].append({
                     "game_time": snap.game_time,
                     "minute": game_min,
-                    "last_hits": p.get('last_hits', 0),
-                    "denies": p.get('denies', 0),
-                    "gold": p.get('gold', 0),
-                    "level": p.get('level', 1),
-                    "hero_id": p.get('hero_id', 0),
+                    "last_hits": hero.last_hits,
+                    "denies": hero.denies,
+                    "gold": hero.gold,
+                    "level": hero.level,
+                    "hero_id": getattr(hero, 'hero_id', 0),
                 })
 
         # Merge into players

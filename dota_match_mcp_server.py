@@ -40,6 +40,43 @@ Your goal is to provide MEANINGFUL ANALYSIS, not just display raw data.
 4. Review deaths with get_hero_deaths to identify patterns
 5. Use get_timeline for critical game moments and networth swings
 
+## CRITICAL: Dota 2 Game Knowledge
+
+### Laning Phase Roles (0-10 minutes)
+Each position has SPECIFIC responsibilities during laning. Do NOT confuse them:
+
+**Position 1 (Carry/Safelane)**: Farm the safelane. Their ONLY job is to get CS and survive.
+They do NOT rotate. They do NOT gank. Deaths in safelane are usually support/mid rotations.
+
+**Position 2 (Mid)**: Farm mid, contest runes. CAN rotate after rune spawns (2:00, 4:00, 6:00+).
+Mid rotations with haste/DD rune are common gank opportunities.
+
+**Position 3 (Offlane)**: Pressure enemy carry, get levels, survive. They do NOT rotate early.
+Offlaners dying is NORMAL - they're supposed to create space by drawing attention.
+An offlaner dying does NOT mean the team "spent resources" - it's the lane matchup.
+
+**Position 4 (Soft Support)**: Pull camps, rotate to gank mid or offlane, secure runes.
+These are the PRIMARY early-game rotators via smoke or twin gate portals.
+
+**Position 5 (Hard Support)**: Protect carry in lane, stack camps, place wards.
+Can rotate but usually stays to protect carry until 5-7 minutes.
+
+### Common Analysis Mistakes to AVOID
+- "Team X killed the offlaner instead of ganking the carry" - WRONG. These are independent events.
+  The offlane 2v1 or 3v1 happens regardless of whether supports rotate elsewhere.
+- "Carry was farming uncontested because offlaner died" - WRONG. Offlaner deaths don't prevent
+  support rotations. The pos 4/5 decide where to rotate, not based on offlane kills.
+- "Offlaner should have rotated at 8 minutes" - WRONG. Offlaners need farm and levels.
+  Rotations before 10-12 min are for supports and mid only.
+- Attributing good carry farm to enemy "not rotating" - Check if enemy supports DID rotate.
+  Good carry farm usually means good lane control, not enemy mistakes.
+
+### What Actually Creates Space
+- Support rotations to gank mid (forces defensive TP)
+- Smoke ganks on enemy jungle
+- Offlaner pressuring tower (forces carry to defend or lose tower)
+- Taking objectives that force reactions
+
 ## Key Analysis Areas
 
 ### Objectives & Map Control
@@ -143,6 +180,7 @@ from src.resources.map_resources import get_cached_map_data
 from src.resources.pro_scene_resources import pro_scene_resource
 from src.services.cache.replay_cache import ReplayCache as ReplayCacheV2
 from src.services.replay.replay_service import ReplayService
+from src.utils.constants_fetcher import constants_fetcher
 from src.utils.match_fetcher import match_fetcher
 from src.utils.pro_scene_fetcher import pro_scene_fetcher
 
@@ -396,7 +434,7 @@ async def get_match_timeline(
             await ctx.report_progress(current, total)
 
     try:
-        replay_path = await _replay_service.download_only(match_id, progress=progress_callback)
+        data = await _replay_service.get_parsed_data(match_id, progress=progress_callback)
     except ValueError as e:
         return {
             "success": False,
@@ -404,7 +442,7 @@ async def get_match_timeline(
             "error": str(e)
         }
 
-    timeline = timeline_parser.parse_timeline(replay_path)
+    timeline = timeline_parser.parse_timeline(data)
     if not timeline:
         return {
             "success": False,
@@ -450,7 +488,7 @@ async def get_stats_at_minute(
             await ctx.report_progress(current, total)
 
     try:
-        replay_path = await _replay_service.download_only(match_id, progress=progress_callback)
+        data = await _replay_service.get_parsed_data(match_id, progress=progress_callback)
     except ValueError as e:
         return {
             "success": False,
@@ -458,7 +496,7 @@ async def get_stats_at_minute(
             "error": str(e)
         }
 
-    timeline = timeline_parser.parse_timeline(replay_path)
+    timeline = timeline_parser.parse_timeline(data)
     if not timeline:
         return {
             "success": False,
@@ -1054,7 +1092,7 @@ async def get_match_draft(
             await ctx.report_progress(current, total)
 
     try:
-        replay_path = await _replay_service.download_only(match_id, progress=progress_callback)
+        data = await _replay_service.get_parsed_data(match_id, progress=progress_callback)
     except ValueError as e:
         return {
             "success": False,
@@ -1062,7 +1100,7 @@ async def get_match_draft(
             "error": str(e)
         }
 
-    draft = match_info_parser.get_draft(replay_path)
+    draft = match_info_parser.get_draft(data)
     if not draft:
         return {
             "success": False,
@@ -1138,7 +1176,7 @@ async def get_match_info(
             await ctx.report_progress(current, total)
 
     try:
-        replay_path = await _replay_service.download_only(match_id, progress=progress_callback)
+        data = await _replay_service.get_parsed_data(match_id, progress=progress_callback)
     except ValueError as e:
         return {
             "success": False,
@@ -1146,7 +1184,7 @@ async def get_match_info(
             "error": str(e)
         }
 
-    match_info = match_info_parser.get_match_info(replay_path)
+    match_info = match_info_parser.get_match_info(data)
     if not match_info:
         return {
             "success": False,
@@ -1888,6 +1926,43 @@ async def get_lane_summary(match_id: int, ctx: Optional[Context] = None) -> Dict
         data = await _replay_service.get_parsed_data(match_id, progress=progress_callback)
         summary = _lane_service.get_lane_summary(data)
 
+        # Fetch OpenDota data for authoritative lane assignments
+        opendota_players = await match_fetcher.get_players(match_id)
+        opendota_lanes = {}
+        for p in opendota_players:
+            hero_id = p.get("hero_id")
+            if hero_id:
+                # Get hero name from hero_id
+                hero_name = constants_fetcher.get_hero_name(hero_id)
+                if hero_name:
+                    opendota_lanes[hero_name.lower()] = {
+                        "lane_name": p.get("lane_name"),
+                        "role": p.get("role"),
+                    }
+
+        hero_stats = []
+        for s in summary.hero_stats:
+            hero_lower = s.hero.lower()
+            # Use OpenDota lane data if available
+            od_data = opendota_lanes.get(hero_lower, {})
+            lane_name = od_data.get("lane_name") or s.lane
+            role = od_data.get("role") or s.role
+
+            hero_stats.append({
+                "hero": s.hero,
+                "lane": lane_name,
+                "role": role,
+                "team": s.team,
+                "last_hits_5min": s.last_hits_5min,
+                "last_hits_10min": s.last_hits_10min,
+                "denies_5min": s.denies_5min,
+                "denies_10min": s.denies_10min,
+                "gold_5min": s.gold_5min,
+                "gold_10min": s.gold_10min,
+                "level_5min": s.level_5min,
+                "level_10min": s.level_10min,
+            })
+
         return {
             "success": True,
             "match_id": match_id,
@@ -1900,23 +1975,7 @@ async def get_lane_summary(match_id: int, ctx: Optional[Context] = None) -> Dict
                 "radiant": round(summary.radiant_laning_score, 1),
                 "dire": round(summary.dire_laning_score, 1),
             },
-            "hero_stats": [
-                {
-                    "hero": s.hero,
-                    "lane": s.lane,
-                    "role": s.role,
-                    "team": s.team,
-                    "last_hits_5min": s.last_hits_5min,
-                    "last_hits_10min": s.last_hits_10min,
-                    "denies_5min": s.denies_5min,
-                    "denies_10min": s.denies_10min,
-                    "gold_5min": s.gold_5min,
-                    "gold_10min": s.gold_10min,
-                    "level_5min": s.level_5min,
-                    "level_10min": s.level_10min,
-                }
-                for s in summary.hero_stats
-            ],
+            "hero_stats": hero_stats,
         }
 
     except ValueError as e:
