@@ -1952,7 +1952,7 @@
 <p>Event types: <code>DAMAGE</code>, <code>MODIFIER_ADD</code>, <code>MODIFIER_REMOVE</code>, <code>ABILITY</code>, <code>ITEM</code>, <code>DEATH</code>, <code>HEAL</code>, <code>PURCHASE</code>, <code>BUYBACK</code></p>
 <hr />
 <h2 id="get_fight_combat_log">get_fight_combat_log<a class="headerlink" href="#get_fight_combat_log" title="Permanent link">&para;</a></h2>
-<p>Auto-detects fight boundaries around a reference time. Use this to analyze what happened leading up to a death.</p>
+<p>Auto-detects fight boundaries around a reference time. Returns combat events plus <strong>fight highlights</strong> including multi-hero abilities, kill streaks, and team wipes.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">get_fight_combat_log</span><span class="p">(</span>
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">,</span>
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">reference_time</span><span class="o">=</span><span class="mi">288</span><span class="p">,</span>    <span class="c1"># e.g., death time</span>
@@ -1968,9 +1968,78 @@
 <a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">  </span><span class="nt">&quot;duration&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span>
 <a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">  </span><span class="nt">&quot;participants&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;earthshaker&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;disruptor&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;naga_siren&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;medusa&quot;</span><span class="p">],</span>
 <a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">  </span><span class="nt">&quot;total_events&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">47</span><span class="p">,</span>
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">  </span><span class="nt">&quot;events&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">]</span>
-<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="p">}</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">  </span><span class="nt">&quot;events&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">  </span><span class="nt">&quot;highlights&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">    </span><span class="nt">&quot;multi_hero_abilities&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">      </span><span class="p">{</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">        </span><span class="nt">&quot;game_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">282.5</span><span class="p">,</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="w">        </span><span class="nt">&quot;game_time_str&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;4:42&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="w">        </span><span class="nt">&quot;ability&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;faceless_void_chronosphere&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="w">        </span><span class="nt">&quot;ability_display&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Chronosphere&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="w">        </span><span class="nt">&quot;caster&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;faceless_void&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a><span class="w">        </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;crystal_maiden&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;lion&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;earthshaker&quot;</span><span class="p">],</span>
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="w">        </span><span class="nt">&quot;hero_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span>
+<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a><span class="w">    </span><span class="p">],</span>
+<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a><span class="w">    </span><span class="nt">&quot;kill_streaks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a><span class="w">      </span><span class="p">{</span>
+<a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a><span class="w">        </span><span class="nt">&quot;game_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">290.0</span><span class="p">,</span>
+<a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a><span class="w">        </span><span class="nt">&quot;game_time_str&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;4:50&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a><span class="w">        </span><span class="nt">&quot;hero&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;medusa&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a><span class="w">        </span><span class="nt">&quot;streak_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;triple_kill&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a><span class="w">        </span><span class="nt">&quot;kills&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a><span class="w">        </span><span class="nt">&quot;victims&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;crystal_maiden&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;lion&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;earthshaker&quot;</span><span class="p">]</span>
+<a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-8-31" name="__codelineno-8-31" href="#__codelineno-8-31"></a><span class="w">    </span><span class="p">],</span>
+<a id="__codelineno-8-32" name="__codelineno-8-32" href="#__codelineno-8-32"></a><span class="w">    </span><span class="nt">&quot;team_wipes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-8-33" name="__codelineno-8-33" href="#__codelineno-8-33"></a><span class="w">      </span><span class="p">{</span>
+<a id="__codelineno-8-34" name="__codelineno-8-34" href="#__codelineno-8-34"></a><span class="w">        </span><span class="nt">&quot;game_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">295.0</span><span class="p">,</span>
+<a id="__codelineno-8-35" name="__codelineno-8-35" href="#__codelineno-8-35"></a><span class="w">        </span><span class="nt">&quot;game_time_str&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;4:55&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-36" name="__codelineno-8-36" href="#__codelineno-8-36"></a><span class="w">        </span><span class="nt">&quot;team_wiped&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;radiant&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-37" name="__codelineno-8-37" href="#__codelineno-8-37"></a><span class="w">        </span><span class="nt">&quot;killer_team&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-38" name="__codelineno-8-38" href="#__codelineno-8-38"></a><span class="w">        </span><span class="nt">&quot;duration&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">13.0</span>
+<a id="__codelineno-8-39" name="__codelineno-8-39" href="#__codelineno-8-39"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-8-40" name="__codelineno-8-40" href="#__codelineno-8-40"></a><span class="w">    </span><span class="p">],</span>
+<a id="__codelineno-8-41" name="__codelineno-8-41" href="#__codelineno-8-41"></a><span class="w">    </span><span class="nt">&quot;fight_initiator&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;faceless_void&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-42" name="__codelineno-8-42" href="#__codelineno-8-42"></a><span class="w">    </span><span class="nt">&quot;initiation_ability&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Chronosphere&quot;</span>
+<a id="__codelineno-8-43" name="__codelineno-8-43" href="#__codelineno-8-43"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-8-44" name="__codelineno-8-44" href="#__codelineno-8-44"></a><span class="p">}</span>
 </code></pre></div></p>
+<p><strong>Highlights Explained:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>multi_hero_abilities</code></td>
+<td>Big ultimates/abilities hitting 2+ enemy heroes (Chronosphere, Black Hole, Ravage, Ice Path, etc.)</td>
+</tr>
+<tr>
+<td><code>kill_streaks</code></td>
+<td>Double kill through Rampage (uses Dota 2's 18-second window between kills)</td>
+</tr>
+<tr>
+<td><code>team_wipes</code></td>
+<td>All 5 heroes of one team killed within the fight (Ace!)</td>
+</tr>
+<tr>
+<td><code>fight_initiator</code></td>
+<td>Hero who started the fight with a tracked ability</td>
+</tr>
+<tr>
+<td><code>initiation_ability</code></td>
+<td>The ability used to initiate</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Tracked Abilities (60+):</strong>
+- <strong>Ultimates</strong>: Chronosphere, Black Hole, Ravage, Reverse Polarity, Echo Slam, etc.
+- <strong>Control</strong>: Ice Path, Kinetic Field, Dream Coil, Static Storm, etc.
+- <strong>Team wipe detectors</strong>: Tracks all deaths to determine if entire team was killed</p>
 <hr />
 <h2 id="get_item_purchases">get_item_purchases<a class="headerlink" href="#get_item_purchases" title="Permanent link">&para;</a></h2>
 <p>When items were bought.</p>
