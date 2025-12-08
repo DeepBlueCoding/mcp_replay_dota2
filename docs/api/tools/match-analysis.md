@@ -495,7 +495,7 @@ get_match_info(match_id=8461956309)
 
 ## get_match_heroes
 
-Get the 10 heroes in a match with detailed stats.
+Get the 10 heroes in a match with detailed stats and **counter picks data** for draft analysis.
 
 ```python
 get_match_heroes(match_id=8461956309)
@@ -520,14 +520,24 @@ get_match_heroes(match_id=8461956309)
       "xpm": 580,
       "net_worth": 28500,
       "hero_damage": 15200,
-      "items": ["item_manta", "item_bfury", "item_abyssal_blade"],
+      "items": ["Manta Style", "Battle Fury", "Abyssal Blade"],
       "player_name": "PlayerOne",
-      "pro_name": "Yatoro"
+      "pro_name": "Yatoro",
+      "counters": [
+        {"hero_id": 6, "localized_name": "Doom", "reason": "Doom silences AM completely..."}
+      ],
+      "good_against": [
+        {"hero_id": 94, "localized_name": "Medusa", "reason": "Mana Break devastates mana shield..."}
+      ],
+      "when_to_pick": ["Enemy has mana-dependent heroes", "Team can hold 4v5"]
     }
   ],
   "dire_heroes": [...]
 }
 ```
+
+!!! tip "Draft Analysis"
+    Use the `counters` and `good_against` fields to analyze draft advantages. Check which enemy heroes counter each of your picks, and identify favorable matchups.
 
 ---
 

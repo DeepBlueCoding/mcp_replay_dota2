@@ -244,6 +244,7 @@ class HeroesResource:
 
         heroes_constants = self.get_heroes_constants_raw()
         manual_pro_names = pro_scene_fetcher.get_manual_pro_names()
+        counters_db = self._load_hero_counters()
 
         result = []
         for player in players:
@@ -260,7 +261,22 @@ class HeroesResource:
                 "primary_attr": hero_data.get("primary_attr"),
                 "attack_type": hero_data.get("attack_type"),
                 "roles": hero_data.get("roles", []),
+                "counters": [],
+                "good_against": [],
+                "when_to_pick": [],
             }
+
+            if counters_db and str(hero_id) in counters_db.heroes:
+                hero_counters = counters_db.heroes[str(hero_id)]
+                merged["counters"] = [
+                    {"hero_id": c.hero_id, "localized_name": c.localized_name, "reason": c.reason}
+                    for c in hero_counters.counters
+                ]
+                merged["good_against"] = [
+                    {"hero_id": g.hero_id, "localized_name": g.localized_name, "reason": g.reason}
+                    for g in hero_counters.good_against
+                ]
+                merged["when_to_pick"] = hero_counters.when_to_pick
 
             # Enrich with manual pro names if OpenDota doesn't have pro_name
             account_id = player.get("account_id")

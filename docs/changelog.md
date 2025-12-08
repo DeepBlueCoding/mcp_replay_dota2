@@ -33,9 +33,14 @@ All notable changes to this project will be documented in this file.
   - `get_hero_counters(hero_id)`: Get counter data for a specific hero
   - `get_all_hero_counters()`: Get all hero counter data
 
+- `get_match_heroes` tool now includes counter picks for each hero:
+  - Enables draft analysis directly from match data
+  - Each hero includes counters, good_against, when_to_pick
+
 ### Changed
 
 - `dota2://heroes/all` now includes counter picks data for draft analysis
+- `get_match_heroes` enriched with counter picks for draft analysis
 - Updated documentation with counter picks examples
 
 ---

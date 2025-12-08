@@ -98,7 +98,7 @@ The LLM will automatically call the appropriate tools and synthesize an analysis
 |------|--------------|
 | `download_replay` | Pre-cache replay file (call first for new matches) |
 | `get_match_info` | Match metadata (teams, players, winner) |
-| `get_match_heroes` | 10 heroes in match with KDA, items, stats |
+| `get_match_heroes` | 10 heroes with KDA, items, stats, **counter picks** |
 | `get_match_players` | 10 players with names and hero assignments |
 | `get_match_draft` | Complete draft order (bans/picks) |
 | `get_match_timeline` | Net worth, XP, KDA over time |
