@@ -7,6 +7,7 @@ from fastmcp import Context
 from ..models.combat_log import (
     CombatLogResponse,
     CourierKillsResponse,
+    HeroCombatAnalysisResponse,
     HeroDeathsResponse,
     ItemPurchasesResponse,
     ObjectiveKillsResponse,
@@ -241,3 +242,47 @@ def register_combat_tools(mcp, services):
             return combat_service.get_rune_pickups_response(data, match_id)
         except ValueError as e:
             return RunePickupsResponse(success=False, match_id=match_id, error=str(e))
+
+    fight_service = services["fight_service"]
+
+    @mcp.tool
+    async def get_hero_combat_analysis(
+        match_id: int,
+        hero: str,
+        ctx: Optional[Context] = None,
+    ) -> HeroCombatAnalysisResponse:
+        """
+        Analyze a hero's combat involvement across all fights in a match.
+
+        Returns detailed per-fight statistics including:
+        - Kills, deaths, and assists in each fight
+        - Ability usage with hit rates (e.g., how many Ice Paths landed on heroes)
+        - Damage dealt and received
+        - Which fights were teamfights vs skirmishes
+
+        Perfect for questions like:
+        - "How did Jakiro perform in teamfights?"
+        - "How many Ice Paths landed during ganks?"
+        - "Which fights did the support participate in?"
+
+        Args:
+            match_id: The Dota 2 match ID
+            hero: Hero name to analyze (e.g., "jakiro", "earthshaker")
+
+        Returns:
+            HeroCombatAnalysisResponse with per-fight and aggregate combat stats
+        """
+        async def progress_callback(current: int, total: int, message: str) -> None:
+            if ctx:
+                await ctx.report_progress(current, total)
+
+        try:
+            data = await replay_service.get_parsed_data(match_id, progress=progress_callback)
+            fight_result = fight_service.get_all_fights(data)
+            return combat_service.get_hero_combat_analysis(
+                data, match_id, hero, fight_result.fights
+            )
+        except ValueError as e:
+            return HeroCombatAnalysisResponse(
+                success=False, match_id=match_id, hero=hero, error=str(e)
+            )

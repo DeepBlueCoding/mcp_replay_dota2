@@ -10,6 +10,21 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [1.1.1] - 2025-12-08
+
+### Added
+
+- **`get_hero_combat_analysis` tool** - Per-hero combat performance analysis across all fights:
+  - Tracks kills, deaths, assists per fight
+  - Ability usage with hit rates (total casts vs hero hits)
+  - Damage dealt and received per fight
+  - Teamfight vs skirmish classification
+  - **Ground-targeted ability tracking**: Ice Path, Fissure, etc. track hits via MODIFIER_ADD events (stun debuffs applied)
+  - Hit rate can exceed 100% for AoE abilities hitting multiple heroes per cast
+  - Aggregate stats across all fights for the hero
+
+---
+
 ## [1.1.0] - 2025-12-08
 
 ### Changed

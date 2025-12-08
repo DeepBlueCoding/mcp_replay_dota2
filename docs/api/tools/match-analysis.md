@@ -62,6 +62,75 @@ get_hero_deaths(match_id=8461956309)
 
 ---
 
+## get_hero_combat_analysis
+
+Analyze a hero's combat involvement across all fights in a match. Returns per-fight statistics including kills, deaths, assists, ability usage with hit rates, and damage dealt/received.
+
+**Perfect for questions like:**
+
+- "How did Jakiro perform in teamfights?"
+- "How many Ice Paths landed during ganks?"
+- "Which fights did the support participate in?"
+
+```python
+get_hero_combat_analysis(
+    match_id=8461956309,
+    hero="earthshaker"
+)
+```
+
+**Returns:**
+```json
+{
+  "success": true,
+  "match_id": 8461956309,
+  "hero": "earthshaker",
+  "total_fights": 3,
+  "total_teamfights": 1,
+  "total_kills": 2,
+  "total_deaths": 2,
+  "total_assists": 0,
+  "ability_summary": [
+    {"ability": "earthshaker_fissure", "total_casts": 3, "hero_hits": 6, "hit_rate": 200.0},
+    {"ability": "earthshaker_enchant_totem", "total_casts": 3, "hero_hits": 2, "hit_rate": 66.7},
+    {"ability": "earthshaker_echo_slam", "total_casts": 1, "hero_hits": 0, "hit_rate": 0.0}
+  ],
+  "fights": [
+    {
+      "fight_id": "fight_1",
+      "fight_start": 288.0,
+      "fight_start_str": "4:48",
+      "fight_end": 295.0,
+      "fight_end_str": "4:55",
+      "is_teamfight": false,
+      "kills": 0,
+      "deaths": 1,
+      "assists": 0,
+      "damage_dealt": 53,
+      "damage_received": 366,
+      "abilities_used": [
+        {"ability": "earthshaker_enchant_totem", "total_casts": 1, "hero_hits": 0, "hit_rate": 0.0}
+      ]
+    }
+  ]
+}
+```
+
+**Key fields:**
+
+| Field | Description |
+|-------|-------------|
+| `ability_summary` | Overall ability usage across all fights |
+| `hero_hits` | Times ability affected an enemy hero (includes stuns/debuffs from ground-targeted abilities like Ice Path, Fissure) |
+| `hit_rate` | Can exceed 100% for AoE abilities that hit multiple heroes per cast |
+| `fights` | Per-fight breakdown with K/D/A and ability usage |
+| `is_teamfight` | True if the fight had 3+ deaths |
+
+!!! tip "Ground-Targeted Abilities"
+    Abilities like Ice Path, Fissure, and Kinetic Field are tracked via MODIFIER_ADD events (stun debuffs applied to heroes), not just the cast event. This ensures accurate hit detection for ground-targeted CC abilities.
+
+---
+
 ## get_combat_log
 
 Raw combat events with optional filters.

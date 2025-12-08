@@ -295,3 +295,56 @@ class RunePickupsResponse(BaseModel):
     total_pickups: int = Field(default=0)
     pickups: List[RunePickup] = Field(default_factory=list)
     error: Optional[str] = Field(default=None)
+
+
+class AbilityUsage(BaseModel):
+    """Usage statistics for a single ability."""
+
+    ability: str = Field(description="Internal ability name (e.g., jakiro_ice_path)")
+    total_casts: int = Field(description="Total times ability was cast")
+    hero_hits: int = Field(
+        description="Times it affected an enemy hero (includes stuns/debuffs from ground-targeted abilities)"
+    )
+    hit_rate: float = Field(description="Percentage of casts that hit heroes (0-100)")
+
+
+class FightParticipation(BaseModel):
+    """A hero's participation in a single fight."""
+
+    fight_id: str = Field(description="Fight identifier")
+    fight_start: float = Field(description="Fight start time in seconds")
+    fight_start_str: str = Field(description="Fight start formatted as M:SS")
+    fight_end: float = Field(description="Fight end time in seconds")
+    fight_end_str: str = Field(description="Fight end formatted as M:SS")
+    is_teamfight: bool = Field(description="Whether this was a teamfight (3+ deaths)")
+    kills: int = Field(description="Heroes killed by this hero in the fight")
+    deaths: int = Field(description="Times this hero died in the fight")
+    assists: int = Field(description="Kill assists (dealt damage to victim)")
+    abilities_used: List[AbilityUsage] = Field(
+        default_factory=list,
+        description="Abilities used during this fight with hit counts"
+    )
+    damage_dealt: int = Field(default=0, description="Total damage dealt to enemy heroes")
+    damage_received: int = Field(default=0, description="Total damage received from enemy heroes")
+
+
+class HeroCombatAnalysisResponse(BaseModel):
+    """Response for get_hero_combat_analysis tool."""
+
+    success: bool
+    match_id: int
+    hero: str = Field(description="Hero analyzed")
+    total_fights: int = Field(default=0, description="Total fights participated in")
+    total_teamfights: int = Field(default=0, description="Teamfights (3+ deaths) participated in")
+    total_kills: int = Field(default=0, description="Total kills across all fights")
+    total_deaths: int = Field(default=0, description="Total deaths across all fights")
+    total_assists: int = Field(default=0, description="Total assists across all fights")
+    ability_summary: List[AbilityUsage] = Field(
+        default_factory=list,
+        description="Overall ability usage across all fights"
+    )
+    fights: List[FightParticipation] = Field(
+        default_factory=list,
+        description="Per-fight breakdown of participation"
+    )
+    error: Optional[str] = Field(default=None)

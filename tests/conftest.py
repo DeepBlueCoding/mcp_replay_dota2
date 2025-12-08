@@ -454,3 +454,41 @@ def team_heroes():
         radiant, dire = fight._get_team_heroes(data)
         _cache["team_heroes"] = (radiant, dire)
     return _cache.get("team_heroes", (set(), set()))
+
+
+# =============================================================================
+# Hero Combat Analysis fixtures
+# =============================================================================
+
+@pytest.fixture(scope="session")
+def hero_combat_analysis_earthshaker():
+    """Hero combat analysis for earthshaker."""
+    _require_replay()
+    _ensure_parsed()
+    cache_key = "hero_combat_analysis_earthshaker"
+    if cache_key not in _cache:
+        data = _get_parsed_data()
+        combat = _get_combat_service()
+        fight = _get_fight_service()
+        fights = fight.get_all_fights(data)
+        _cache[cache_key] = combat.get_hero_combat_analysis(
+            data, TEST_MATCH_ID, "earthshaker", fights.fights
+        )
+    return _cache.get(cache_key)
+
+
+@pytest.fixture(scope="session")
+def hero_combat_analysis_disruptor():
+    """Hero combat analysis for disruptor."""
+    _require_replay()
+    _ensure_parsed()
+    cache_key = "hero_combat_analysis_disruptor"
+    if cache_key not in _cache:
+        data = _get_parsed_data()
+        combat = _get_combat_service()
+        fight = _get_fight_service()
+        fights = fight.get_all_fights(data)
+        _cache[cache_key] = combat.get_hero_combat_analysis(
+            data, TEST_MATCH_ID, "disruptor", fights.fights
+        )
+    return _cache.get(cache_key)

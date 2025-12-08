@@ -10,12 +10,15 @@ from typing import List, Optional, Tuple
 from python_manta import CombatLogType, Team
 
 from ...models.combat_log import (
+    AbilityUsage,
     BarracksKill,
     CombatLogEvent,
     CombatLogFilters,
     CombatLogResponse,
     CourierKill,
     CourierKillsResponse,
+    FightParticipation,
+    HeroCombatAnalysisResponse,
     HeroDeath,
     HeroDeathsResponse,
     ItemPurchase,
@@ -809,4 +812,154 @@ class CombatService:
             tormentor_kills=tormentor_kills,
             tower_kills=tower_kills,
             barracks_kills=barracks_kills,
+        )
+
+    def get_hero_combat_analysis(
+        self,
+        data: ParsedReplayData,
+        match_id: int,
+        hero: str,
+        fights: List,
+    ) -> HeroCombatAnalysisResponse:
+        """
+        Analyze a hero's combat involvement across all fights.
+
+        Args:
+            data: ParsedReplayData from ReplayService
+            match_id: Match ID for response
+            hero: Hero name to analyze
+            fights: List of Fight objects from FightService
+
+        Returns:
+            HeroCombatAnalysisResponse with per-fight and aggregate stats
+        """
+        hero_lower = hero.lower()
+        hero_fights: List[FightParticipation] = []
+        total_kills = 0
+        total_deaths = 0
+        total_assists = 0
+        total_teamfights = 0
+        overall_ability_stats: dict = {}
+
+        for fight in fights:
+            if not any(hero_lower in p.lower() for p in fight.participants):
+                continue
+
+            fight_start = fight.start_time - 2.0
+            fight_end = fight.end_time + 2.0
+
+            kills = 0
+            deaths = 0
+            assists = 0
+            damage_dealt = 0
+            damage_received = 0
+            ability_casts: dict = {}
+            ability_hits: dict = {}
+            heroes_damaged_by_hero: set = set()
+
+            for entry in data.combat_log_entries:
+                entry_type = entry.type.value if hasattr(entry.type, 'value') else entry.type
+                if entry.game_time < fight_start or entry.game_time > fight_end:
+                    continue
+
+                attacker = self._clean_hero_name(entry.attacker_name)
+                target = self._clean_hero_name(entry.target_name)
+                attacker_lower = attacker.lower()
+                target_lower = target.lower()
+                is_our_hero_attacker = hero_lower in attacker_lower
+                is_our_hero_target = hero_lower in target_lower
+
+                if entry_type == CombatLogType.DEATH.value and entry.is_target_hero:
+                    if is_our_hero_attacker:
+                        kills += 1
+                    elif is_our_hero_target:
+                        deaths += 1
+                    elif target_lower in heroes_damaged_by_hero:
+                        assists += 1
+
+                elif entry_type == CombatLogType.DAMAGE.value:
+                    if is_our_hero_attacker and entry.is_target_hero:
+                        damage_dealt += entry.value or 0
+                        heroes_damaged_by_hero.add(target_lower)
+                    elif is_our_hero_target and entry.is_attacker_hero:
+                        damage_received += entry.value or 0
+
+                elif entry_type == CombatLogType.ABILITY.value and is_our_hero_attacker:
+                    ability = entry.inflictor_name
+                    if ability and ability != "dota_unknown":
+                        ability_casts[ability] = ability_casts.get(ability, 0) + 1
+                        if entry.is_target_hero:
+                            ability_hits[ability] = ability_hits.get(ability, 0) + 1
+
+                elif entry_type == CombatLogType.MODIFIER_ADD.value:
+                    modifier = entry.inflictor_name
+                    if modifier and modifier != "dota_unknown" and entry.is_target_hero:
+                        if is_our_hero_attacker or (modifier and hero_lower in modifier.lower()):
+                            for tracked_ability in ability_casts.keys():
+                                ability_base = tracked_ability.split("_")[-1]
+                                if ability_base in modifier.lower():
+                                    ability_hits[tracked_ability] = ability_hits.get(tracked_ability, 0) + 1
+                                    break
+
+            abilities_used = []
+            for ability_name, cast_count in ability_casts.items():
+                hits = ability_hits.get(ability_name, 0)
+                hit_rate = (hits / cast_count * 100) if cast_count > 0 else 0.0
+                abilities_used.append(AbilityUsage(
+                    ability=ability_name,
+                    total_casts=cast_count,
+                    hero_hits=hits,
+                    hit_rate=round(hit_rate, 1),
+                ))
+                overall_ability_stats[ability_name] = overall_ability_stats.get(ability_name, {
+                    "casts": 0, "hits": 0
+                })
+                overall_ability_stats[ability_name]["casts"] += cast_count
+                overall_ability_stats[ability_name]["hits"] += hits
+
+            abilities_used.sort(key=lambda a: a.total_casts, reverse=True)
+
+            total_kills += kills
+            total_deaths += deaths
+            total_assists += assists
+            if fight.is_teamfight:
+                total_teamfights += 1
+
+            hero_fights.append(FightParticipation(
+                fight_id=fight.fight_id,
+                fight_start=fight.start_time,
+                fight_start_str=fight.start_time_str,
+                fight_end=fight.end_time,
+                fight_end_str=fight.end_time_str,
+                is_teamfight=fight.is_teamfight,
+                kills=kills,
+                deaths=deaths,
+                assists=assists,
+                abilities_used=abilities_used,
+                damage_dealt=damage_dealt,
+                damage_received=damage_received,
+            ))
+
+        ability_summary = []
+        for ability_name, stats in overall_ability_stats.items():
+            hit_rate = (stats["hits"] / stats["casts"] * 100) if stats["casts"] > 0 else 0.0
+            ability_summary.append(AbilityUsage(
+                ability=ability_name,
+                total_casts=stats["casts"],
+                hero_hits=stats["hits"],
+                hit_rate=round(hit_rate, 1),
+            ))
+        ability_summary.sort(key=lambda a: a.total_casts, reverse=True)
+
+        return HeroCombatAnalysisResponse(
+            success=True,
+            match_id=match_id,
+            hero=hero,
+            total_fights=len(hero_fights),
+            total_teamfights=total_teamfights,
+            total_kills=total_kills,
+            total_deaths=total_deaths,
+            total_assists=total_assists,
+            ability_summary=ability_summary,
+            fights=hero_fights,
         )
