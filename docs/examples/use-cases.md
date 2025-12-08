@@ -2,7 +2,7 @@
 
 ??? info "🤖 AI Summary"
 
-    Example LLM conversations: **Lost teamfight** - `get_hero_deaths` → `get_fight_combat_log` → analyze initiation, counters, positioning. **Carry farm tracking** - `get_item_purchases` → `get_stats_at_minute` → compare CS, deaths, item timings. **Farming pattern** - `get_farming_pattern` → minute-by-minute lane/jungle breakdown, camp types, transitions. **Rotation analysis** - `get_rotation_analysis` → detect mid rotations after runes, outcomes (kill/died/traded), wisdom rune fights. **Gank analysis** - deaths with position → fight log → identify root, damage chain, positioning mistake. **Roshan control** - `get_objective_kills` → timeline of objectives. **Laning comparison** - `get_stats_at_minute(10)` → compare LH, denies, net worth, level.
+    Example LLM conversations showing tool usage with realistic JSON responses. **Lost teamfight** - `get_hero_deaths` → `get_fight_combat_log` with **highlights** (multi-hero abilities, kill streaks, team wipes, fight initiator). **Carry farm tracking** - `get_item_purchases` → `get_stats_at_minute`. **Farming pattern** - `get_farming_pattern` → `camp_sequence`, `level_timings`, `item_timings`, position tracking. **Rotation analysis** - `get_rotation_analysis` → rune-rotation correlation, outcomes. **Gank analysis** - death positions → fight highlights → initiator detection. **Roshan control** - `get_objective_kills` → full objective timeline. **Laning comparison** - `get_stats_at_minute(10)` → net worth, hero damage, KDA, level.
 
 These are example conversations showing how an LLM uses the MCP tools to analyze matches.
 
@@ -17,11 +17,14 @@ These are example conversations showing how an LLM uses the MCP tools to analyze
 **Tool returns:**
 ```json
 {
+  "success": true,
+  "match_id": 8461956309,
+  "total_deaths": 45,
   "deaths": [
-    {"game_time": 1487, "game_time_str": "24:47", "victim": "pangolier", "killer": "medusa", "ability": "medusa_split_shot"},
-    {"game_time": 1492, "game_time_str": "24:52", "victim": "earthshaker", "killer": "disruptor", "ability": "disruptor_static_storm"},
-    {"game_time": 1495, "game_time_str": "24:55", "victim": "nevermore", "killer": "naga_siren", "ability": "naga_siren_rip_tide"},
-    {"game_time": 1498, "game_time_str": "24:58", "victim": "dawnbreaker", "killer": "medusa", "ability": "medusa_mystic_snake"}
+    {"game_time": 1487, "game_time_str": "24:47", "victim": "pangolier", "killer": "medusa", "killer_is_hero": true, "ability": "medusa_split_shot"},
+    {"game_time": 1492, "game_time_str": "24:52", "victim": "earthshaker", "killer": "disruptor", "killer_is_hero": true, "ability": "disruptor_static_storm"},
+    {"game_time": 1495, "game_time_str": "24:55", "victim": "nevermore", "killer": "naga_siren", "killer_is_hero": true, "ability": "naga_siren_rip_tide"},
+    {"game_time": 1498, "game_time_str": "24:58", "victim": "dawnbreaker", "killer": "medusa", "killer_is_hero": true, "ability": "medusa_mystic_snake"}
   ]
 }
 ```
@@ -31,33 +34,67 @@ These are example conversations showing how an LLM uses the MCP tools to analyze
 **Tool returns:**
 ```json
 {
+  "success": true,
+  "match_id": 8461956309,
   "fight_start": 1480,
+  "fight_start_str": "24:40",
   "fight_end": 1502,
+  "fight_end_str": "25:02",
   "duration": 22,
   "participants": ["pangolier", "earthshaker", "nevermore", "dawnbreaker", "medusa", "disruptor", "naga_siren", "luna", "necrophos"],
+  "total_events": 47,
   "events": [
-    {"type": "ABILITY", "game_time": 1481, "attacker": "earthshaker", "ability": "earthshaker_echo_slam", "value": 0},
-    {"type": "DAMAGE", "game_time": 1481, "attacker": "earthshaker", "target": "medusa", "ability": "earthshaker_echo_slam", "value": 287},
-    {"type": "MODIFIER_ADD", "game_time": 1482, "attacker": "disruptor", "target": "earthshaker", "ability": "disruptor_static_storm"},
-    {"type": "DAMAGE", "game_time": 1485, "attacker": "medusa", "target": "pangolier", "ability": "medusa_split_shot", "value": 412},
-    ...
-  ]
+    {"type": "ABILITY", "game_time": 1481, "game_time_str": "24:41", "attacker": "earthshaker", "attacker_is_hero": true, "target": "medusa", "target_is_hero": true, "ability": "earthshaker_echo_slam"},
+    {"type": "DAMAGE", "game_time": 1481, "game_time_str": "24:41", "attacker": "earthshaker", "attacker_is_hero": true, "target": "medusa", "target_is_hero": true, "ability": "earthshaker_echo_slam", "value": 287},
+    {"type": "MODIFIER_ADD", "game_time": 1482, "game_time_str": "24:42", "attacker": "disruptor", "attacker_is_hero": true, "target": "earthshaker", "target_is_hero": true, "ability": "disruptor_static_storm"},
+    {"type": "DAMAGE", "game_time": 1485, "game_time_str": "24:45", "attacker": "medusa", "attacker_is_hero": true, "target": "pangolier", "target_is_hero": true, "ability": "medusa_split_shot", "value": 412}
+  ],
+  "highlights": {
+    "multi_hero_abilities": [
+      {
+        "game_time": 1481.0,
+        "game_time_str": "24:41",
+        "ability": "earthshaker_echo_slam",
+        "ability_display": "Echo Slam",
+        "caster": "earthshaker",
+        "targets": ["medusa", "disruptor", "naga_siren", "luna", "necrophos"],
+        "hero_count": 5
+      }
+    ],
+    "kill_streaks": [
+      {
+        "game_time": 1498.0,
+        "game_time_str": "24:58",
+        "hero": "medusa",
+        "streak_type": "triple_kill",
+        "kills": 3,
+        "victims": ["pangolier", "nevermore", "dawnbreaker"]
+      }
+    ],
+    "team_wipes": [],
+    "fight_initiator": "earthshaker",
+    "initiation_ability": "Echo Slam"
+  }
 }
 ```
 
 **LLM responds:**
 
-> The fight at 24:47 was a disaster for Radiant. Here's what happened:
+> The fight at 24:40 was a disaster for Radiant. Here's the breakdown from the highlights:
 >
-> 1. **Earthshaker initiated with Echo Slam** at 24:41, hitting all 5 Dire heroes but dealing low damage (287 on Medusa) - likely because enemies were spread out
+> **The Initiation:**
+> - **Earthshaker initiated with Echo Slam** at 24:41, hitting all 5 Dire heroes (Medusa, Disruptor, Naga, Luna, Necrophos)
+> - Despite hitting 5 targets, the damage was underwhelming (287 on Medusa) - likely low Aftershock stacks
 >
-> 2. **Disruptor immediately countered** with Static Storm on Earthshaker, silencing him and preventing follow-up
+> **What Went Wrong:**
+> 1. **Disruptor immediately countered** with Static Storm on Earthshaker at 24:42, silencing him before any follow-up
+> 2. **Medusa cleaned house** - achieved a **Triple Kill** on Pangolier, Nevermore, and Dawnbreaker
+> 3. **22-second fight** with 4 Radiant deaths
 >
-> 3. **Medusa was the problem** - she had Split Shot farming Pangolier while tanking the initiation, then cleaned up with 3 kills
->
-> 4. **4 Radiant deaths in 11 seconds** - Pangolier, Earthshaker, Nevermore, Dawnbreaker
->
-> The issue: Earthshaker jumped in without BKB against a Disruptor. The moment he was silenced, Radiant had no follow-up damage and Medusa shredded everyone.
+> **The Issue:** The Echo Slam was mechanically good (5 heroes hit!) but strategically bad:
+> - No BKB against Disruptor Static Storm
+> - Radiant had no follow-up damage after ES was silenced
+> - Medusa tanked the initiation and turned the fight with Split Shot
 
 ---
 
@@ -70,14 +107,18 @@ These are example conversations showing how an LLM uses the MCP tools to analyze
 **Tool returns:**
 ```json
 {
+  "success": true,
+  "match_id": 8461956309,
+  "hero_filter": "antimage",
+  "total_purchases": 7,
   "purchases": [
-    {"game_time": -89, "game_time_str": "-1:29", "item": "item_tango"},
-    {"game_time": -89, "game_time_str": "-1:29", "item": "item_quelling_blade"},
-    {"game_time": -89, "game_time_str": "-1:29", "item": "item_slippers"},
-    {"game_time": 180, "game_time_str": "3:00", "item": "item_ring_of_health"},
-    {"game_time": 420, "game_time_str": "7:00", "item": "item_boots"},
-    {"game_time": 540, "game_time_str": "9:00", "item": "item_bfury"},
-    {"game_time": 780, "game_time_str": "13:00", "item": "item_manta"}
+    {"game_time": -89, "game_time_str": "-1:29", "hero": "antimage", "item": "item_tango"},
+    {"game_time": -89, "game_time_str": "-1:29", "hero": "antimage", "item": "item_quelling_blade"},
+    {"game_time": -89, "game_time_str": "-1:29", "hero": "antimage", "item": "item_slippers"},
+    {"game_time": 180, "game_time_str": "3:00", "hero": "antimage", "item": "item_ring_of_health"},
+    {"game_time": 420, "game_time_str": "7:00", "hero": "antimage", "item": "item_boots"},
+    {"game_time": 540, "game_time_str": "9:00", "hero": "antimage", "item": "item_bfury"},
+    {"game_time": 780, "game_time_str": "13:00", "hero": "antimage", "item": "item_manta"}
   ]
 }
 ```
@@ -87,9 +128,12 @@ These are example conversations showing how an LLM uses the MCP tools to analyze
 **Tool returns:**
 ```json
 {
+  "success": true,
+  "match_id": 8461956309,
+  "minute": 9,
   "players": [
-    {"hero": "antimage", "last_hits": 78, "net_worth": 5420, "kills": 0, "deaths": 0},
-    {"hero": "nevermore", "last_hits": 62, "net_worth": 4100, "kills": 1, "deaths": 1}
+    {"hero": "antimage", "team": "dire", "net_worth": 5420, "hero_damage": 450, "kills": 0, "deaths": 0, "assists": 0, "level": 10},
+    {"hero": "nevermore", "team": "radiant", "net_worth": 4100, "hero_damage": 1200, "kills": 1, "deaths": 1, "assists": 0, "level": 9}
   ]
 }
 ```
@@ -117,8 +161,11 @@ These are example conversations showing how an LLM uses the MCP tools to analyze
 **Tool returns:**
 ```json
 {
+  "success": true,
+  "match_id": 8461956309,
+  "total_deaths": 45,
   "deaths": [
-    {"game_time": 288, "game_time_str": "4:48", "victim": "earthshaker", "killer": "disruptor", "ability": "disruptor_thunder_strike", "position": {"x": 4200, "y": 1800, "region": "dire_safelane"}}
+    {"game_time": 288, "game_time_str": "4:48", "victim": "earthshaker", "killer": "disruptor", "killer_is_hero": true, "ability": "disruptor_thunder_strike", "position": {"x": 4200, "y": 1800, "region": "dire_safelane", "location": "Dire safelane near tower"}}
   ]
 }
 ```
@@ -128,16 +175,30 @@ These are example conversations showing how an LLM uses the MCP tools to analyze
 **Tool returns:**
 ```json
 {
+  "success": true,
+  "match_id": 8461956309,
+  "hero": "earthshaker",
   "fight_start": 280,
+  "fight_start_str": "4:40",
   "fight_end": 290,
+  "fight_end_str": "4:50",
+  "duration": 10,
   "participants": ["earthshaker", "disruptor", "naga_siren", "medusa"],
+  "total_events": 12,
   "events": [
-    {"type": "MODIFIER_ADD", "game_time": 281, "attacker": "naga_siren", "target": "earthshaker", "ability": "naga_siren_ensnare"},
-    {"type": "DAMAGE", "game_time": 282, "attacker": "disruptor", "target": "earthshaker", "ability": "disruptor_thunder_strike", "value": 160},
-    {"type": "DAMAGE", "game_time": 284, "attacker": "medusa", "target": "earthshaker", "ability": "medusa_mystic_snake", "value": 140},
-    {"type": "DAMAGE", "game_time": 286, "attacker": "naga_siren", "target": "earthshaker", "value": 58},
-    {"type": "DEATH", "game_time": 288, "target": "earthshaker", "attacker": "disruptor"}
-  ]
+    {"type": "MODIFIER_ADD", "game_time": 281, "game_time_str": "4:41", "attacker": "naga_siren", "attacker_is_hero": true, "target": "earthshaker", "target_is_hero": true, "ability": "naga_siren_ensnare"},
+    {"type": "DAMAGE", "game_time": 282, "game_time_str": "4:42", "attacker": "disruptor", "attacker_is_hero": true, "target": "earthshaker", "target_is_hero": true, "ability": "disruptor_thunder_strike", "value": 160},
+    {"type": "DAMAGE", "game_time": 284, "game_time_str": "4:44", "attacker": "medusa", "attacker_is_hero": true, "target": "earthshaker", "target_is_hero": true, "ability": "medusa_mystic_snake", "value": 140},
+    {"type": "DAMAGE", "game_time": 286, "game_time_str": "4:46", "attacker": "naga_siren", "attacker_is_hero": true, "target": "earthshaker", "target_is_hero": true, "value": 58},
+    {"type": "DEATH", "game_time": 288, "game_time_str": "4:48", "attacker": "disruptor", "attacker_is_hero": true, "target": "earthshaker", "target_is_hero": true}
+  ],
+  "highlights": {
+    "multi_hero_abilities": [],
+    "kill_streaks": [],
+    "team_wipes": [],
+    "fight_initiator": "naga_siren",
+    "initiation_ability": "Ensnare"
+  }
 }
 ```
 
@@ -145,19 +206,26 @@ These are example conversations showing how an LLM uses the MCP tools to analyze
 
 > Here's what happened at first blood (4:48):
 >
-> 1. **Naga Siren caught you with Ensnare** at 4:41 - 3-second root
-> 2. **Disruptor followed with Thunder Strike** - 160 damage over time
-> 3. **Medusa hit you with Mystic Snake** - another 140 damage
-> 4. **You died in 8 seconds** without being able to act
+> **Fight Summary:**
+> - **Duration:** 10 seconds (4:40 - 4:50)
+> - **Initiator:** Naga Siren with Ensnare (detected automatically in highlights)
+> - **Participants:** 3v1 gank (Naga, Disruptor, Medusa vs Earthshaker)
 >
-> **Position:** You were at x:4200, y:1800 - that's deep in Dire safelane near the tower.
+> **Kill Timeline:**
+> 1. **4:41** - Naga Siren lands Ensnare (3-second root)
+> 2. **4:42** - Disruptor Thunder Strike (160 damage over time)
+> 3. **4:44** - Medusa Mystic Snake (140 damage)
+> 4. **4:46** - Naga right-click (58 damage)
+> 5. **4:48** - Death
 >
-> **What went wrong:** You were too far forward against a Naga (root) + Disruptor (slow + damage) dual lane. Once Naga lands Ensnare, you have no escape without Fissure (and even then it's not a disjoint).
+> **Position:** x:4200, y:1800 - deep in Dire safelane near their tower.
+>
+> **What went wrong:** You were caught in a 3v1 without escape. Once Naga lands Ensnare, you have no mobility and they chain their damage perfectly.
 >
 > **What to do differently:**
-> - Stay near trees for juke paths
-> - Don't contest pulls against this lane - Naga root is too punishing
-> - Play for XP, not kills - ES needs level 6 to fight this lane
+> - Stay near trees for juke paths against Naga
+> - Track enemy positions before contesting pulls
+> - ES needs level 6 to threaten this trilane - play for XP until then
 
 ---
 
@@ -170,16 +238,20 @@ These are example conversations showing how an LLM uses the MCP tools to analyze
 **Tool returns:**
 ```json
 {
+  "success": true,
+  "match_id": 8461956309,
   "roshan_kills": [
     {"game_time": 1392, "game_time_str": "23:12", "killer": "medusa", "team": "dire", "kill_number": 1},
     {"game_time": 2040, "game_time_str": "34:00", "killer": "medusa", "team": "dire", "kill_number": 2},
     {"game_time": 2580, "game_time_str": "43:00", "killer": "luna", "team": "dire", "kill_number": 3},
     {"game_time": 3120, "game_time_str": "52:00", "killer": "medusa", "team": "dire", "kill_number": 4}
   ],
+  "tormentor_kills": [],
   "tower_kills": [
-    {"game_time": 669, "game_time_str": "11:09", "tower": "dire_t1_mid", "killer": "nevermore"},
-    {"game_time": 1440, "game_time_str": "24:00", "tower": "radiant_t1_bot", "killer": "medusa"}
-  ]
+    {"game_time": 669, "game_time_str": "11:09", "tower": "dire_t1_mid", "team": "dire", "tier": 1, "lane": "mid", "killer": "nevermore", "killer_is_hero": true},
+    {"game_time": 1440, "game_time_str": "24:00", "tower": "radiant_t1_bot", "team": "radiant", "tier": 1, "lane": "bot", "killer": "medusa", "killer_is_hero": true}
+  ],
+  "barracks_kills": []
 }
 ```
 
@@ -209,9 +281,12 @@ These are example conversations showing how an LLM uses the MCP tools to analyze
 **Tool returns:**
 ```json
 {
+  "success": true,
+  "match_id": 8461956309,
+  "minute": 10,
   "players": [
-    {"hero": "nevermore", "team": "radiant", "last_hits": 68, "denies": 12, "net_worth": 4800, "kills": 2, "deaths": 0, "level": 11},
-    {"hero": "pangolier", "team": "dire", "last_hits": 45, "denies": 3, "net_worth": 3200, "kills": 0, "deaths": 1, "level": 9}
+    {"hero": "nevermore", "team": "radiant", "net_worth": 4800, "hero_damage": 2100, "kills": 2, "deaths": 0, "assists": 1, "level": 11},
+    {"hero": "pangolier", "team": "dire", "net_worth": 3200, "hero_damage": 1400, "kills": 0, "deaths": 1, "assists": 0, "level": 9}
   ]
 }
 ```
@@ -222,19 +297,18 @@ These are example conversations showing how an LLM uses the MCP tools to analyze
 >
 > | Stat | Nevermore (Radiant) | Pangolier (Dire) |
 > |------|---------------------|------------------|
-> | Last Hits | 68 | 45 |
-> | Denies | 12 | 3 |
 > | Net Worth | 4,800 | 3,200 |
-> | K/D/A | 2/0/? | 0/1/? |
+> | Hero Damage | 2,100 | 1,400 |
+> | K/D/A | 2/0/1 | 0/1/0 |
 > | Level | 11 | 9 |
 >
 > **Nevermore dominated the lane:**
-> - +23 CS advantage
-> - +9 denies
-> - +1,600 net worth
-> - +2 levels
+> - **+1,600 net worth** advantage (50% more gold)
+> - **+700 hero damage** dealt - SF was more aggressive
+> - **+2 levels** (level 11 vs 9)
+> - **2 kills, 0 deaths** vs 0/1 for Pango
 >
-> Shadow Fiend's early damage from Necromastery stacks makes him strong in the 1v1. Pangolier likely struggled to last hit under tower after SF established raze control.
+> Shadow Fiend's early damage from Necromastery stacks and Raze harass let him win trades. The 2 kills suggest SF was rotating or getting ganks, while Pango's death cost him farm time.
 
 ---
 
@@ -248,18 +322,47 @@ These are example conversations showing how an LLM uses the MCP tools to analyze
 ```json
 {
   "success": true,
+  "match_id": 8461956309,
   "hero": "antimage",
+  "start_minute": 0,
+  "end_minute": 10,
+  "level_timings": [
+    {"level": 6, "time": 420.0, "time_str": "7:00"},
+    {"level": 10, "time": 600.0, "time_str": "10:00"}
+  ],
+  "item_timings": [
+    {"item": "ring_of_health", "time": 180.0, "time_str": "3:00"},
+    {"item": "bfury", "time": 540.0, "time_str": "9:00"}
+  ],
   "minutes": [
-    {"minute": 1, "lane_creeps_killed": 4, "neutral_creeps_killed": 0, "map_area": "dire_safelane", "gold": 320, "last_hits": 4},
-    {"minute": 2, "lane_creeps_killed": 6, "neutral_creeps_killed": 0, "map_area": "dire_safelane", "gold": 580, "last_hits": 10},
-    {"minute": 3, "lane_creeps_killed": 8, "neutral_creeps_killed": 0, "map_area": "dire_safelane", "gold": 890, "last_hits": 18},
-    {"minute": 4, "lane_creeps_killed": 7, "neutral_creeps_killed": 0, "map_area": "dire_safelane", "gold": 1150, "last_hits": 25},
-    {"minute": 5, "lane_creeps_killed": 5, "neutral_creeps_killed": 3, "neutral_camps_detail": {"medium wolf": 2, "small kobold": 1}, "map_area": "dire_jungle", "gold": 1580, "last_hits": 33},
-    {"minute": 6, "lane_creeps_killed": 4, "neutral_creeps_killed": 5, "neutral_camps_detail": {"large centaur": 3, "medium wolf": 2}, "map_area": "dire_jungle", "gold": 2100, "last_hits": 42},
-    {"minute": 7, "lane_creeps_killed": 3, "neutral_creeps_killed": 6, "neutral_camps_detail": {"large satyr": 4, "medium harpy": 2}, "map_area": "dire_jungle", "gold": 2680, "last_hits": 51},
-    {"minute": 8, "lane_creeps_killed": 5, "neutral_creeps_killed": 4, "map_area": "dire_safelane", "gold": 3200, "last_hits": 60},
-    {"minute": 9, "lane_creeps_killed": 6, "neutral_creeps_killed": 5, "map_area": "dire_triangle", "gold": 3850, "last_hits": 71},
-    {"minute": 10, "lane_creeps_killed": 4, "neutral_creeps_killed": 6, "map_area": "dire_jungle", "gold": 4520, "last_hits": 81}
+    {
+      "minute": 5,
+      "position_at_start": {"x": 5800, "y": 3200, "area": "dire_safelane"},
+      "position_at_end": {"x": 6200, "y": 4800, "area": "dire_jungle"},
+      "camp_sequence": [
+        {"time_str": "5:15", "camp": "medium_wolf", "tier": "medium", "area": "dire_jungle"},
+        {"time_str": "5:42", "camp": "small_kobold", "tier": "small", "area": "dire_jungle"}
+      ],
+      "lane_creeps_killed": 5,
+      "camps_cleared": 2,
+      "gold": 1580,
+      "last_hits": 33,
+      "level": 5
+    },
+    {
+      "minute": 6,
+      "position_at_start": {"x": 6200, "y": 4800, "area": "dire_jungle"},
+      "position_at_end": {"x": 5500, "y": 5200, "area": "dire_jungle"},
+      "camp_sequence": [
+        {"time_str": "6:08", "camp": "large_centaur", "tier": "hard", "area": "dire_jungle"},
+        {"time_str": "6:35", "camp": "medium_wolf", "tier": "medium", "area": "dire_jungle"}
+      ],
+      "lane_creeps_killed": 4,
+      "camps_cleared": 2,
+      "gold": 2100,
+      "last_hits": 42,
+      "level": 6
+    }
   ],
   "transitions": {
     "first_jungle_kill_time": 278.5,
@@ -275,8 +378,10 @@ These are example conversations showing how an LLM uses the MCP tools to analyze
     "jungle_percentage": 35.8,
     "gpm": 452.0,
     "cs_per_min": 8.1,
-    "camps_cleared": {"large centaur": 3, "large satyr": 4, "medium wolf": 4, "medium harpy": 2, "small kobold": 1}
-  }
+    "camps_cleared": {"large_centaur": 3, "large_satyr": 4, "medium_wolf": 4, "medium_harpy": 2, "small_kobold": 1},
+    "multi_camp_clears": 0
+  },
+  "multi_camp_clears": []
 }
 ```
 
@@ -284,28 +389,33 @@ These are example conversations showing how an LLM uses the MCP tools to analyze
 
 > **Anti-Mage's Farming Pattern (0-10 min):**
 >
-> **Key Transitions:**
+> **Power Spike Timeline:**
 >
-> - **4:38** - First jungle creep killed (medium wolf camp)
-> - **5:36** - First large camp cleared (centaur)
-> - **6:00** - Transitioned to full jungle rotation pattern
+> | Time | Event |
+> |------|-------|
+> | 3:00 | Ring of Health purchased |
+> | 4:38 | First jungle creep killed |
+> | 5:36 | First large camp (centaur) |
+> | 6:00 | Left lane for jungle rotation |
+> | 7:00 | Level 6 (Blink available) |
+> | 9:00 | **Battle Fury completed** |
+> | 10:00 | Level 10 |
 >
-> **Minute-by-Minute Movement:**
+> **Minute 5-6 Farming Route:**
 >
-> | Min | Lane CS | Jungle CS | Location | Gold |
-> |-----|---------|-----------|----------|------|
-> | 1-4 | 25 | 0 | Dire safelane | 1,150 |
-> | 5 | 5 | 3 | Starting jungle | 1,580 |
-> | 6-7 | 7 | 11 | Full jungle mode | 2,680 |
-> | 8-10 | 15 | 15 | Lane-jungle rotation | 4,520 |
+> The `camp_sequence` shows his exact route:
+> - **5:15** → Medium wolf camp (first jungle stop)
+> - **5:42** → Small kobold camp
+> - **6:08** → Large centaur camp
+> - **6:35** → Back to medium wolf (respawned)
+>
+> Position tracking shows he went from `dire_safelane` at 5:00 to `dire_jungle` by 5:59.
 >
 > **Summary:**
-> - **81 CS in 10 minutes** (8.1 CS/min) - excellent farming
-> - **36% jungle farm** - healthy mix of lane and camps
-> - Cleared mostly large camps (satyr, centaur) for efficiency
->
-> **Pattern Analysis:**
-> AM had an uncontested lane for 4 minutes, then started adding jungle camps at minute 5. By minute 6, he was doing the classic "shove wave → clear 2 camps → return for next wave" rotation. The transition timing (5:36 for first large camp) suggests he got his Ring of Health and immediately started sustaining through jungle.
+> - **8.1 CS/min** with **36% jungle farm** - excellent efficiency
+> - Ring of Health at 3:00 enabled jungle sustain
+> - Hit level 6 at 7:00 (Blink for escape) just as he committed to jungle
+> - **9-minute Battle Fury** from uncontested lane + efficient jungle rotation
 
 ---
 
