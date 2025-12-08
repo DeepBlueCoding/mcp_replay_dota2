@@ -151,7 +151,7 @@ Event types: `DAMAGE`, `MODIFIER_ADD`, `MODIFIER_REMOVE`, `ABILITY`, `ITEM`, `DE
 
 ## get_fight_combat_log
 
-Auto-detects fight boundaries around a reference time. Use this to analyze what happened leading up to a death.
+Auto-detects fight boundaries around a reference time. Returns combat events plus **fight highlights** including multi-hero abilities, kill streaks, and team wipes.
 
 ```python
 get_fight_combat_log(
@@ -171,9 +171,58 @@ get_fight_combat_log(
   "duration": 15,
   "participants": ["earthshaker", "disruptor", "naga_siren", "medusa"],
   "total_events": 47,
-  "events": [...]
+  "events": [...],
+  "highlights": {
+    "multi_hero_abilities": [
+      {
+        "game_time": 282.5,
+        "game_time_str": "4:42",
+        "ability": "faceless_void_chronosphere",
+        "ability_display": "Chronosphere",
+        "caster": "faceless_void",
+        "targets": ["crystal_maiden", "lion", "earthshaker"],
+        "hero_count": 3
+      }
+    ],
+    "kill_streaks": [
+      {
+        "game_time": 290.0,
+        "game_time_str": "4:50",
+        "hero": "medusa",
+        "streak_type": "triple_kill",
+        "kills": 3,
+        "victims": ["crystal_maiden", "lion", "earthshaker"]
+      }
+    ],
+    "team_wipes": [
+      {
+        "game_time": 295.0,
+        "game_time_str": "4:55",
+        "team_wiped": "radiant",
+        "killer_team": "dire",
+        "duration": 13.0
+      }
+    ],
+    "fight_initiator": "faceless_void",
+    "initiation_ability": "Chronosphere"
+  }
 }
 ```
+
+**Highlights Explained:**
+
+| Field | Description |
+|-------|-------------|
+| `multi_hero_abilities` | Big ultimates/abilities hitting 2+ enemy heroes (Chronosphere, Black Hole, Ravage, Ice Path, etc.) |
+| `kill_streaks` | Double kill through Rampage (uses Dota 2's 18-second window between kills) |
+| `team_wipes` | All 5 heroes of one team killed within the fight (Ace!) |
+| `fight_initiator` | Hero who started the fight with a tracked ability |
+| `initiation_ability` | The ability used to initiate |
+
+**Tracked Abilities (60+):**
+- **Ultimates**: Chronosphere, Black Hole, Ravage, Reverse Polarity, Echo Slam, etc.
+- **Control**: Ice Path, Kinetic Field, Dream Coil, Static Storm, etc.
+- **Team wipe detectors**: Tracks all deaths to determine if entire team was killed
 
 ---
 

@@ -10,6 +10,36 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+#### Fight Highlights Detection
+- `get_fight_combat_log` now returns `highlights` with key teamfight moments:
+  - **Multi-hero abilities**: Detects Chronosphere, Black Hole, Ravage, etc. hitting 2+ heroes
+  - **Kill streaks**: Double kill through Rampage (uses Dota 2's 18-second window)
+  - **Team wipes (Aces)**: All 5 heroes of one team killed in a fight
+  - **Fight initiation**: Who started the fight and with what ability
+- 60+ teamfight abilities tracked (ultimates and key crowd control)
+
+#### Pydantic Response Models
+- All MCP tools now return properly typed Pydantic models with Field descriptions
+- New `src/models/tool_responses.py` with comprehensive models:
+  - Timeline: `KDASnapshot`, `PlayerTimeline`, `TeamGraphs`, `MatchTimelineResponse`
+  - Match info: `HeroStats`, `MatchPlayerInfo`, `MatchHeroesResponse`
+  - Fights: `FightSummary`, `FightDeath`, `FightDeathDetail`, `FightListResponse`
+  - Lane/jungle: `CampStack`, `HeroLaneStats`, `LaneWinners`, `JungleSummaryResponse`
+  - Game state: `HeroSnapshot`, `HeroPosition`, `PositionPoint`, `SnapshotAtTimeResponse`
+- Better developer experience with IDE autocomplete and documentation
+
+#### Pro Scene Signature Heroes
+- `ProPlayerInfo` now includes `role` (position 1-5) and `signature_heroes` fields
+- Signature heroes loaded from `data/pro_scene/player_signature_heroes.json`
+- Example: Yatoro → Morphling, Slark, Faceless Void
+
+### Changed
+
+#### Single-Pass Replay Parsing
+- `ReplayService._parse_replay` now fetches CDOTAMatchMetadataFile in the same pass
+- Removed second parsing pass that was causing CI timeouts
+- Timeline data now available without performance penalty
+
 #### Dota 2 Game Knowledge in Server Instructions
 - Added comprehensive laning phase roles documentation (Position 1-5 responsibilities)
 - Added "Common Analysis Mistakes to AVOID" section for better match analysis
