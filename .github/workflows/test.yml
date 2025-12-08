@@ -79,6 +79,20 @@ jobs:
           fi
           echo "Replay file verified OK"
 
+      - name: Pre-parse replay (populate cache)
+        if: steps.cache-parsed.outputs.cache-hit != 'true'
+        timeout-minutes: 10
+        run: |
+          echo "Parsed replay cache not found, pre-parsing..."
+          uv run python -c "
+          import asyncio
+          from src.services.replay.replay_service import ReplayService
+          rs = ReplayService()
+          data = asyncio.run(rs.get_parsed_data(${{ env.TEST_MATCH_ID }}))
+          print(f'Parsed {len(data.combat_log_entries)} combat log entries')
+          "
+          echo "Pre-parse complete, cache populated"
+
       - name: Run tests
         timeout-minutes: 15
         run: uv run pytest tests/ -v
