@@ -88,7 +88,8 @@ jobs:
           import asyncio
           from src.services.replay.replay_service import ReplayService
           rs = ReplayService()
-          data = asyncio.run(rs.get_parsed_data(${{ env.TEST_MATCH_ID }}))
+          # Skip metadata parsing in CI (second full file parse is too slow)
+          data = asyncio.run(rs.get_parsed_data(${{ env.TEST_MATCH_ID }}, skip_metadata=True))
           print(f'Parsed {len(data.combat_log_entries)} combat log entries')
           "
           echo "Pre-parse complete, cache populated"

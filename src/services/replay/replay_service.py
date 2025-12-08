@@ -54,6 +54,7 @@ class ReplayService:
         self,
         match_id: int,
         progress: Optional[ProgressCallback] = None,
+        skip_metadata: bool = False,
     ) -> ParsedReplayData:
         """Get complete parsed data for a match.
 
@@ -62,6 +63,7 @@ class ReplayService:
         Args:
             match_id: The match ID
             progress: Optional callback for progress updates
+            skip_metadata: Skip metadata parsing (faster but no timeline data)
 
         Returns:
             ParsedReplayData with all extracted data
@@ -92,7 +94,7 @@ class ReplayService:
             await progress(50, 100, "Parsing replay...")
 
         try:
-            data = self._parse_replay(match_id, replay_path, progress)
+            data = self._parse_replay(match_id, replay_path, progress, skip_metadata)
         except ValueError as e:
             # Parsing failed - delete corrupt replay so it can be re-downloaded
             logger.error(f"Parsing failed for match {match_id}, deleting corrupt replay: {e}")
@@ -305,6 +307,7 @@ class ReplayService:
         match_id: int,
         replay_path: Path,
         progress: Optional[ProgressCallback] = None,
+        skip_metadata: bool = False,
     ) -> ParsedReplayData:
         """Parse replay with python-manta v2 single-pass API."""
         replay_str = str(replay_path)
@@ -349,7 +352,10 @@ class ReplayService:
             raise ValueError(f"Parsing failed: {result.error}")
 
         # Parse metadata separately (CDOTAMatchMetadataFile for timeline data)
-        metadata = self._parse_metadata(replay_str)
+        # This is slow as it parses the entire file again - skip in CI
+        metadata = None
+        if not skip_metadata:
+            metadata = self._parse_metadata(replay_str)
 
         logger.info(f"Parsed {len(result.combat_log.entries) if result.combat_log else 0} combat log entries")
         logger.info(f"Parsed {len(result.entities.snapshots) if result.entities else 0} entity snapshots")
