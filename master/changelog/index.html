@@ -1393,6 +1393,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#110-2025-12-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.1.0] - 2025-12-08
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.1.0] - 2025-12-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#technical" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Technical
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#104-2025-12-08" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1416,7 +1455,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed" class="md-nav__link">
+  <a href="#changed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -1455,7 +1494,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed_1" class="md-nav__link">
+  <a href="#changed_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -1655,7 +1694,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#technical" class="md-nav__link">
+  <a href="#technical_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Technical
@@ -1744,6 +1783,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#110-2025-12-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.1.0] - 2025-12-08
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.1.0] - 2025-12-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#technical" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Technical
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#104-2025-12-08" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1767,7 +1845,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed" class="md-nav__link">
+  <a href="#changed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -1806,7 +1884,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed_1" class="md-nav__link">
+  <a href="#changed_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -2006,7 +2084,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#technical" class="md-nav__link">
+  <a href="#technical_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Technical
@@ -2077,6 +2155,30 @@
 <p>All notable changes to this project will be documented in this file.</p>
 <h2 id="unreleased">[Unreleased]<a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
 <hr />
+<h2 id="110-2025-12-08">[1.1.0] - 2025-12-08<a class="headerlink" href="#110-2025-12-08" title="Permanent link">&para;</a></h2>
+<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Major refactor: Tools split into domain-specific modules</strong> (92% code reduction in main entry point)</li>
+<li><code>dota_match_mcp_server.py</code>: 2606 → 206 lines</li>
+<li>New <code>src/tools/</code> directory with modular tool registration:<ul>
+<li><code>replay_tools.py</code> - Replay download tool</li>
+<li><code>combat_tools.py</code> - Deaths, combat log, objectives, runes, couriers</li>
+<li><code>fight_tools.py</code> - Fight detection, teamfights, fight replay</li>
+<li><code>match_tools.py</code> - Match info, timeline, draft, heroes, positions</li>
+<li><code>pro_scene_tools.py</code> - Pro players, teams, leagues, matches</li>
+<li><code>analysis_tools.py</code> - Jungle, lane, farming patterns, rotations</li>
+</ul>
+</li>
+<li>Service injection pattern via <code>register_all_tools(mcp, services)</code> coordinator</li>
+<li>No functional changes - all 30+ tools work identically</li>
+</ul>
+<h3 id="technical">Technical<a class="headerlink" href="#technical" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Clean separation of concerns: each tool module handles one domain</li>
+<li>Services dictionary pattern for dependency injection</li>
+<li>Easier maintenance and testing of individual tool groups</li>
+</ul>
+<hr />
 <h2 id="104-2025-12-08">[1.0.4] - 2025-12-08<a class="headerlink" href="#104-2025-12-08" title="Permanent link">&para;</a></h2>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
 <ul>
@@ -2115,7 +2217,7 @@
 <li>Enables draft analysis directly from match data</li>
 <li>Each hero includes counters, good_against, when_to_pick</li>
 </ul>
-<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>dota2://heroes/all</code> now includes counter picks data for draft analysis</li>
 <li><code>get_match_heroes</code> enriched with counter picks for draft analysis</li>
@@ -2158,7 +2260,7 @@
 <p>Added <code>nevermore_requiem</code> alias to BIG_TEAMFIGHT_ABILITIES (replays use old internal name)</p>
 </li>
 </ul>
-<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
+<h3 id="changed_2">Changed<a class="headerlink" href="#changed_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>get_fight_combat_log</code> now uses combat-based detection by default (captures initiation)</li>
 <li>Fight detection parameters tuned: 8s combat gap, 3s intensity window, 5 min events per window</li>
@@ -2291,7 +2393,7 @@
 <li>Parallel-safe tool hints for LLM optimization</li>
 <li>Server instructions with Dota 2 game knowledge</li>
 </ul>
-<h3 id="technical">Technical<a class="headerlink" href="#technical" title="Permanent link">&para;</a></h3>
+<h3 id="technical_1">Technical<a class="headerlink" href="#technical_1" title="Permanent link">&para;</a></h3>
 <h4 id="replay-parsing">Replay Parsing<a class="headerlink" href="#replay-parsing" title="Permanent link">&para;</a></h4>
 <ul>
 <li>Single-pass parsing with python-manta v2 API</li>
