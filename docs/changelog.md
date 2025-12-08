@@ -10,6 +10,36 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [1.0.4] - 2025-12-08
+
+### Added
+
+- **Hero counter picks database** integrated into `/heroes` resource:
+  - 848 counter matchups with mechanical explanations (WHY a hero counters another)
+  - 438 favorable matchups (heroes each hero is good against)
+  - 529 "when_to_pick" conditions describing optimal draft situations
+  - Curated data based on game mechanics: BKB-piercing, silences, roots, mana burn, Blademail, saves, mobility
+
+- New fields in `dota2://heroes/all` resource:
+  - `counters`: List of heroes that counter this hero with reasons
+  - `good_against`: List of heroes this hero counters with reasons
+  - `when_to_pick`: Draft conditions when the hero is strong
+
+- Pydantic models for counter data in `src/models/hero_counters.py`:
+  - `CounterMatchup`, `HeroCounters`, `HeroCountersDatabase`
+  - `CounterPickResponse`, `DraftCounterAnalysis`, `DraftAnalysisResponse`
+
+- `HeroesResource` methods for counter data access:
+  - `get_hero_counters(hero_id)`: Get counter data for a specific hero
+  - `get_all_hero_counters()`: Get all hero counter data
+
+### Changed
+
+- `dota2://heroes/all` now includes counter picks data for draft analysis
+- Updated documentation with counter picks examples
+
+---
+
 ## [1.0.3] - 2025-12-08
 
 ### Added

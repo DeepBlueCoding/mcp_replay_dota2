@@ -16,21 +16,25 @@ from src.resources.heroes_resources import HeroesResource
 EXPECTED_TOTAL_HEROES = 126  # Actual count from dotaconstants
 
 # Known heroes with their exact data for golden master testing (from dotaconstants)
-KNOWN_ABADDON_DATA = {
+# Note: Counter data is dynamic, so we test for presence of fields rather than exact values
+
+REQUIRED_HERO_FIELDS = {"hero_id", "canonical_name", "aliases", "attribute", "counters", "good_against", "when_to_pick"}
+
+KNOWN_ABADDON_BASE = {
     "hero_id": 102,
     "canonical_name": "Abaddon",
     "aliases": ["abaddon"],
     "attribute": "universal"
 }
 
-KNOWN_ANTI_MAGE_DATA = {
+KNOWN_ANTI_MAGE_BASE = {
     "hero_id": 1,
     "canonical_name": "Anti-Mage",
     "aliases": ["anti-mage", "antimage"],
     "attribute": "agility"
 }
 
-KNOWN_ZEUS_DATA = {
+KNOWN_ZEUS_BASE = {
     "hero_id": 22,
     "canonical_name": "Zeus",
     "aliases": ["zeus"],
@@ -67,31 +71,35 @@ class TestHeroesResource:
 
     @pytest.mark.asyncio
     async def test_get_all_heroes_contains_known_heroes(self, heroes_resource):
-        """Test that get_all_heroes contains known heroes with exact data."""
+        """Test that get_all_heroes contains known heroes with correct base data and counter fields."""
         all_heroes = await heroes_resource.get_all_heroes()
 
         assert EXPECTED_ABADDON_KEY in all_heroes
         abaddon = all_heroes[EXPECTED_ABADDON_KEY]
-        assert abaddon == KNOWN_ABADDON_DATA
+        for key, value in KNOWN_ABADDON_BASE.items():
+            assert abaddon[key] == value
+        assert set(abaddon.keys()) == REQUIRED_HERO_FIELDS
 
         assert EXPECTED_ANTI_MAGE_KEY in all_heroes
         anti_mage = all_heroes[EXPECTED_ANTI_MAGE_KEY]
-        assert anti_mage == KNOWN_ANTI_MAGE_DATA
+        for key, value in KNOWN_ANTI_MAGE_BASE.items():
+            assert anti_mage[key] == value
+        assert set(anti_mage.keys()) == REQUIRED_HERO_FIELDS
+        assert len(anti_mage["counters"]) > 0
 
         assert EXPECTED_ZEUS_KEY in all_heroes
         zeus = all_heroes[EXPECTED_ZEUS_KEY]
-        assert zeus == KNOWN_ZEUS_DATA
+        for key, value in KNOWN_ZEUS_BASE.items():
+            assert zeus[key] == value
+        assert set(zeus.keys()) == REQUIRED_HERO_FIELDS
 
     @pytest.mark.asyncio
     async def test_get_all_heroes_has_all_required_attributes(self, heroes_resource):
-        """Test that every hero has all required attributes."""
+        """Test that every hero has all required attributes including counter data."""
         all_heroes = await heroes_resource.get_all_heroes()
 
         for hero_key, hero_data in all_heroes.items():
-            assert "hero_id" in hero_data
-            assert "canonical_name" in hero_data
-            assert "aliases" in hero_data
-            assert "attribute" in hero_data
+            assert set(hero_data.keys()) == REQUIRED_HERO_FIELDS
 
             assert isinstance(hero_data["hero_id"], int)
             assert hero_data["hero_id"] > 0
@@ -103,6 +111,10 @@ class TestHeroesResource:
             assert len(hero_data["aliases"]) > 0
 
             assert hero_data["attribute"] in ["strength", "agility", "intelligence", "universal"]
+
+            assert isinstance(hero_data["counters"], list)
+            assert isinstance(hero_data["good_against"], list)
+            assert isinstance(hero_data["when_to_pick"], list)
 
     @pytest.mark.asyncio
     async def test_get_all_heroes_returns_copy_not_reference(self, heroes_resource):

@@ -1,6 +1,6 @@
 [project]
 name = "mcp-dota2-server"
-version = "1.0.3"
+version = "1.0.4"
 description = "Model Context Protocol server for Dota 2 match analysis using replay files"
 readme = "README.md"
 license = "MIT"
@@ -28,6 +28,7 @@ dependencies = [
     "python-manta>=1.4.5.2",
     "aiohttp>=3.13.2",
     "diskcache>=5.6.3",
+    "anthropic>=0.75.0",
 ]
 
 [project.urls]

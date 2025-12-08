@@ -1,8 +1,11 @@
+import json
 import logging
-from typing import Any, Dict, List
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 from python_manta import Hero
 
+from src.models.hero_counters import HeroCounters, HeroCountersDatabase
 from src.utils.constants_fetcher import constants_fetcher
 from src.utils.match_fetcher import MatchFetcher
 from src.utils.pro_scene_fetcher import pro_scene_fetcher
@@ -19,6 +22,37 @@ class HeroesResource:
         self.replay_downloader = ReplayDownloader()
         self.constants = constants_fetcher
         self.match_fetcher = MatchFetcher()
+        self._hero_counters: Optional[HeroCountersDatabase] = None
+
+    def _load_hero_counters(self) -> Optional[HeroCountersDatabase]:
+        """Load hero counters database from JSON file."""
+        if self._hero_counters is not None:
+            return self._hero_counters
+
+        counters_path = Path(__file__).parent.parent.parent / "data" / "constants" / "hero_counters.json"
+        if not counters_path.exists():
+            logger.warning(f"Hero counters file not found: {counters_path}")
+            return None
+
+        with open(counters_path) as f:
+            data = json.load(f)
+            self._hero_counters = HeroCountersDatabase(**data)
+
+        return self._hero_counters
+
+    def get_hero_counters(self, hero_id: int) -> Optional[HeroCounters]:
+        """Get counter picks data for a specific hero."""
+        counters_db = self._load_hero_counters()
+        if not counters_db:
+            return None
+        return counters_db.heroes.get(str(hero_id))
+
+    def get_all_hero_counters(self) -> Dict[str, HeroCounters]:
+        """Get all hero counter picks data."""
+        counters_db = self._load_hero_counters()
+        if not counters_db:
+            return {}
+        return counters_db.heroes
 
     def _convert_constants_to_legacy_format(
         self, heroes_constants: Dict[str, Dict[str, Any]]
@@ -30,21 +64,45 @@ class HeroesResource:
             heroes_constants: Raw heroes data from dotaconstants
 
         Returns:
-            Heroes data in legacy format with npc_ keys
+            Heroes data in legacy format with npc_ keys, including counter picks
         """
         legacy_heroes = {}
+        counters_db = self._load_hero_counters()
 
         for hero_id, hero_data in heroes_constants.items():
-            # Use internal name as key (e.g., "npc_dota_hero_antimage")
             hero_key = hero_data.get("name", f"npc_dota_hero_{hero_id}")
 
-            # Convert to legacy format
             legacy_hero = {
                 "hero_id": int(hero_id),
                 "canonical_name": hero_data.get("localized_name", "Unknown"),
                 "attribute": self._map_attribute(hero_data.get("primary_attr", "str")),
-                "aliases": self._generate_aliases(hero_data)
+                "aliases": self._generate_aliases(hero_data),
+                "counters": [],
+                "good_against": [],
+                "when_to_pick": []
             }
+
+            if counters_db and hero_id in counters_db.heroes:
+                hero_counters = counters_db.heroes[hero_id]
+                legacy_hero["counters"] = [
+                    {
+                        "hero_id": c.hero_id,
+                        "hero_name": c.hero_name,
+                        "localized_name": c.localized_name,
+                        "reason": c.reason
+                    }
+                    for c in hero_counters.counters
+                ]
+                legacy_hero["good_against"] = [
+                    {
+                        "hero_id": g.hero_id,
+                        "hero_name": g.hero_name,
+                        "localized_name": g.localized_name,
+                        "reason": g.reason
+                    }
+                    for g in hero_counters.good_against
+                ]
+                legacy_hero["when_to_pick"] = hero_counters.when_to_pick
 
             legacy_heroes[hero_key] = legacy_hero
 

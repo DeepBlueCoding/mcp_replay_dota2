@@ -2,7 +2,7 @@
 
 ??? info "AI Summary"
 
-    Static reference data via URI. **Core**: `dota2://heroes/all` (124+ heroes with aliases, roles), `dota2://map` (towers, camps, runes, landmarks). **Pro scene**: `dota2://pro/players`, `dota2://pro/teams`. Resources are for static data the user attaches to context. For match-specific data, use tools like `get_match_heroes` and `get_match_players`.
+    Static reference data via URI. **Core**: `dota2://heroes/all` (126 heroes with aliases, **counter picks**, when_to_pick conditions), `dota2://map` (towers, camps, runes, landmarks). **Pro scene**: `dota2://pro/players`, `dota2://pro/teams`. Resources are for static data the user attaches to context. For match-specific data, use tools like `get_match_heroes` and `get_match_players`.
 
 Resources are static reference data that users can attach to their context before a conversation. Access via URI.
 
@@ -17,7 +17,7 @@ Resources are static reference data that users can attach to their context befor
 
 ## dota2://heroes/all
 
-All 124+ Dota 2 heroes.
+All 126 Dota 2 heroes with counter picks data for draft analysis.
 
 ```json
 {
@@ -26,18 +26,47 @@ All 124+ Dota 2 heroes.
     "canonical_name": "Anti-Mage",
     "aliases": ["am", "antimage", "anti-mage"],
     "attribute": "agility",
-    "attack_type": "melee",
-    "roles": ["Carry", "Escape", "Nuker"]
-  },
-  "npc_dota_hero_axe": {
-    "hero_id": 2,
-    "canonical_name": "Axe",
-    "attribute": "strength"
+    "counters": [
+      {
+        "hero_id": 6,
+        "hero_name": "npc_dota_hero_doomguard",
+        "localized_name": "Doom",
+        "reason": "Doom silences AM completely, preventing Blink escape and Mana Void"
+      },
+      {
+        "hero_id": 6,
+        "hero_name": "npc_dota_hero_axe",
+        "localized_name": "Axe",
+        "reason": "Berserker's Call pierces BKB and forces attacks, Counter Helix punishes"
+      }
+    ],
+    "good_against": [
+      {
+        "hero_id": 94,
+        "hero_name": "npc_dota_hero_medusa",
+        "localized_name": "Medusa",
+        "reason": "Mana Break devastates Medusa's mana shield; Mana Void deals massive damage"
+      }
+    ],
+    "when_to_pick": [
+      "Enemy has mana-dependent heroes (Storm, Medusa, Invoker)",
+      "Your team can hold 4v5 while you farm",
+      "Enemy lacks catch/lockdown for Blink"
+    ]
   }
 }
 ```
 
-Use for: Hero name resolution, attribute lookups, role classification.
+**Counter picks data:**
+
+- `counters`: Heroes that counter this hero (bad matchups) with mechanical reasons
+- `good_against`: Heroes this hero counters (favorable matchups) with reasons
+- `when_to_pick`: Draft conditions when the hero is strong
+
+!!! tip "Draft Analysis"
+    Use counter picks data to analyze draft advantages. Check if enemy picks counter your heroes, or identify good counter-picks for the enemy draft.
+
+Use for: Hero name resolution, attribute lookups, **draft analysis**, counter-pick identification.
 
 ---
 
