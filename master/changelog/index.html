@@ -1393,6 +1393,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#102-2025-12-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.0.2] - 2025-12-08
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.0.2] - 2025-12-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#101-2025-12-08" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1405,7 +1444,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#fixed" class="md-nav__link">
+  <a href="#fixed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -1433,7 +1472,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added" class="md-nav__link">
+  <a href="#added_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -1616,6 +1655,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#102-2025-12-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.0.2] - 2025-12-08
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.0.2] - 2025-12-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#101-2025-12-08" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1628,7 +1706,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#fixed" class="md-nav__link">
+  <a href="#fixed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -1656,7 +1734,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added" class="md-nav__link">
+  <a href="#added_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -1822,8 +1900,32 @@
 <h2 id="unreleased">[Unreleased]<a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
 <p><em>No unreleased changes.</em></p>
 <hr />
-<h2 id="101-2025-12-08">[1.0.1] - 2025-12-08<a class="headerlink" href="#101-2025-12-08" title="Permanent link">&para;</a></h2>
+<h2 id="102-2025-12-08">[1.0.2] - 2025-12-08<a class="headerlink" href="#102-2025-12-08" title="Permanent link">&para;</a></h2>
 <h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Fixed <code>get_pro_matches</code> and <code>get_league_matches</code> returning <code>null</code> team names</li>
+<li>OpenDota API doesn't always include team names in match responses</li>
+<li>Now resolves team names from cached teams data when missing</li>
+<li>
+<p>Eliminates need for extra <code>get_team</code> tool calls to resolve team names</p>
+</li>
+<li>
+<p>Fixed <code>get_match_heroes</code> validation error with item fields</p>
+</li>
+<li>Items now return human-readable names (e.g., "Blink Dagger") instead of integer IDs</li>
+<li>Added <code>get_item_name()</code> and <code>convert_item_ids_to_names()</code> to constants_fetcher</li>
+<li>Neutral items also converted to display names</li>
+</ul>
+<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Model validation tests (<code>tests/test_model_validation.py</code>)</li>
+<li>Tests for HeroStats, MatchHeroesResponse, MatchPlayerInfo validation</li>
+<li>Tests for item ID to name conversion</li>
+<li>Ensures Pydantic models reject invalid data types</li>
+</ul>
+<hr />
+<h2 id="101-2025-12-08">[1.0.1] - 2025-12-08<a class="headerlink" href="#101-2025-12-08" title="Permanent link">&para;</a></h2>
+<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Updated examples documentation to match v1.0.0 Pydantic response models</li>
 <li>Added fight highlights to <code>get_fight_combat_log</code> examples (multi_hero_abilities, kill_streaks, team_wipes)</li>
@@ -1832,7 +1934,7 @@
 </ul>
 <hr />
 <h2 id="100-2025-12-08">[1.0.0] - 2025-12-08<a class="headerlink" href="#100-2025-12-08" title="Permanent link">&para;</a></h2>
-<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
 <h4 id="mcp-resources">MCP Resources<a class="headerlink" href="#mcp-resources" title="Permanent link">&para;</a></h4>
 <ul>
 <li><code>dota2://heroes/all</code> - All Dota 2 heroes with stats and abilities</li>
