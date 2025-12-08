@@ -12,6 +12,17 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [1.0.1] - 2025-12-08
+
+### Fixed
+
+- Updated examples documentation to match v1.0.0 Pydantic response models
+- Added fight highlights to `get_fight_combat_log` examples (multi_hero_abilities, kill_streaks, team_wipes)
+- Fixed `get_farming_pattern` example to use `camp_sequence` and `level_timings`
+- Added missing standard fields to all tool response examples
+
+---
+
 ## [1.0.0] - 2025-12-08
 
 ### Added
