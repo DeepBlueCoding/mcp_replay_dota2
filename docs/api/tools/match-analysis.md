@@ -64,13 +64,16 @@ get_hero_deaths(match_id=8461956309)
 
 ## get_hero_combat_analysis
 
-Analyze a hero's combat involvement across all fights in a match. Returns per-fight statistics including kills, deaths, assists, ability usage with hit rates, and damage dealt/received.
+**THE PRIMARY TOOL for analyzing a hero's performance in a match.** Use this for ANY question about how a player/hero performed.
 
-**Perfect for questions like:**
+**Use this for:**
 
-- "How did Jakiro perform in teamfights?"
-- "How many Ice Paths landed during ganks?"
-- "Which fights did the support participate in?"
+- "How did Whitemon's Jakiro perform?"
+- "What was Collapse's impact on Mars?"
+- "How many Ice Paths landed?"
+- "Show me Yatoro's fight participation"
+
+Returns per-fight statistics including kills, deaths, assists, ability usage with hit rates, and damage dealt/received.
 
 ```python
 get_hero_combat_analysis(
@@ -133,7 +136,14 @@ get_hero_combat_analysis(
 
 ## get_combat_log
 
-Raw combat events with optional filters. **Use `detail_level` to control token usage.**
+Raw combat events for a **SPECIFIC TIME WINDOW ONLY**.
+
+!!! warning "When NOT to use this tool"
+    - "How did X hero perform?" → Use `get_hero_combat_analysis`
+    - "Show me the fights" → Use `list_fights` or `get_teamfights`
+    - "What happened in the game?" → Use `get_match_timeline`
+
+**Use this only when** you need raw event-by-event details for a specific 30-second to 3-minute window.
 
 ```python
 # Default: narrative detail (recommended for most queries)
@@ -235,6 +245,15 @@ Event types: `DAMAGE`, `MODIFIER_ADD`, `MODIFIER_REMOVE`, `ABILITY`, `ITEM`, `DE
 ---
 
 ## get_fight_combat_log
+
+Get combat log for **ONE SPECIFIC FIGHT** at a known time.
+
+!!! warning "When NOT to use this tool"
+    - "How did X hero perform?" → Use `get_hero_combat_analysis`
+    - "Show me all teamfights" → Use `get_teamfights`
+    - "List all fights" → Use `list_fights`
+
+**Use this when** you have a specific death time and want details about that particular fight.
 
 Auto-detects fight boundaries around a reference time. Returns combat events plus **fight highlights** including multi-hero abilities, kill streaks, and team wipes.
 

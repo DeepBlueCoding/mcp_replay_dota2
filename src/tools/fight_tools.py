@@ -52,34 +52,30 @@ def register_fight_tools(mcp, services):
         ctx: Optional[Context] = None,
     ) -> FightCombatLogResponse:
         """
-        Get combat log for a fight at a specific moment (e.g., a death).
+        Get combat log for ONE SPECIFIC FIGHT at a known time.
 
-        Automatically detects fight boundaries by analyzing combat activity.
+        **WHEN TO USE THIS TOOL:**
+        - You have a specific death time and want details about that fight
+        - You're drilling into a specific moment (e.g., "What happened at 25:30?")
 
-        **IMPORTANT: Use detail_level to control response size and token usage.**
+        **DO NOT USE THIS TOOL FOR:**
+        - "How did X hero perform?" → Use get_hero_combat_analysis instead
+        - "Show me all teamfights" → Use get_teamfights instead
+        - "List all fights" → Use list_fights instead
 
-        Detail levels:
-        - **narrative** (default): Deaths, abilities, purchases only.
-          Best for: "What happened?", "Who died and how?", "Key abilities used."
-        - **tactical**: Adds hero-to-hero damage, attack events, debuffs.
-          Best for: "Timeline of damage on X", "Who attacked who and when?", "What effects were applied?"
-        - **full** (WARNING: Very large): All events including creeps.
-          Best for: Debugging only.
+        Auto-detects fight boundaries around reference_time.
 
-        **Includes fight highlights** (always detected regardless of detail_level):
-        - Multi-hero abilities: "4-man Chronosphere", "3-man Black Hole"
-        - Kill streaks: Double Kill through Rampage
-        - Team wipes: All 5 heroes of one team killed
+        Detail levels (use "narrative" for most queries):
+        - **narrative** (default): Deaths, abilities, purchases
+        - **tactical**: Adds damage events (only for debugging)
+        - **full**: All events (debugging only)
 
         Args:
             match_id: The Dota 2 match ID
-            reference_time: Game time in seconds (e.g., death time from get_hero_deaths)
-            hero: Optional hero name to anchor fight detection, e.g. "earthshaker"
-            detail_level: Controls event verbosity. Use "narrative" for most queries.
-            max_events: Maximum events to return (default 200). Prevents overflow.
-
-        Returns:
-            FightCombatLogResponse with fight boundaries, participants, events, and highlights
+            reference_time: Game time in seconds (e.g., from get_hero_deaths)
+            hero: Optional hero to anchor detection
+            detail_level: Use "narrative" unless debugging
+            max_events: Max events (default 200)
         """
         async def progress_callback(current: int, total: int, message: str) -> None:
             if ctx:

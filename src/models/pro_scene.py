@@ -194,6 +194,7 @@ class ProMatchesResponse(BaseModel):
     matches: List[ProMatchSummary] = Field(default_factory=list)
     series: List[SeriesSummary] = Field(default_factory=list)
     error: Optional[str] = Field(default=None)
+    message: Optional[str] = Field(default=None)
 
 
 class LeagueMatchesResponse(BaseModel):

@@ -61,39 +61,31 @@ def register_combat_tools(mcp, services):
         ctx: Optional[Context] = None,
     ) -> CombatLogResponse:
         """
-        Get combat log events from a Dota 2 match for a specific time window.
+        Get raw combat log events from a Dota 2 match for a SPECIFIC TIME WINDOW ONLY.
 
-        **CRITICAL: Always use focused time windows (start_time AND end_time).**
-        Do NOT query large time ranges. Use 1-3 minute windows for best results.
+        **WHEN TO USE THIS TOOL:**
+        - You need raw event-by-event details for a specific moment (e.g., 15:00-15:30)
+        - You're debugging what happened in a 30-second window
 
-        **For hero-specific analysis, use get_hero_combat_analysis instead.**
-        That tool provides per-fight breakdowns with kills, deaths, ability usage, and damage.
+        **DO NOT USE THIS TOOL FOR:**
+        - "How did X hero perform?" → Use get_hero_combat_analysis instead
+        - "Show me the fights" → Use list_fights or get_teamfights instead
+        - "What happened in the game?" → Use get_match_timeline instead
 
-        Detail levels (from least to most verbose):
-        - **narrative** (default): Hero deaths, abilities, purchases, buybacks.
-          Best for: "What happened?", "Who died and how?", "Key abilities used."
-        - **tactical**: Adds hero-to-hero damage, attack events, debuffs on heroes.
-          Best for: "Timeline of damage on X", "Who attacked who and when?", "What effects were applied?"
-        - **full** (WARNING: Very large): All events including creeps, heals.
-          Best for: Debugging only. Use time ranges <30 seconds.
+        **CRITICAL: Always provide start_time AND end_time (max 3 minute window).**
 
-        Each event contains:
-        - type: DAMAGE, MODIFIER_ADD, ABILITY, DEATH, PURCHASE, BUYBACK
-        - game_time_str: Formatted as M:SS
-        - attacker/target: Hero names
-        - ability: Ability or item involved
-        - value: Damage amount (for DAMAGE events)
+        Detail levels:
+        - **narrative** (default): Deaths, abilities, purchases. Use for most queries.
+        - **tactical**: Adds damage events. Only for debugging specific combat sequences.
+        - **full**: All events. Only for <30 second windows.
 
         Args:
             match_id: The Dota 2 match ID
-            start_time: Filter events after this time (seconds). REQUIRED for focused queries.
-            end_time: Filter events before this time (seconds). REQUIRED for focused queries.
-            hero_filter: Only events involving this hero, e.g. "earthshaker"
-            detail_level: Controls verbosity. Use "narrative" for most queries.
-            max_events: Maximum events to return (default 200, max 500).
-
-        Returns:
-            CombatLogResponse with events. Check `truncated` field if results were capped.
+            start_time: Start of time window (seconds). REQUIRED.
+            end_time: End of time window (seconds). REQUIRED.
+            hero_filter: Only events involving this hero
+            detail_level: Use "narrative" unless debugging
+            max_events: Maximum events (default 200)
         """
         async def progress_callback(current: int, total: int, message: str) -> None:
             if ctx:
@@ -258,25 +250,25 @@ def register_combat_tools(mcp, services):
         ctx: Optional[Context] = None,
     ) -> HeroCombatAnalysisResponse:
         """
-        Analyze a hero's combat involvement across all fights in a match.
+        **THE PRIMARY TOOL for analyzing a hero's performance in a match.**
 
-        Returns detailed per-fight statistics including:
-        - Kills, deaths, and assists in each fight
-        - Ability usage with hit rates (e.g., how many Ice Paths landed on heroes)
+        Use this for ANY question about how a hero/player performed:
+        - "How did Whitemon's Jakiro perform?"
+        - "How many Ice Paths landed?"
+        - "What was Collapse's impact on Mars?"
+        - "Show me Yatoro's fight participation"
+
+        Returns per-fight breakdown:
+        - Kills, deaths, assists per fight
+        - Ability usage with hit counts (e.g., "Ice Path: 12 casts, 8 hit heroes")
         - Damage dealt and received
-        - Which fights were teamfights vs skirmishes
+        - Fight type (teamfight vs skirmish)
 
-        Perfect for questions like:
-        - "How did Jakiro perform in teamfights?"
-        - "How many Ice Paths landed during ganks?"
-        - "Which fights did the support participate in?"
+        Also returns aggregate totals across all fights.
 
         Args:
             match_id: The Dota 2 match ID
-            hero: Hero name to analyze (e.g., "jakiro", "earthshaker")
-
-        Returns:
-            HeroCombatAnalysisResponse with per-fight and aggregate combat stats
+            hero: Hero name (e.g., "jakiro", "mars", "faceless_void")
         """
         async def progress_callback(current: int, total: int, message: str) -> None:
             if ctx:

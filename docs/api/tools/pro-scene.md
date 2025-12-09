@@ -187,16 +187,23 @@ Get recent professional matches with series grouping. By default returns ALL mat
 |-----------|------|-------------|
 | `limit` | int | Maximum matches to return (default: 100) |
 | `tier` | string | Filter by league tier: `"premium"` (TI, Majors), `"professional"`, or `"amateur"` |
-| `team_name` | string | Fuzzy match team name (e.g., "OG", "Spirit", "Navi") |
+| `team_name` | string | Fuzzy match team name (e.g., "OG", "Spirit", "Tundra") |
 | `league_name` | string | Contains match on league name (e.g., "SLAM", "ESL", "DreamLeague") |
 | `days_back` | int | Only return matches from the last N days |
+
+**Data Blending:** When `team_name` is provided, this tool automatically blends data from two sources:
+
+1. **Team-specific endpoint** (`/teams/{id}/matches`) - captures matches that OpenDota's `/proMatches` often misses (e.g., major tournaments like SLAM)
+2. **General pro matches** (`/proMatches`) - provides broader coverage
+
+This ensures comprehensive results when searching for specific teams.
 
 ```python
 # Get top-tier tournament matches only
 get_pro_matches(tier="premium")
 
-# Find matches for a specific team
-get_pro_matches(team_name="OG")
+# Find matches for a specific team (blends both data sources)
+get_pro_matches(team_name="Tundra", days_back=7)
 
 # Find matches in a specific tournament
 get_pro_matches(league_name="SLAM")

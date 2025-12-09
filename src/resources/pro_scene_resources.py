@@ -482,16 +482,13 @@ class ProSceneResource:
         Args:
             limit: Maximum matches to return
             tier: Filter by league tier (premium, professional, amateur)
-            team_name: Filter by team name (fuzzy match)
+            team_name: Filter by team name (uses team-specific endpoint for better results)
             league_name: Filter by league name (contains, case-insensitive)
             days_back: Only matches from last N days
         """
         import time
 
         try:
-            async with OpenDota(format="json") as client:
-                raw_matches = await client.get_pro_matches()
-
             team_lookup = await self._build_team_lookup()
 
             league_tiers: Dict[int, str] = {}
@@ -507,41 +504,77 @@ class ProSceneResource:
             if days_back:
                 cutoff_time = int(time.time()) - (days_back * 24 * 60 * 60)
 
+            # Resolve team filter first
             team_ids_to_match: set = set()
+            team_specific_matches: Dict[int, ProMatchSummary] = {}
             if team_name:
                 await self._ensure_initialized()
-                results = team_fuzzy_search.search(team_name, threshold=0.5, max_results=5)
-                team_ids_to_match = {r.id for r in results}
+                results = team_fuzzy_search.search(team_name, threshold=0.5, max_results=1)
+                if results:
+                    team_id = results[0].id
+                    team_ids_to_match = {team_id}
 
-            matches = []
+                    # Fetch team-specific matches (often missing from /proMatches)
+                    team_details = await pro_scene_fetcher.fetch_team_details(team_id)
+                    team_data = team_details.get("team", {})
+                    for m in team_details.get("recent_matches", []):
+                        match_time = m.get("start_time", 0)
+                        if cutoff_time and match_time < cutoff_time:
+                            continue
+                        if tier:
+                            match_tier = league_tiers.get(m.get("leagueid"))
+                            if match_tier != tier:
+                                continue
+                        if league_name:
+                            if league_name.lower() not in (m.get("league_name") or "").lower():
+                                continue
+
+                        is_radiant = m.get("radiant", False)
+                        match_summary = ProMatchSummary(
+                            match_id=m["match_id"],
+                            radiant_team_id=team_id if is_radiant else m.get("opposing_team_id"),
+                            radiant_team_name=team_data.get("name") if is_radiant else m.get("opposing_team_name"),
+                            dire_team_id=m.get("opposing_team_id") if is_radiant else team_id,
+                            dire_team_name=m.get("opposing_team_name") if is_radiant else team_data.get("name"),
+                            radiant_win=m.get("radiant_win") or False,
+                            duration=m.get("duration") or 0,
+                            start_time=match_time,
+                            league_id=m.get("leagueid"),
+                            league_name=m.get("league_name"),
+                        )
+                        team_specific_matches[m["match_id"]] = self._resolve_team_names(match_summary, team_lookup)
+
+            # Fetch from /proMatches endpoint
+            async with OpenDota(format="json") as client:
+                raw_matches = await client.get_pro_matches()
+
+            matches_by_id: Dict[int, ProMatchSummary] = dict(team_specific_matches)
             for m in raw_matches:
-                if len(matches) >= limit:
-                    break
+                match_id = m.get("match_id")
+                if match_id in matches_by_id:
+                    continue  # Already have from team-specific endpoint
 
                 if tier:
-                    match_league_id = m.get("leagueid")
-                    match_tier = league_tiers.get(match_league_id)
+                    match_tier = league_tiers.get(m.get("leagueid"))
                     if match_tier != tier:
                         continue
 
                 if cutoff_time:
-                    match_time = m.get("start_time", 0)
-                    if match_time < cutoff_time:
+                    if m.get("start_time", 0) < cutoff_time:
                         continue
 
-                if team_name and team_ids_to_match:
+                if team_ids_to_match:
                     radiant_id = m.get("radiant_team_id")
                     dire_id = m.get("dire_team_id")
                     if radiant_id not in team_ids_to_match and dire_id not in team_ids_to_match:
                         continue
 
                 if league_name:
-                    match_league_name = m.get("league_name") or ""
-                    if league_name.lower() not in match_league_name.lower():
+                    if league_name.lower() not in (m.get("league_name") or "").lower():
                         continue
 
                 match_summary = ProMatchSummary(
-                    match_id=m.get("match_id"),
+                    match_id=match_id,
                     radiant_team_id=m.get("radiant_team_id"),
                     radiant_team_name=m.get("radiant_name"),
                     dire_team_id=m.get("dire_team_id"),
@@ -556,7 +589,10 @@ class ProSceneResource:
                     series_id=m.get("series_id"),
                     series_type=m.get("series_type"),
                 )
-                matches.append(self._resolve_team_names(match_summary, team_lookup))
+                matches_by_id[match_id] = self._resolve_team_names(match_summary, team_lookup)
+
+            # Sort by start_time descending and apply limit
+            matches = sorted(matches_by_id.values(), key=lambda x: x.start_time, reverse=True)[:limit]
 
             all_matches, series_list = self._group_matches_into_series(matches)
 

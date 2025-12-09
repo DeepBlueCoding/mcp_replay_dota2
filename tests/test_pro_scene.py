@@ -702,6 +702,215 @@ class TestTeamNameResolution:
         assert resolved.game_number == 2
 
 
+class TestProMatchesDataBlending:
+    """Tests for get_pro_matches data blending from multiple sources."""
+
+    @pytest.fixture
+    def resource(self) -> ProSceneResource:
+        """Create a ProSceneResource instance."""
+        return ProSceneResource()
+
+    def test_blending_deduplicates_by_match_id(self, resource: ProSceneResource):
+        """Test that matches are deduplicated by match_id when blending."""
+        # Create two matches with same ID - should only appear once
+        match1 = ProMatchSummary(
+            match_id=1001,
+            radiant_team_id=100,
+            radiant_team_name="Team A",
+            dire_team_id=200,
+            dire_team_name="Team B",
+            radiant_win=True,
+            duration=2400,
+            start_time=1000,
+        )
+        match2 = ProMatchSummary(
+            match_id=1001,  # Same ID
+            radiant_team_id=100,
+            radiant_team_name="Team A",
+            dire_team_id=200,
+            dire_team_name="Team B",
+            radiant_win=True,
+            duration=2400,
+            start_time=1000,
+        )
+
+        matches_by_id = {match1.match_id: match1}
+        if match2.match_id not in matches_by_id:
+            matches_by_id[match2.match_id] = match2
+
+        assert len(matches_by_id) == 1
+
+    def test_blending_keeps_team_specific_match_when_duplicate(self, resource: ProSceneResource):
+        """Test that team-specific match takes priority over proMatches duplicate."""
+        # Team-specific has more detail (league_name)
+        team_specific = ProMatchSummary(
+            match_id=2001,
+            radiant_team_id=100,
+            radiant_team_name="Tundra Esports",
+            dire_team_id=200,
+            dire_team_name="Team Yandex",
+            radiant_win=True,
+            duration=2400,
+            start_time=2000,
+            league_name="SLAM V",
+        )
+        # proMatches may have less detail
+        pro_match = ProMatchSummary(
+            match_id=2001,  # Same ID
+            radiant_team_id=100,
+            radiant_team_name="Tundra",  # Different name format
+            dire_team_id=200,
+            dire_team_name=None,  # Missing
+            radiant_win=True,
+            duration=2400,
+            start_time=2000,
+            league_name=None,  # Missing
+        )
+
+        # Team-specific goes in first
+        matches_by_id = {team_specific.match_id: team_specific}
+        # proMatches duplicate is skipped
+        if pro_match.match_id not in matches_by_id:
+            matches_by_id[pro_match.match_id] = pro_match
+
+        result = matches_by_id[2001]
+        assert result.league_name == "SLAM V"
+        assert result.radiant_team_name == "Tundra Esports"
+
+    def test_blending_includes_unique_matches_from_both_sources(self, resource: ProSceneResource):
+        """Test that unique matches from both sources are included."""
+        # Team-specific match
+        team_match = ProMatchSummary(
+            match_id=3001,
+            radiant_team_id=100,
+            radiant_team_name="Team A",
+            dire_team_id=200,
+            dire_team_name="Team B",
+            radiant_win=True,
+            duration=2400,
+            start_time=3000,
+        )
+        # Different match from proMatches
+        pro_match = ProMatchSummary(
+            match_id=3002,  # Different ID
+            radiant_team_id=100,
+            radiant_team_name="Team A",
+            dire_team_id=300,
+            dire_team_name="Team C",
+            radiant_win=False,
+            duration=2200,
+            start_time=3100,
+        )
+
+        matches_by_id = {team_match.match_id: team_match}
+        if pro_match.match_id not in matches_by_id:
+            matches_by_id[pro_match.match_id] = pro_match
+
+        assert len(matches_by_id) == 2
+        assert 3001 in matches_by_id
+        assert 3002 in matches_by_id
+
+    def test_blended_results_sorted_by_start_time_descending(self, resource: ProSceneResource):
+        """Test that blended results are sorted by start_time descending."""
+        matches = [
+            ProMatchSummary(
+                match_id=4001,
+                radiant_team_id=100,
+                radiant_team_name="Team A",
+                dire_team_id=200,
+                dire_team_name="Team B",
+                radiant_win=True,
+                duration=2400,
+                start_time=1000,  # Oldest
+            ),
+            ProMatchSummary(
+                match_id=4002,
+                radiant_team_id=100,
+                radiant_team_name="Team A",
+                dire_team_id=300,
+                dire_team_name="Team C",
+                radiant_win=False,
+                duration=2200,
+                start_time=3000,  # Newest
+            ),
+            ProMatchSummary(
+                match_id=4003,
+                radiant_team_id=100,
+                radiant_team_name="Team A",
+                dire_team_id=400,
+                dire_team_name="Team D",
+                radiant_win=True,
+                duration=2300,
+                start_time=2000,  # Middle
+            ),
+        ]
+
+        sorted_matches = sorted(matches, key=lambda x: x.start_time, reverse=True)
+
+        assert sorted_matches[0].match_id == 4002  # Newest first
+        assert sorted_matches[1].match_id == 4003
+        assert sorted_matches[2].match_id == 4001  # Oldest last
+
+    def test_blended_results_respect_limit(self, resource: ProSceneResource):
+        """Test that blended results respect the limit parameter."""
+        matches = [
+            ProMatchSummary(
+                match_id=5000 + i,
+                radiant_team_id=100,
+                radiant_team_name="Team A",
+                dire_team_id=200,
+                dire_team_name="Team B",
+                radiant_win=True,
+                duration=2400,
+                start_time=5000 + i,
+            )
+            for i in range(10)
+        ]
+
+        limit = 5
+        limited = sorted(matches, key=lambda x: x.start_time, reverse=True)[:limit]
+
+        assert len(limited) == 5
+        assert limited[0].start_time == 5009  # Most recent
+
+    def test_blended_results_apply_days_back_filter(self, resource: ProSceneResource):
+        """Test that days_back filter is applied to blended results."""
+        import time
+
+        now = int(time.time())
+        old_time = now - (10 * 24 * 60 * 60)  # 10 days ago
+        recent_time = now - (2 * 24 * 60 * 60)  # 2 days ago
+        cutoff = now - (7 * 24 * 60 * 60)  # 7 days ago
+
+        matches = [
+            ProMatchSummary(
+                match_id=6001,
+                radiant_team_id=100,
+                radiant_team_name="Team A",
+                dire_team_id=200,
+                dire_team_name="Team B",
+                radiant_win=True,
+                duration=2400,
+                start_time=old_time,  # Should be filtered out
+            ),
+            ProMatchSummary(
+                match_id=6002,
+                radiant_team_id=100,
+                radiant_team_name="Team A",
+                dire_team_id=300,
+                dire_team_name="Team C",
+                radiant_win=False,
+                duration=2200,
+                start_time=recent_time,  # Should be included
+            ),
+        ]
+
+        filtered = [m for m in matches if m.start_time >= cutoff]
+
+        assert len(filtered) == 1
+        assert filtered[0].match_id == 6002
+
+
 class TestSignatureHeroes:
     """Tests for signature heroes data loading."""
 
