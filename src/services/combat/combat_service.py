@@ -17,6 +17,7 @@ from ...models.combat_log import (
     CombatLogResponse,
     CourierKill,
     CourierKillsResponse,
+    DetailLevel,
     FightParticipation,
     HeroCombatAnalysisResponse,
     HeroDeath,
@@ -36,6 +37,9 @@ from ..models.combat_data import (
     ObjectiveKill,
 )
 from ..models.replay_data import ParsedReplayData
+
+DEFAULT_MAX_EVENTS = 500
+MAX_EVENTS_CAP = 2000
 
 logger = logging.getLogger(__name__)
 
@@ -531,16 +535,50 @@ class CombatService:
         }
         return type_map.get(entry_type, f"UNKNOWN_{entry_type}")
 
-    def _is_significant_event(self, entry_type: int) -> bool:
-        """Check if event is 'significant' (ability, death, item, purchase, buyback)."""
-        significant_types = {
-            CombatLogType.DEATH.value,
-            CombatLogType.ABILITY.value,
-            CombatLogType.ITEM.value,
-            CombatLogType.PURCHASE.value,
-            CombatLogType.BUYBACK.value,
-        }
-        return entry_type in significant_types
+    def _passes_detail_level_filter(
+        self,
+        entry_type: int,
+        is_attacker_hero: bool,
+        is_target_hero: bool,
+        detail_level: DetailLevel,
+    ) -> bool:
+        """
+        Check if an event passes the detail level filter.
+
+        NARRATIVE: Deaths (hero), Abilities (hero caster), Items, Purchases, Buybacks
+        TACTICAL: + Hero-to-hero Damage, Modifiers applied to heroes
+        FULL: Everything
+        """
+        if detail_level == DetailLevel.FULL:
+            return True
+
+        if detail_level == DetailLevel.NARRATIVE:
+            if entry_type == CombatLogType.DEATH.value:
+                return is_target_hero
+            if entry_type == CombatLogType.ABILITY.value:
+                return is_attacker_hero
+            if entry_type == CombatLogType.ITEM.value:
+                return is_attacker_hero
+            if entry_type in (CombatLogType.PURCHASE.value, CombatLogType.BUYBACK.value):
+                return True
+            return False
+
+        if detail_level == DetailLevel.TACTICAL:
+            if entry_type == CombatLogType.DEATH.value:
+                return is_target_hero
+            if entry_type == CombatLogType.ABILITY.value:
+                return is_attacker_hero
+            if entry_type == CombatLogType.ITEM.value:
+                return is_attacker_hero
+            if entry_type in (CombatLogType.PURCHASE.value, CombatLogType.BUYBACK.value):
+                return True
+            if entry_type == CombatLogType.DAMAGE.value:
+                return is_attacker_hero and is_target_hero
+            if entry_type == CombatLogType.MODIFIER_ADD.value:
+                return is_target_hero
+            return False
+
+        return True
 
     def get_combat_log(
         self,
@@ -548,8 +586,9 @@ class CombatService:
         start_time: Optional[float] = None,
         end_time: Optional[float] = None,
         hero_filter: Optional[str] = None,
-        significant_only: bool = False,
         types: Optional[List[int]] = None,
+        detail_level: DetailLevel = DetailLevel.FULL,
+        max_events: Optional[int] = None,
     ) -> List[CombatLogEvent]:
         """
         Get filtered combat log events.
@@ -559,8 +598,9 @@ class CombatService:
             start_time: Filter events after this game time
             end_time: Filter events before this game time
             hero_filter: Only include events involving this hero
-            significant_only: Only include significant events (abilities, deaths, items)
             types: List of CombatLogType values to include (e.g., [5] for ABILITY)
+            detail_level: Controls verbosity. NARRATIVE (least), TACTICAL, FULL (most).
+            max_events: Maximum number of events to return. None = no limit.
 
         Returns:
             List of CombatLogEvent sorted by game time
@@ -581,14 +621,14 @@ class CombatService:
             if end_time is not None and game_time > end_time:
                 continue
 
-            # Significant only filter
-            if significant_only and not self._is_significant_event(entry_type):
+            # Apply detail level filter
+            if not self._passes_detail_level_filter(
+                entry_type,
+                entry.is_attacker_hero,
+                entry.is_target_hero,
+                detail_level,
+            ):
                 continue
-
-            # For significant events, skip non-hero deaths (creep kills etc.)
-            if significant_only and entry_type == CombatLogType.DEATH.value:
-                if not entry.is_target_hero:
-                    continue
 
             attacker = self._clean_hero_name(entry.attacker_name)
             target = self._clean_hero_name(entry.target_name)
@@ -619,7 +659,16 @@ class CombatService:
             )
             events.append(event)
 
+            # Check max_events cap
+            if max_events is not None and len(events) >= max_events:
+                break
+
         events.sort(key=lambda e: e.game_time)
+
+        # Apply max_events after sorting (in case we added unsorted)
+        if max_events is not None and len(events) > max_events:
+            events = events[:max_events]
+
         return events
 
     # ============ Response methods (return API Response models) ============
@@ -648,16 +697,24 @@ class CombatService:
         start_time: Optional[float] = None,
         end_time: Optional[float] = None,
         hero_filter: Optional[str] = None,
-        significant_only: bool = False,
+        detail_level: DetailLevel = DetailLevel.NARRATIVE,
+        max_events: int = DEFAULT_MAX_EVENTS,
     ) -> CombatLogResponse:
         """Get combat log and return API response model."""
+        # Cap max_events to prevent abuse
+        effective_max = min(max_events, MAX_EVENTS_CAP)
+
         events = self.get_combat_log(
             data,
             start_time=start_time,
             end_time=end_time,
             hero_filter=hero_filter,
-            significant_only=significant_only,
+            detail_level=detail_level,
+            max_events=effective_max,
         )
+
+        truncated = len(events) >= effective_max
+
         return CombatLogResponse(
             success=True,
             match_id=match_id,
@@ -668,6 +725,8 @@ class CombatService:
                 hero_filter=hero_filter,
             ),
             events=events,
+            truncated=truncated,
+            detail_level=detail_level.value,
         )
 
     def get_item_purchases_response(

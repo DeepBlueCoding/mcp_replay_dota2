@@ -8,6 +8,21 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **`detail_level` parameter** for combat log tools - Controls token usage (~98% reduction with `narrative`):
+  - `narrative` (default): Deaths, abilities, items, purchases, buybacks (~500-2,000 tokens)
+  - `tactical`: Adds hero-to-hero damage and debuffs (~2,000-5,000 tokens)
+  - `full`: All events including creeps (~50,000+ tokens, debugging only)
+  - Applied to `get_combat_log` and `get_fight_combat_log` tools
+  - `max_events` parameter added (default 500, max 2000) to prevent overflow
+  - `truncated` field in response indicates if results were capped
+
+### Changed
+
+- **Removed `significant_only` parameter** - Replaced by `detail_level` enum for finer control
+- Default behavior now uses `narrative` detail level (was equivalent to `significant_only=True`)
+
 ---
 
 ## [1.1.1] - 2025-12-08

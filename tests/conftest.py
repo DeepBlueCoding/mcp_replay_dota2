@@ -10,6 +10,7 @@ from typing import Optional
 
 import pytest
 
+from src.models.combat_log import DetailLevel
 from src.services.combat.combat_service import CombatService
 from src.services.combat.fight_service import FightService
 from src.services.models.replay_data import ParsedReplayData
@@ -148,18 +149,24 @@ def _ensure_parsed():
     _cache["combat_log_trigger_only"] = combat.get_combat_log(
         data, types=[13]
     )
-    _cache["combat_log_280_290_significant"] = combat.get_combat_log(
-        data, start_time=280, end_time=290, significant_only=True
+    _cache["combat_log_280_290_narrative"] = combat.get_combat_log(
+        data, start_time=280, end_time=290, detail_level=DetailLevel.NARRATIVE
+    )
+    _cache["combat_log_280_290_tactical"] = combat.get_combat_log(
+        data, start_time=280, end_time=290, detail_level=DetailLevel.TACTICAL
+    )
+    _cache["combat_log_280_290_full"] = combat.get_combat_log(
+        data, start_time=280, end_time=290, detail_level=DetailLevel.FULL
     )
     # Pre-game time filter tests (purchases happen at negative times)
     _cache["combat_log_start_time_0"] = combat.get_combat_log(
-        data, start_time=0, end_time=120, significant_only=True
+        data, start_time=0, end_time=120, detail_level=DetailLevel.NARRATIVE
     )
     _cache["combat_log_start_time_neg90"] = combat.get_combat_log(
-        data, start_time=-90, end_time=120, significant_only=True
+        data, start_time=-90, end_time=120, detail_level=DetailLevel.NARRATIVE
     )
     _cache["combat_log_start_time_none"] = combat.get_combat_log(
-        data, start_time=None, end_time=120, significant_only=True
+        data, start_time=None, end_time=120, detail_level=DetailLevel.NARRATIVE
     )
 
     # Fight detections using FightService
@@ -308,11 +315,27 @@ def combat_log_280_290_non_ability():
 
 
 @pytest.fixture(scope="session")
-def combat_log_280_290_significant():
-    """Combat log 280-290s with significant_only=True."""
+def combat_log_280_290_narrative():
+    """Combat log 280-290s with detail_level=NARRATIVE."""
     _require_replay()
     _ensure_parsed()
-    return _cache.get("combat_log_280_290_significant", [])
+    return _cache.get("combat_log_280_290_narrative", [])
+
+
+@pytest.fixture(scope="session")
+def combat_log_280_290_tactical():
+    """Combat log 280-290s with detail_level=TACTICAL."""
+    _require_replay()
+    _ensure_parsed()
+    return _cache.get("combat_log_280_290_tactical", [])
+
+
+@pytest.fixture(scope="session")
+def combat_log_280_290_full():
+    """Combat log 280-290s with detail_level=FULL."""
+    _require_replay()
+    _ensure_parsed()
+    return _cache.get("combat_log_280_290_full", [])
 
 
 @pytest.fixture(scope="session")

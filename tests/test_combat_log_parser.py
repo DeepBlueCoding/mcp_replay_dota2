@@ -328,33 +328,184 @@ class TestStartTimeNegativeFilter:
         assert len(combat_log_start_time_neg90) > len(combat_log_start_time_0)
 
 
-class TestSignificantOnlyFilterIntegration:
-    """Integration tests for significant_only filter."""
+class TestDetailLevelFiltering:
+    """Deterministic tests for detail_level filtering with exact expected values.
 
-    def test_significant_only_reduces_event_count(self, combat_log_280_290, combat_log_280_290_significant):
-        """significant_only should return fewer events than default."""
-        assert len(combat_log_280_290_significant) < len(combat_log_280_290)
+    Test data from match 8461956309, time window 280-290 seconds (first blood fight).
+    """
 
-    def test_significant_only_excludes_damage_events(self, combat_log_280_290_significant):
-        """significant_only should not include DAMAGE events."""
-        damage_events = [e for e in combat_log_280_290_significant if e.type == "DAMAGE"]
+    # ========== NARRATIVE level tests ==========
+    # Expected: 11 events (8 ABILITY, 1 DEATH, 2 ITEM)
+
+    def test_narrative_total_event_count(self, combat_log_280_290_narrative):
+        """NARRATIVE should return exactly 11 events."""
+        assert len(combat_log_280_290_narrative) == 11
+
+    def test_narrative_ability_count(self, combat_log_280_290_narrative):
+        """NARRATIVE should have exactly 8 ABILITY events."""
+        ability_events = [e for e in combat_log_280_290_narrative if e.type == "ABILITY"]
+        assert len(ability_events) == 8
+
+    def test_narrative_death_count(self, combat_log_280_290_narrative):
+        """NARRATIVE should have exactly 1 DEATH event (first blood)."""
+        death_events = [e for e in combat_log_280_290_narrative if e.type == "DEATH"]
+        assert len(death_events) == 1
+
+    def test_narrative_item_count(self, combat_log_280_290_narrative):
+        """NARRATIVE should have exactly 2 ITEM events."""
+        item_events = [e for e in combat_log_280_290_narrative if e.type == "ITEM"]
+        assert len(item_events) == 2
+
+    def test_narrative_damage_count_zero(self, combat_log_280_290_narrative):
+        """NARRATIVE must have exactly 0 DAMAGE events."""
+        damage_events = [e for e in combat_log_280_290_narrative if e.type == "DAMAGE"]
         assert len(damage_events) == 0
 
-    def test_significant_only_excludes_modifier_events(self, combat_log_280_290_significant):
-        """significant_only should not include MODIFIER_ADD/REMOVE events."""
-        modifier_events = [
-            e for e in combat_log_280_290_significant
-            if e.type in ("MODIFIER_ADD", "MODIFIER_REMOVE")
-        ]
+    def test_narrative_modifier_add_count_zero(self, combat_log_280_290_narrative):
+        """NARRATIVE must have exactly 0 MODIFIER_ADD events."""
+        modifier_events = [e for e in combat_log_280_290_narrative if e.type == "MODIFIER_ADD"]
         assert len(modifier_events) == 0
 
-    def test_significant_only_includes_death_events(self, combat_log_280_290_significant):
-        """significant_only should include DEATH events."""
-        death_events = [e for e in combat_log_280_290_significant if e.type == "DEATH"]
-        # First blood happens in this window (288s)
-        assert len(death_events) >= 1
+    def test_narrative_modifier_remove_count_zero(self, combat_log_280_290_narrative):
+        """NARRATIVE must have exactly 0 MODIFIER_REMOVE events."""
+        modifier_events = [e for e in combat_log_280_290_narrative if e.type == "MODIFIER_REMOVE"]
+        assert len(modifier_events) == 0
 
-    def test_significant_only_includes_ability_events(self, combat_log_280_290_significant):
-        """significant_only should include ABILITY events."""
-        ability_events = [e for e in combat_log_280_290_significant if e.type == "ABILITY"]
-        assert len(ability_events) > 0
+    def test_narrative_heal_count_zero(self, combat_log_280_290_narrative):
+        """NARRATIVE must have exactly 0 HEAL events."""
+        heal_events = [e for e in combat_log_280_290_narrative if e.type == "HEAL"]
+        assert len(heal_events) == 0
+
+    def test_narrative_death_is_hero(self, combat_log_280_290_narrative):
+        """NARRATIVE death event must be a hero death (target_is_hero=True)."""
+        death_events = [e for e in combat_log_280_290_narrative if e.type == "DEATH"]
+        assert len(death_events) == 1
+        assert death_events[0].target_is_hero is True
+
+    def test_narrative_all_abilities_from_heroes(self, combat_log_280_290_narrative):
+        """All 8 NARRATIVE ability events must be from heroes (attacker_is_hero=True)."""
+        ability_events = [e for e in combat_log_280_290_narrative if e.type == "ABILITY"]
+        non_hero_abilities = [e for e in ability_events if not e.attacker_is_hero]
+        assert len(non_hero_abilities) == 0
+
+    def test_narrative_all_items_from_heroes(self, combat_log_280_290_narrative):
+        """All 2 NARRATIVE item events must be from heroes (attacker_is_hero=True)."""
+        item_events = [e for e in combat_log_280_290_narrative if e.type == "ITEM"]
+        non_hero_items = [e for e in item_events if not e.attacker_is_hero]
+        assert len(non_hero_items) == 0
+
+    # ========== TACTICAL level tests ==========
+    # Expected: 60 events (8 ABILITY, 29 DAMAGE, 1 DEATH, 2 ITEM, 20 MODIFIER_ADD)
+
+    def test_tactical_total_event_count(self, combat_log_280_290_tactical):
+        """TACTICAL should return exactly 60 events."""
+        assert len(combat_log_280_290_tactical) == 60
+
+    def test_tactical_ability_count(self, combat_log_280_290_tactical):
+        """TACTICAL should have exactly 8 ABILITY events."""
+        ability_events = [e for e in combat_log_280_290_tactical if e.type == "ABILITY"]
+        assert len(ability_events) == 8
+
+    def test_tactical_damage_count(self, combat_log_280_290_tactical):
+        """TACTICAL should have exactly 29 DAMAGE events (hero-to-hero only)."""
+        damage_events = [e for e in combat_log_280_290_tactical if e.type == "DAMAGE"]
+        assert len(damage_events) == 29
+
+    def test_tactical_death_count(self, combat_log_280_290_tactical):
+        """TACTICAL should have exactly 1 DEATH event."""
+        death_events = [e for e in combat_log_280_290_tactical if e.type == "DEATH"]
+        assert len(death_events) == 1
+
+    def test_tactical_item_count(self, combat_log_280_290_tactical):
+        """TACTICAL should have exactly 2 ITEM events."""
+        item_events = [e for e in combat_log_280_290_tactical if e.type == "ITEM"]
+        assert len(item_events) == 2
+
+    def test_tactical_modifier_add_count(self, combat_log_280_290_tactical):
+        """TACTICAL should have exactly 20 MODIFIER_ADD events (on heroes only)."""
+        modifier_events = [e for e in combat_log_280_290_tactical if e.type == "MODIFIER_ADD"]
+        assert len(modifier_events) == 20
+
+    def test_tactical_modifier_remove_count_zero(self, combat_log_280_290_tactical):
+        """TACTICAL must have exactly 0 MODIFIER_REMOVE events."""
+        modifier_remove = [e for e in combat_log_280_290_tactical if e.type == "MODIFIER_REMOVE"]
+        assert len(modifier_remove) == 0
+
+    def test_tactical_heal_count_zero(self, combat_log_280_290_tactical):
+        """TACTICAL must have exactly 0 HEAL events."""
+        heal_events = [e for e in combat_log_280_290_tactical if e.type == "HEAL"]
+        assert len(heal_events) == 0
+
+    def test_tactical_all_damage_hero_to_hero(self, combat_log_280_290_tactical):
+        """All 29 TACTICAL damage events must be hero-to-hero."""
+        damage_events = [e for e in combat_log_280_290_tactical if e.type == "DAMAGE"]
+        non_h2h = [e for e in damage_events if not e.attacker_is_hero or not e.target_is_hero]
+        assert len(non_h2h) == 0
+
+    def test_tactical_all_modifiers_on_heroes(self, combat_log_280_290_tactical):
+        """All 20 TACTICAL modifier_add events must be on heroes (target_is_hero=True)."""
+        modifier_events = [e for e in combat_log_280_290_tactical if e.type == "MODIFIER_ADD"]
+        non_hero_mods = [e for e in modifier_events if not e.target_is_hero]
+        assert len(non_hero_mods) == 0
+
+    # ========== FULL level tests ==========
+    # Expected: 136 events (8 ABILITY, 52 DAMAGE, 12 DEATH, 1 HEAL, 2 ITEM, 29 MODIFIER_ADD, 32 MODIFIER_REMOVE)
+
+    def test_full_total_event_count(self, combat_log_280_290_full):
+        """FULL should return exactly 136 events."""
+        assert len(combat_log_280_290_full) == 136
+
+    def test_full_ability_count(self, combat_log_280_290_full):
+        """FULL should have exactly 8 ABILITY events."""
+        ability_events = [e for e in combat_log_280_290_full if e.type == "ABILITY"]
+        assert len(ability_events) == 8
+
+    def test_full_damage_count(self, combat_log_280_290_full):
+        """FULL should have exactly 52 DAMAGE events (all sources)."""
+        damage_events = [e for e in combat_log_280_290_full if e.type == "DAMAGE"]
+        assert len(damage_events) == 52
+
+    def test_full_death_count(self, combat_log_280_290_full):
+        """FULL should have exactly 12 DEATH events (heroes + creeps)."""
+        death_events = [e for e in combat_log_280_290_full if e.type == "DEATH"]
+        assert len(death_events) == 12
+
+    def test_full_heal_count(self, combat_log_280_290_full):
+        """FULL should have exactly 1 HEAL event."""
+        heal_events = [e for e in combat_log_280_290_full if e.type == "HEAL"]
+        assert len(heal_events) == 1
+
+    def test_full_item_count(self, combat_log_280_290_full):
+        """FULL should have exactly 2 ITEM events."""
+        item_events = [e for e in combat_log_280_290_full if e.type == "ITEM"]
+        assert len(item_events) == 2
+
+    def test_full_modifier_add_count(self, combat_log_280_290_full):
+        """FULL should have exactly 29 MODIFIER_ADD events."""
+        modifier_events = [e for e in combat_log_280_290_full if e.type == "MODIFIER_ADD"]
+        assert len(modifier_events) == 29
+
+    def test_full_modifier_remove_count(self, combat_log_280_290_full):
+        """FULL should have exactly 32 MODIFIER_REMOVE events."""
+        modifier_remove = [e for e in combat_log_280_290_full if e.type == "MODIFIER_REMOVE"]
+        assert len(modifier_remove) == 32
+
+    # ========== Cross-level filtering verification ==========
+
+    def test_full_has_creep_damage_that_tactical_excludes(self, combat_log_280_290_tactical, combat_log_280_290_full):
+        """FULL has 52 damage, TACTICAL has 29 - difference is 23 creep damage events."""
+        full_damage = [e for e in combat_log_280_290_full if e.type == "DAMAGE"]
+        tactical_damage = [e for e in combat_log_280_290_tactical if e.type == "DAMAGE"]
+        assert len(full_damage) - len(tactical_damage) == 23
+
+    def test_full_has_creep_deaths_that_narrative_excludes(self, combat_log_280_290_narrative, combat_log_280_290_full):
+        """FULL has 12 deaths, NARRATIVE has 1 - difference is 11 creep deaths."""
+        full_deaths = [e for e in combat_log_280_290_full if e.type == "DEATH"]
+        narrative_deaths = [e for e in combat_log_280_290_narrative if e.type == "DEATH"]
+        assert len(full_deaths) - len(narrative_deaths) == 11
+
+    def test_full_has_modifiers_that_tactical_excludes(self, combat_log_280_290_tactical, combat_log_280_290_full):
+        """FULL has 29 modifier_add, TACTICAL has 20 - difference is 9 non-hero modifiers."""
+        full_mods = [e for e in combat_log_280_290_full if e.type == "MODIFIER_ADD"]
+        tactical_mods = [e for e in combat_log_280_290_tactical if e.type == "MODIFIER_ADD"]
+        assert len(full_mods) - len(tactical_mods) == 9

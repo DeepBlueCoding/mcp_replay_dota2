@@ -8,6 +8,7 @@ Uses combat-intensity based detection to catch fights without deaths.
 import logging
 from typing import List, Optional, Set
 
+from ...models.combat_log import DetailLevel
 from ..analyzers.fight_analyzer import FightAnalyzer
 from ..analyzers.fight_detector import FightDetector
 from ..models.combat_data import Fight, FightResult, HeroDeath
@@ -66,7 +67,7 @@ class FightService:
             FightResult with detected fights
         """
         # Get all combat events (DAMAGE, ABILITY, ITEM)
-        all_events = self._combat.get_combat_log(data, significant_only=False)
+        all_events = self._combat.get_combat_log(data, detail_level=DetailLevel.FULL)
         deaths = self._combat.get_hero_deaths(data)
         return self._detector.detect_fights_from_combat(all_events, deaths)
 
@@ -241,6 +242,8 @@ class FightService:
         reference_time: float,
         hero: Optional[str] = None,
         use_combat_detection: bool = True,
+        detail_level: DetailLevel = DetailLevel.NARRATIVE,
+        max_events: Optional[int] = None,
     ) -> Optional[dict]:
         """
         Get fight boundaries, combat log, and highlights for a fight at a given time.
@@ -253,12 +256,16 @@ class FightService:
             reference_time: Game time to anchor the fight search
             hero: Optional hero name to anchor fight detection
             use_combat_detection: Use combat-based detection (default True)
+            detail_level: Controls verbosity of returned events (NARRATIVE, TACTICAL, FULL)
+            max_events: Maximum events to return (None = no limit)
 
         Returns:
             Dictionary with fight info, combat events, and highlights, or None if no fight found
         """
-        # Get all combat events for detection
-        all_events = self._combat.get_combat_log(data, significant_only=False)
+        # Get all combat events for detection (always need full data for detection)
+        all_events = self._combat.get_combat_log(
+            data, detail_level=DetailLevel.FULL
+        )
         deaths = self._combat.get_hero_deaths(data)
 
         if use_combat_detection:
@@ -277,12 +284,13 @@ class FightService:
         start_time = fight.start_time - 2.0
         end_time = fight.end_time + 2.0
 
-        # Get significant events for the response
-        significant_events = self._combat.get_combat_log(
+        # Get events for the response using requested detail level
+        response_events = self._combat.get_combat_log(
             data,
             start_time=start_time,
             end_time=end_time,
-            significant_only=True,
+            detail_level=detail_level,
+            max_events=max_events,
         )
 
         # Get ALL events for highlight detection (fight already includes initiation)
@@ -290,7 +298,7 @@ class FightService:
             data,
             start_time=start_time,
             end_time=end_time,
-            significant_only=False,
+            detail_level=DetailLevel.FULL,
         )
 
         # Get team rosters for ace detection
@@ -315,7 +323,8 @@ class FightService:
             "deaths": fight.deaths,
             "total_deaths": fight.total_deaths,
             "is_teamfight": fight.is_teamfight,
-            "total_events": len(significant_events),
-            "events": significant_events,
+            "total_events": len(response_events),
+            "events": response_events,
             "highlights": highlights,
+            "detail_level": detail_level.value,
         }

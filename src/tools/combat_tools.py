@@ -1,12 +1,13 @@
 """Combat-related MCP tools: deaths, combat log, objectives, items, couriers, runes."""
 
-from typing import Optional
+from typing import Literal, Optional
 
 from fastmcp import Context
 
 from ..models.combat_log import (
     CombatLogResponse,
     CourierKillsResponse,
+    DetailLevel,
     HeroCombatAnalysisResponse,
     HeroDeathsResponse,
     ItemPurchasesResponse,
@@ -55,51 +56,52 @@ def register_combat_tools(mcp, services):
         start_time: Optional[float] = None,
         end_time: Optional[float] = None,
         hero_filter: Optional[str] = None,
-        significant_only: bool = False,
+        detail_level: Literal["narrative", "tactical", "full"] = "narrative",
+        max_events: int = 500,
         ctx: Optional[Context] = None,
     ) -> CombatLogResponse:
         """
         Get combat log events from a Dota 2 match with optional filters.
 
-        Returns combat events including damage, abilities, modifiers (buffs/debuffs), and deaths.
+        **IMPORTANT: Use the appropriate detail_level to control response size and token usage.**
+
+        Detail levels (from least to most verbose):
+        - **narrative** (default, ~500-2000 tokens): Hero deaths, abilities, purchases, buybacks.
+          Best for: "What happened?" story-telling analysis.
+        - **tactical** (~2000-5000 tokens): Adds hero-to-hero damage, debuffs on heroes.
+          Best for: "How much damage did X do?" damage analysis.
+        - **full** (WARNING: 50,000+ tokens): All events including creeps, heals, modifier removes.
+          Best for: Debugging only. WILL OVERFLOW CONTEXT for time ranges >30 seconds.
 
         Each event contains:
-        - type: DAMAGE, MODIFIER_ADD, ABILITY, DEATH, ITEM, PURCHASE, BUYBACK, etc.
-        - game_time: Seconds since game start
+        - type: DAMAGE, MODIFIER_ADD, ABILITY, DEATH, PURCHASE, BUYBACK
         - game_time_str: Formatted as M:SS
-        - attacker: Source of the event (hero name without prefix)
-        - attacker_is_hero: Whether attacker is a hero
-        - target: Target of the event
-        - target_is_hero: Whether target is a hero
-        - ability: Ability or item involved (if any)
-        - value: Damage amount or other numeric value
+        - attacker/target: Hero names
+        - ability: Ability or item involved
+        - value: Damage amount (for DAMAGE events)
 
         Args:
             match_id: The Dota 2 match ID
-            start_time: Filter events after this game time in seconds. **NOTE**: Pre-game purchases
-                       (wards, tangos, etc.) happen at NEGATIVE times (~-80s during strategy phase).
-                       Use start_time=-90 to include pre-game, or omit entirely to get all events.
-                       start_time=0 excludes pre-game purchases. (optional)
-            end_time: Filter events before this game time in seconds (optional)
-            hero_filter: Only include events involving this hero, e.g. "earthshaker" (optional)
-            significant_only: **IMPORTANT**: Controls event filtering. True = only story-telling events
-                             (abilities, deaths, items, purchases, buybacks). False = ALL events including
-                             every damage tick and modifier application.
-                             **WARNING**: False with time ranges >5 minutes produces 50,000+ events and
-                             WILL FAIL with "result too large". Always use True for ranges >300 seconds.
-                             Default: False (use True for any broad analysis)
+            start_time: Filter events after this time (seconds). Use -90 to include pre-game purchases.
+            end_time: Filter events before this time (seconds)
+            hero_filter: Only events involving this hero, e.g. "earthshaker"
+            detail_level: Controls verbosity. Use "narrative" for most queries.
+            max_events: Maximum events to return (default 500, max 2000). Prevents overflow.
 
         Returns:
-            CombatLogResponse with list of combat log events
+            CombatLogResponse with events. Check `truncated` field if results were capped.
         """
         async def progress_callback(current: int, total: int, message: str) -> None:
             if ctx:
                 await ctx.report_progress(current, total)
 
         try:
+            level = DetailLevel(detail_level)
             data = await replay_service.get_parsed_data(match_id, progress=progress_callback)
             return combat_service.get_combat_log_response(
-                data, match_id, start_time, end_time, hero_filter, significant_only
+                data, match_id, start_time, end_time, hero_filter,
+                detail_level=level,
+                max_events=max_events,
             )
         except ValueError as e:
             return CombatLogResponse(success=False, match_id=match_id, error=str(e))

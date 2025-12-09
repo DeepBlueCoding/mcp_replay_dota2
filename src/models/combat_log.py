@@ -1,8 +1,33 @@
 """Pydantic models for combat log data."""
 
+from enum import Enum
 from typing import List, Optional
 
 from pydantic import BaseModel, Field
+
+
+class DetailLevel(str, Enum):
+    """Detail level for combat log queries.
+
+    Controls the verbosity and token usage of combat log responses.
+    Use the most restrictive level that meets your analysis needs.
+    """
+
+    NARRATIVE = "narrative"
+    """Story-telling events only: hero deaths, abilities, purchases, buybacks.
+    ~500-2,000 tokens per fight. Best for: "What happened in this fight?"
+    """
+
+    TACTICAL = "tactical"
+    """Adds hero-to-hero combat detail: damage dealt, debuffs applied.
+    ~2,000-5,000 tokens per fight. Best for: "How much damage did X do?"
+    """
+
+    FULL = "full"
+    """All events including creeps, heals, modifier removes.
+    ~50,000+ tokens per fight. WARNING: Can overflow context.
+    Best for: Debugging or very specific queries.
+    """
 
 
 class CombatLogEvent(BaseModel):
@@ -88,6 +113,14 @@ class CombatLogResponse(BaseModel):
     total_events: int = Field(default=0)
     filters: CombatLogFilters = Field(default_factory=CombatLogFilters)
     events: List[CombatLogEvent] = Field(default_factory=list)
+    truncated: bool = Field(
+        default=False,
+        description="True if results were truncated due to max_events limit"
+    )
+    detail_level: str = Field(
+        default="narrative",
+        description="Detail level used: narrative, tactical, or full"
+    )
     error: Optional[str] = Field(default=None)
 
 

@@ -133,25 +133,31 @@ get_hero_combat_analysis(
 
 ## get_combat_log
 
-Raw combat events with optional filters.
+Raw combat events with optional filters. **Use `detail_level` to control token usage.**
 
 ```python
-# Short time window (20 seconds) - can use significant_only=False
+# Default: narrative detail (recommended for most queries)
 get_combat_log(
     match_id=8461956309,
     start_time=280,
     end_time=300,
-    hero_filter="earthshaker",
-    significant_only=False
+    hero_filter="earthshaker"
 )
 
-# Include pre-game purchases (strategy phase)
+# Tactical: includes hero-to-hero damage
 get_combat_log(
     match_id=8461956309,
-    start_time=-90,  # negative time captures pre-horn purchases
-    end_time=600,
-    hero_filter="jakiro",
-    significant_only=True  # REQUIRED for >5 min ranges
+    start_time=280,
+    end_time=300,
+    detail_level="tactical"
+)
+
+# Full: all events (WARNING: can overflow context)
+get_combat_log(
+    match_id=8461956309,
+    start_time=280,
+    end_time=290,  # Keep time range SHORT!
+    detail_level="full"
 )
 ```
 
@@ -163,37 +169,47 @@ get_combat_log(
 | `start_time` | float | Optional. Filter events after this game time (seconds). **Note:** Pre-game purchases happen at negative times (~-80s). Use `-90` to include strategy phase, or omit entirely. `start_time=0` excludes pre-game. |
 | `end_time` | float | Optional. Filter events before this game time (seconds) |
 | `hero_filter` | string | Optional. Only events involving this hero (e.g., "earthshaker") |
-| `significant_only` | bool | Optional. If `true`, returns only story-telling events. Default: `false`. **⚠️ WARNING:** `false` with time ranges >5 minutes produces 50,000+ events and will fail. Always use `true` for ranges >300 seconds. |
+| `detail_level` | string | Controls verbosity: `"narrative"` (default), `"tactical"`, or `"full"`. See below. |
+| `max_events` | int | Maximum events to return (default 500, max 2000). Prevents overflow. |
 
-**significant_only Mode:**
+**Detail Levels:**
 
-When `significant_only=true`, returns only high-level events useful for narrative analysis:
+| Level | ~Tokens | Best For |
+|-------|---------|----------|
+| `narrative` | 500-2,000 | "What happened?" - Deaths, abilities, items, purchases, buybacks |
+| `tactical` | 2,000-5,000 | "How much damage?" - Adds hero-to-hero damage, debuffs on heroes |
+| `full` | 50,000+ | Debugging only - All events including creeps. **⚠️ WARNING: Can overflow context** |
+
+**Narrative Mode (default):**
 
 | Included | Event Type | Description |
 |----------|------------|-------------|
-| ✅ | `ABILITY` | Ability casts |
-| ✅ | `DEATH` | Hero deaths |
+| ✅ | `ABILITY` | Hero ability casts |
+| ✅ | `DEATH` | Hero deaths only |
 | ✅ | `ITEM` | Active item usage |
 | ✅ | `PURCHASE` | Item purchases |
 | ✅ | `BUYBACK` | Buybacks |
 
-| Excluded | Event Type | Reason |
-|----------|------------|--------|
-| ❌ | `DAMAGE` | Every damage tick creates noise |
-| ❌ | `MODIFIER_ADD` | Buff/debuff spam |
-| ❌ | `MODIFIER_REMOVE` | Buff/debuff spam |
+**Tactical Mode (adds):**
 
-**When to use `significant_only=true`:**
+| Added | Event Type | Description |
+|-------|------------|-------------|
+| ➕ | `DAMAGE` | Hero-to-hero damage only |
+| ➕ | `MODIFIER_ADD` | Debuffs applied to heroes |
 
-- Analyzing rotations over longer time windows (60-90+ seconds)
-- Getting an overview of what happened in a fight
-- Avoiding overwhelming the LLM with thousands of events
+**Full Mode:**
 
-**When to use default (all events):**
+| Added | Event Type | Reason to avoid |
+|-------|------------|-----------------|
+| ➕ | All `DAMAGE` | Creep/tower damage creates noise |
+| ➕ | All `MODIFIER_*` | Buff/debuff spam |
+| ➕ | `HEAL` | Minor heals flood log |
 
-- Detailed damage breakdown analysis
-- Tracking specific buff/debuff durations
-- Short time windows where full detail is useful
+**When to use each level:**
+
+- **`narrative`** (default): Fight overview, rotation analysis, item timings
+- **`tactical`**: Damage breakdown, ability impact analysis
+- **`full`**: Debugging only, with **short time windows (<30s)**
 
 **Returns:**
 ```json
@@ -223,12 +239,30 @@ Event types: `DAMAGE`, `MODIFIER_ADD`, `MODIFIER_REMOVE`, `ABILITY`, `ITEM`, `DE
 Auto-detects fight boundaries around a reference time. Returns combat events plus **fight highlights** including multi-hero abilities, kill streaks, and team wipes.
 
 ```python
+# Default: narrative detail (recommended)
 get_fight_combat_log(
     match_id=8461956309,
-    reference_time=288,    # e.g., death time
+    reference_time=288,    # e.g., death time from get_hero_deaths
     hero="earthshaker"     # optional: anchor detection to this hero
 )
+
+# Tactical: for damage analysis
+get_fight_combat_log(
+    match_id=8461956309,
+    reference_time=288,
+    detail_level="tactical"
+)
 ```
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `match_id` | int | Required. The match ID |
+| `reference_time` | float | Required. Game time in seconds to anchor fight detection (e.g., death time) |
+| `hero` | string | Optional. Hero name to anchor fight detection |
+| `detail_level` | string | `"narrative"` (default), `"tactical"`, or `"full"`. Same as `get_combat_log`. |
+| `max_events` | int | Maximum events (default 200). Prevents overflow. |
 
 **Returns:**
 ```json

@@ -1,6 +1,6 @@
 """Fight-related MCP tools: fight detection, teamfights, fight replay."""
 
-from typing import Optional
+from typing import Literal, Optional
 
 from fastmcp import Context
 
@@ -8,6 +8,7 @@ from ..models.combat_log import (
     CombatLogEvent as CombatLogEventModel,
 )
 from ..models.combat_log import (
+    DetailLevel,
     FightCombatLogResponse,
 )
 from ..models.combat_log import (
@@ -46,36 +47,52 @@ def register_fight_tools(mcp, services):
         match_id: int,
         reference_time: float,
         hero: Optional[str] = None,
+        detail_level: Literal["narrative", "tactical", "full"] = "narrative",
+        max_events: int = 200,
         ctx: Optional[Context] = None,
     ) -> FightCombatLogResponse:
         """
-        Get combat log for a fight leading up to a specific moment (e.g., a death).
+        Get combat log for a fight at a specific moment (e.g., a death).
 
-        Automatically detects fight boundaries by analyzing combat activity and participant
-        connectivity. Separate skirmishes happening simultaneously in different lanes are
-        correctly identified as distinct fights.
+        Automatically detects fight boundaries by analyzing combat activity.
 
-        **NEW: Includes fight highlights** - key moments that determined the fight outcome:
-        - Multi-hero abilities: "4-man Chronosphere", "3-man Black Hole", etc.
-        - Kill streaks: Double Kill, Triple Kill, Ultra Kill, Rampage
-        - Team wipes: When all 5 heroes of one team die
-        - Fight initiation: Who started the fight and with what ability
+        **IMPORTANT: Use detail_level to control response size and token usage.**
+
+        Detail levels:
+        - **narrative** (default, ~200-500 tokens): Deaths, abilities, purchases only.
+          Best for: Understanding fight outcome and key moments.
+        - **tactical** (~500-2000 tokens): Adds hero-to-hero damage, debuffs.
+          Best for: Damage analysis, ability impact.
+        - **full** (WARNING: 5000+ tokens): All events including creeps.
+          Best for: Debugging only.
+
+        **Includes fight highlights** (always detected regardless of detail_level):
+        - Multi-hero abilities: "4-man Chronosphere", "3-man Black Hole"
+        - Kill streaks: Double Kill through Rampage
+        - Team wipes: All 5 heroes of one team killed
 
         Args:
             match_id: The Dota 2 match ID
-            reference_time: Reference game time in seconds (e.g., death time from get_hero_deaths)
-            hero: Optional hero name to anchor fight detection, e.g. "earthshaker".
+            reference_time: Game time in seconds (e.g., death time from get_hero_deaths)
+            hero: Optional hero name to anchor fight detection, e.g. "earthshaker"
+            detail_level: Controls event verbosity. Use "narrative" for most queries.
+            max_events: Maximum events to return (default 200). Prevents overflow.
 
         Returns:
-            FightCombatLogResponse with fight boundaries, participants, combat events, and highlights
+            FightCombatLogResponse with fight boundaries, participants, events, and highlights
         """
         async def progress_callback(current: int, total: int, message: str) -> None:
             if ctx:
                 await ctx.report_progress(current, total)
 
         try:
+            level = DetailLevel(detail_level)
             data = await replay_service.get_parsed_data(match_id, progress=progress_callback)
-            result = fight_service.get_fight_combat_log(data, reference_time, hero)
+            result = fight_service.get_fight_combat_log(
+                data, reference_time, hero,
+                detail_level=level,
+                max_events=max_events,
+            )
 
             if not result:
                 return FightCombatLogResponse(
