@@ -62,7 +62,7 @@ get_hero_deaths(match_id=8461956309)
 
 ---
 
-## get_hero_combat_analysis
+## get_hero_performance
 
 **THE PRIMARY TOOL for analyzing a hero's performance in a match.** Use this for ANY question about how a player/hero performed.
 
@@ -76,7 +76,7 @@ get_hero_deaths(match_id=8461956309)
 Returns per-fight statistics including kills, deaths, assists, ability usage with hit rates, and damage dealt/received.
 
 ```python
-get_hero_combat_analysis(
+get_hero_performance(
     match_id=8461956309,
     hero="earthshaker"
 )
@@ -134,12 +134,12 @@ get_hero_combat_analysis(
 
 ---
 
-## get_combat_log
+## get_raw_combat_events
 
 Raw combat events for a **SPECIFIC TIME WINDOW ONLY**.
 
 !!! warning "When NOT to use this tool"
-    - "How did X hero perform?" → Use `get_hero_combat_analysis`
+    - "How did X hero perform?" → Use `get_hero_performance`
     - "Show me the fights" → Use `list_fights` or `get_teamfights`
     - "What happened in the game?" → Use `get_match_timeline`
 
@@ -147,7 +147,7 @@ Raw combat events for a **SPECIFIC TIME WINDOW ONLY**.
 
 ```python
 # Default: narrative detail (recommended for most queries)
-get_combat_log(
+get_raw_combat_events(
     match_id=8461956309,
     start_time=280,
     end_time=300,
@@ -155,7 +155,7 @@ get_combat_log(
 )
 
 # Tactical: includes hero-to-hero damage
-get_combat_log(
+get_raw_combat_events(
     match_id=8461956309,
     start_time=280,
     end_time=300,
@@ -163,7 +163,7 @@ get_combat_log(
 )
 
 # Full: all events (WARNING: can overflow context)
-get_combat_log(
+get_raw_combat_events(
     match_id=8461956309,
     start_time=280,
     end_time=290,  # Keep time range SHORT!
@@ -249,7 +249,7 @@ Event types: `DAMAGE`, `MODIFIER_ADD`, `MODIFIER_REMOVE`, `ABILITY`, `ITEM`, `DE
 Get combat log for **ONE SPECIFIC FIGHT** at a known time.
 
 !!! warning "When NOT to use this tool"
-    - "How did X hero perform?" → Use `get_hero_combat_analysis`
+    - "How did X hero perform?" → Use `get_hero_performance`
     - "Show me all teamfights" → Use `get_teamfights`
     - "List all fights" → Use `list_fights`
 

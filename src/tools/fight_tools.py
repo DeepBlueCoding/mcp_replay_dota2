@@ -59,7 +59,7 @@ def register_fight_tools(mcp, services):
         - You're drilling into a specific moment (e.g., "What happened at 25:30?")
 
         **DO NOT USE THIS TOOL FOR:**
-        - "How did X hero perform?" → Use get_hero_combat_analysis instead
+        - "How did X hero perform?" → Use get_hero_performance instead
         - "Show me all teamfights" → Use get_teamfights instead
         - "List all fights" → Use list_fights instead
 

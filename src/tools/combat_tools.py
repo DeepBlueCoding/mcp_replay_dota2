@@ -51,7 +51,7 @@ def register_combat_tools(mcp, services):
             return HeroDeathsResponse(success=False, match_id=match_id, error=str(e))
 
     @mcp.tool
-    async def get_combat_log(
+    async def get_raw_combat_events(
         match_id: int,
         start_time: Optional[float] = None,
         end_time: Optional[float] = None,
@@ -61,30 +61,25 @@ def register_combat_tools(mcp, services):
         ctx: Optional[Context] = None,
     ) -> CombatLogResponse:
         """
-        Get raw combat log events from a Dota 2 match for a SPECIFIC TIME WINDOW ONLY.
-
-        **WHEN TO USE THIS TOOL:**
-        - You need raw event-by-event details for a specific moment (e.g., 15:00-15:30)
-        - You're debugging what happened in a 30-second window
+        Get raw combat events for a SPECIFIC TIME WINDOW (debugging/advanced use only).
 
         **DO NOT USE THIS TOOL FOR:**
-        - "How did X hero perform?" → Use get_hero_combat_analysis instead
-        - "Show me the fights" → Use list_fights or get_teamfights instead
-        - "What happened in the game?" → Use get_match_timeline instead
+        - "How did X hero perform?" → Use **get_hero_performance** instead
+        - "Show me the fights" → Use **list_fights** or **get_teamfights** instead
+        - "What happened in the game?" → Use **get_match_timeline** instead
+
+        **ONLY USE THIS TOOL WHEN:**
+        - You need raw event-by-event details for a specific 30-second moment
+        - You're debugging or analyzing a very specific time window
 
         **CRITICAL: Always provide start_time AND end_time (max 3 minute window).**
-
-        Detail levels:
-        - **narrative** (default): Deaths, abilities, purchases. Use for most queries.
-        - **tactical**: Adds damage events. Only for debugging specific combat sequences.
-        - **full**: All events. Only for <30 second windows.
 
         Args:
             match_id: The Dota 2 match ID
             start_time: Start of time window (seconds). REQUIRED.
             end_time: End of time window (seconds). REQUIRED.
             hero_filter: Only events involving this hero
-            detail_level: Use "narrative" unless debugging
+            detail_level: "narrative" (default), "tactical", or "full"
             max_events: Maximum events (default 200)
         """
         async def progress_callback(current: int, total: int, message: str) -> None:
@@ -244,19 +239,20 @@ def register_combat_tools(mcp, services):
     fight_service = services["fight_service"]
 
     @mcp.tool
-    async def get_hero_combat_analysis(
+    async def get_hero_performance(
         match_id: int,
         hero: str,
         ctx: Optional[Context] = None,
     ) -> HeroCombatAnalysisResponse:
         """
-        **THE PRIMARY TOOL for analyzing a hero's performance in a match.**
+        Analyze a hero's performance across all fights in a match.
 
-        Use this for ANY question about how a hero/player performed:
+        **USE THIS TOOL FOR ANY QUESTION ABOUT HERO/PLAYER PERFORMANCE:**
         - "How did Whitemon's Jakiro perform?"
         - "How many Ice Paths landed?"
         - "What was Collapse's impact on Mars?"
         - "Show me Yatoro's fight participation"
+        - "Analyze the carry's performance"
 
         Returns per-fight breakdown:
         - Kills, deaths, assists per fight
