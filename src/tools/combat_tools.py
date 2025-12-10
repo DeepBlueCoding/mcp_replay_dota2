@@ -26,6 +26,8 @@ def register_combat_tools(mcp, services):
         """
         Get all hero deaths in a Dota 2 match.
 
+        **NOT FOR HERO PERFORMANCE QUESTIONS** → Use get_hero_performance instead.
+
         Returns a list of hero death events with:
         - game_time: Seconds since game start
         - game_time_str: Formatted as M:SS

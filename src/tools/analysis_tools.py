@@ -339,7 +339,11 @@ def register_analysis_tools(mcp, services):
         end_minute: int = 20,
         ctx: Optional[Context] = None,
     ) -> RotationAnalysisResponse:
-        """Analyze hero rotations - movement patterns between lanes and outcomes."""
+        """
+        Analyze hero rotations - movement patterns between lanes and outcomes.
+
+        **NOT FOR HERO PERFORMANCE QUESTIONS** → Use get_hero_performance instead.
+        """
         async def progress_callback(current: int, total: int, message: str) -> None:
             if ctx:
                 await ctx.report_progress(current, total)

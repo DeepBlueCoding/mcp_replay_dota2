@@ -171,7 +171,11 @@ def register_fight_tools(mcp, services):
 
     @mcp.tool
     async def list_fights(match_id: int, ctx: Context) -> FightListResponse:
-        """List all fights in a Dota 2 match."""
+        """
+        List all fights in a Dota 2 match.
+
+        **NOT FOR HERO PERFORMANCE QUESTIONS** → Use get_hero_performance instead.
+        """
         async def progress_callback(current: int, total: int, message: str) -> None:
             await ctx.report_progress(current, total)
 
@@ -224,7 +228,11 @@ def register_fight_tools(mcp, services):
         min_deaths: int = 3,
         ctx: Optional[Context] = None,
     ) -> TeamfightsResponse:
-        """Get only teamfights from a Dota 2 match."""
+        """
+        Get only teamfights from a Dota 2 match.
+
+        **NOT FOR HERO PERFORMANCE QUESTIONS** → Use get_hero_performance instead.
+        """
         async def progress_callback(current: int, total: int, message: str) -> None:
             if ctx:
                 await ctx.report_progress(current, total)
