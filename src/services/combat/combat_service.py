@@ -881,7 +881,7 @@ class CombatService:
         fights: List,
     ) -> HeroCombatAnalysisResponse:
         """
-        Analyze a hero's combat involvement across all fights.
+        Analyze a hero's combat involvement across the entire match.
 
         Args:
             data: ParsedReplayData from ReplayService
@@ -890,7 +890,7 @@ class CombatService:
             fights: List of Fight objects from FightService
 
         Returns:
-            HeroCombatAnalysisResponse with per-fight and aggregate stats
+            HeroCombatAnalysisResponse with match-wide stats and per-fight breakdown
         """
         hero_lower = hero.lower()
         hero_fights: List[FightParticipation] = []
@@ -898,8 +898,35 @@ class CombatService:
         total_deaths = 0
         total_assists = 0
         total_teamfights = 0
-        overall_ability_stats: dict = {}
 
+        # First pass: count ALL ability usage across the entire match
+        match_ability_casts: dict = {}
+        match_ability_hits: dict = {}
+
+        for entry in data.combat_log_entries:
+            entry_type = entry.type.value if hasattr(entry.type, 'value') else entry.type
+            attacker = self._clean_hero_name(entry.attacker_name)
+            attacker_lower = attacker.lower()
+            is_our_hero_attacker = hero_lower in attacker_lower
+
+            if entry_type == CombatLogType.ABILITY.value and is_our_hero_attacker:
+                ability = entry.inflictor_name
+                if ability and ability != "dota_unknown":
+                    match_ability_casts[ability] = match_ability_casts.get(ability, 0) + 1
+                    if entry.is_target_hero:
+                        match_ability_hits[ability] = match_ability_hits.get(ability, 0) + 1
+
+            elif entry_type == CombatLogType.MODIFIER_ADD.value:
+                modifier = entry.inflictor_name
+                if modifier and modifier != "dota_unknown" and entry.is_target_hero:
+                    if is_our_hero_attacker or (modifier and hero_lower in modifier.lower()):
+                        for tracked_ability in match_ability_casts.keys():
+                            ability_base = tracked_ability.split("_")[-1]
+                            if ability_base in modifier.lower():
+                                match_ability_hits[tracked_ability] = match_ability_hits.get(tracked_ability, 0) + 1
+                                break
+
+        # Second pass: per-fight breakdown
         for fight in fights:
             if not any(hero_lower in p.lower() for p in fight.participants):
                 continue
@@ -970,11 +997,6 @@ class CombatService:
                     hero_hits=hits,
                     hit_rate=round(hit_rate, 1),
                 ))
-                overall_ability_stats[ability_name] = overall_ability_stats.get(ability_name, {
-                    "casts": 0, "hits": 0
-                })
-                overall_ability_stats[ability_name]["casts"] += cast_count
-                overall_ability_stats[ability_name]["hits"] += hits
 
             abilities_used.sort(key=lambda a: a.total_casts, reverse=True)
 
@@ -999,13 +1021,15 @@ class CombatService:
                 damage_received=damage_received,
             ))
 
+        # Build ability_summary from match-wide stats (not just fights)
         ability_summary = []
-        for ability_name, stats in overall_ability_stats.items():
-            hit_rate = (stats["hits"] / stats["casts"] * 100) if stats["casts"] > 0 else 0.0
+        for ability_name, cast_count in match_ability_casts.items():
+            hits = match_ability_hits.get(ability_name, 0)
+            hit_rate = (hits / cast_count * 100) if cast_count > 0 else 0.0
             ability_summary.append(AbilityUsage(
                 ability=ability_name,
-                total_casts=stats["casts"],
-                hero_hits=stats["hits"],
+                total_casts=cast_count,
+                hero_hits=hits,
                 hit_rate=round(hit_rate, 1),
             ))
         ability_summary.sort(key=lambda a: a.total_casts, reverse=True)
