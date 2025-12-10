@@ -6,6 +6,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.3] - 2025-12-10
+
+### Added
+
+- **`ability_filter` parameter** for focused ability analysis:
+  - `get_raw_combat_events`: Filter combat log by specific ability (e.g., "ice_path", "chronosphere")
+  - `get_hero_performance`: Filter ability summary and per-fight abilities by name
+  - Case-insensitive partial matching (e.g., "fissure" matches "earthshaker_fissure")
+
+### Changed
+
+- **Tool renames for clarity** (LLM routing improvement):
+  - `get_combat_log` → `get_raw_combat_events` (emphasizes raw event debugging)
+  - `get_hero_combat_analysis` → `get_hero_performance` (clearer purpose)
+
+- **Added routing hints** to competing tools:
+  - `get_hero_deaths`, `list_fights`, `get_teamfights`, `get_rotation_analysis` now include "NOT FOR HERO PERFORMANCE QUESTIONS → Use get_hero_performance instead" in docstrings
+
+### Fixed
+
+- **Ability counting now covers entire match** - Previously only counted abilities used during detected fights; now counts ALL ability usage across the entire match with per-fight breakdown preserved
+
+---
+
 ## [1.1.2] - 2025-12-09
 
 ### Added
