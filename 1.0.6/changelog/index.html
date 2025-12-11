@@ -1,0 +1,2913 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Give your LLM the ability to analyze Dota 2 matches">
+      
+      
+      
+        <link rel="canonical" href="https://deepbluecoding.github.io/mcp-replay-dota2/1.0.6/changelog/">
+      
+      
+        <link rel="prev" href="../api/resources/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Changelog - MCP Dota 2 Server</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#changelog" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="MCP Dota 2 Server" class="md-header__button md-logo" aria-label="MCP Dota 2 Server" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            MCP Dota 2 Server
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Changelog
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="red" data-md-color-accent="orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/DeepBlueCoding/mcp-replay-dota2" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    DeepBlueCoding/mcp-replay-dota2
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../getting-started/installation/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Installation
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../integrations/" class="md-tabs__link">
+          
+  
+  
+  Integrations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../examples/use-cases/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Use Cases
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/tools/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="MCP Dota 2 Server" class="md-nav__button md-logo" aria-label="MCP Dota 2 Server" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    MCP Dota 2 Server
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/DeepBlueCoding/mcp-replay-dota2" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    DeepBlueCoding/mcp-replay-dota2
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integrations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integrations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Native MCP
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Native MCP
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrations/claude-desktop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claude Desktop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrations/claude-code/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claude Code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agentic Frameworks
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Agentic Frameworks
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrations/langchain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LangChain
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrations/langgraph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LangGraph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrations/crewai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CrewAI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrations/autogen/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AutoGen
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Direct API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Direct API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrations/fastmcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FastMCP Client
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrations/mcp-sdk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP SDK
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrations/anthropic-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Anthropic API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrations/openai-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenAI API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/use-cases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Use Cases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tools
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tools
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/tools/match-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Match Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/tools/pro-scene/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pro Scene
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/tools/game-state/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Game State
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/tools/farming-rotation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Farming & Rotation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Resources
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#120-2025-12-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.2.0] - 2025-12-11
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.2.0] - 2025-12-11">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#114-2025-12-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.1.4] - 2025-12-11
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.1.4] - 2025-12-11">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#changed_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#113-2025-12-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.1.3] - 2025-12-10
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.1.3] - 2025-12-10">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#112-2025-12-09" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.1.2] - 2025-12-09
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.1.2] - 2025-12-09">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#111-2025-12-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.1.1] - 2025-12-08
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.1.1] - 2025-12-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#110-2025-12-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.1.0] - 2025-12-08
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.1.0] - 2025-12-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#changed_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#technical" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Technical
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#104-2025-12-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.0.4] - 2025-12-08
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.0.4] - 2025-12-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#103-2025-12-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.0.3] - 2025-12-08
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.0.3] - 2025-12-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#102-2025-12-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.0.2] - 2025-12-08
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.0.2] - 2025-12-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixed_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#added_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#101-2025-12-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.0.1] - 2025-12-08
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.0.1] - 2025-12-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixed_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#100-2025-12-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.0.0] - 2025-12-08
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.0.0] - 2025-12-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Added">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mcp-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MCP Resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#match-analysis-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Match Analysis Tools
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#game-state-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Game State Tools
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#farming-rotation-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Farming &amp; Rotation Analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pro-scene-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pro Scene Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pydantic-response-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pydantic Response Models
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#developer-experience" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Developer Experience
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#technical_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Technical
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Technical">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#replay-parsing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Replay Parsing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#120-2025-12-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.2.0] - 2025-12-11
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.2.0] - 2025-12-11">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#114-2025-12-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.1.4] - 2025-12-11
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.1.4] - 2025-12-11">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#changed_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#113-2025-12-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.1.3] - 2025-12-10
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.1.3] - 2025-12-10">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#112-2025-12-09" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.1.2] - 2025-12-09
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.1.2] - 2025-12-09">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#111-2025-12-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.1.1] - 2025-12-08
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.1.1] - 2025-12-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#110-2025-12-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.1.0] - 2025-12-08
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.1.0] - 2025-12-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#changed_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#technical" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Technical
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#104-2025-12-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.0.4] - 2025-12-08
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.0.4] - 2025-12-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#103-2025-12-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.0.3] - 2025-12-08
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.0.3] - 2025-12-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#102-2025-12-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.0.2] - 2025-12-08
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.0.2] - 2025-12-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixed_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#added_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#101-2025-12-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.0.1] - 2025-12-08
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.0.1] - 2025-12-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixed_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#100-2025-12-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.0.0] - 2025-12-08
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.0.0] - 2025-12-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Added">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mcp-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MCP Resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#match-analysis-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Match Analysis Tools
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#game-state-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Game State Tools
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#farming-rotation-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Farming &amp; Rotation Analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pro-scene-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pro Scene Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pydantic-response-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pydantic Response Models
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#developer-experience" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Developer Experience
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#technical_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Technical
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Technical">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#replay-parsing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Replay Parsing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<details class="info">
+<summary>🤖 AI Summary</summary>
+<p>Project changelog following Keep a Changelog format. v1.0.0 release includes: MCP resources (heroes, map, pro scene), 30+ MCP tools for match analysis, replay parsing with python-manta, fight detection with highlights, farming pattern analysis, rotation tracking, pro scene integration with fuzzy search.</p>
+</details>
+<p>All notable changes to this project will be documented in this file.</p>
+<h2 id="120-2025-12-11">[1.2.0] - 2025-12-11<a class="headerlink" href="#120-2025-12-11" title="Permanent link">&para;</a></h2>
+<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Position (1-5) assignment</strong> for all match tools:</li>
+<li><code>get_match_heroes</code>, <code>get_match_players</code>, <code>get_match_draft</code> now include <code>position</code> field</li>
+<li>Position determined from OpenDota lane data (<code>lane_role</code>) and GPM:<ul>
+<li><strong>Pos 1</strong> = Safelane core (lane_role=1, highest GPM)</li>
+<li><strong>Pos 2</strong> = Mid (lane_role=2)</li>
+<li><strong>Pos 3</strong> = Offlane core (lane_role=3, highest GPM)</li>
+<li><strong>Pos 4</strong> = Soft support (higher GPM support)</li>
+<li><strong>Pos 5</strong> = Hard support (lowest GPM support)</li>
+</ul>
+</li>
+<li>
+<p>Fixes LLM incorrectly guessing positions (e.g., Axe as pos5 instead of pos3)</p>
+</li>
+<li>
+<p><strong>Draft context data</strong> in <code>get_match_draft</code> picks:</p>
+</li>
+<li><code>counters</code>: Heroes that counter this pick (bad matchups)</li>
+<li><code>good_against</code>: Heroes this pick counters (favorable matchups)</li>
+<li><code>when_to_pick</code>: Conditions when this hero is strong</li>
+<li>Helps LLM understand draft decisions and counter-picking</li>
+</ul>
+<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>assign_roles()</code> renamed to <code>assign_positions()</code> in match_fetcher.py</li>
+<li><code>DraftAction</code> model now includes <code>position</code>, <code>counters</code>, <code>good_against</code>, <code>when_to_pick</code> fields</li>
+<li><code>HeroStats</code> and <code>MatchPlayerInfo</code> models now include <code>position</code> field</li>
+</ul>
+<hr />
+<h2 id="114-2025-12-11">[1.1.4] - 2025-12-11<a class="headerlink" href="#114-2025-12-11" title="Permanent link">&para;</a></h2>
+<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>get_pro_matches</code> tool</strong> - Enhanced team filtering with head-to-head support:</li>
+<li>Renamed <code>team_name</code> parameter to <code>team1_name</code></li>
+<li>Added <code>team2_name</code> parameter for head-to-head filtering</li>
+<li><strong>Single team filter</strong> (<code>team1_name</code> only): Returns all matches involving that team</li>
+<li><strong>Head-to-head filter</strong> (<code>team1_name</code> + <code>team2_name</code>): Returns only matches where both teams played against each other, regardless of radiant/dire side</li>
+<li>Combine with <code>league_name</code>, <code>tier</code>, and <code>days_back</code> for deep filtering (e.g., Spirit vs OG at The International)</li>
+</ul>
+<hr />
+<h2 id="113-2025-12-10">[1.1.3] - 2025-12-10<a class="headerlink" href="#113-2025-12-10" title="Permanent link">&para;</a></h2>
+<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>ability_filter</code> parameter</strong> for focused ability analysis:</li>
+<li><code>get_raw_combat_events</code>: Filter combat log by specific ability (e.g., "ice_path", "chronosphere")</li>
+<li><code>get_hero_performance</code>: Filter ability summary and per-fight abilities by name</li>
+<li>Case-insensitive partial matching (e.g., "fissure" matches "earthshaker_fissure")</li>
+</ul>
+<h3 id="changed_2">Changed<a class="headerlink" href="#changed_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Tool renames for clarity</strong> (LLM routing improvement):</li>
+<li><code>get_combat_log</code> → <code>get_raw_combat_events</code> (emphasizes raw event debugging)</li>
+<li>
+<p><code>get_hero_combat_analysis</code> → <code>get_hero_performance</code> (clearer purpose)</p>
+</li>
+<li>
+<p><strong>Added routing hints</strong> to competing tools:</p>
+</li>
+<li><code>get_hero_deaths</code>, <code>list_fights</code>, <code>get_teamfights</code>, <code>get_rotation_analysis</code> now include "NOT FOR HERO PERFORMANCE QUESTIONS → Use get_hero_performance instead" in docstrings</li>
+</ul>
+<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Ability counting now covers entire match</strong> - Previously only counted abilities used during detected fights; now counts ALL ability usage across the entire match with per-fight breakdown preserved</li>
+</ul>
+<hr />
+<h2 id="112-2025-12-09">[1.1.2] - 2025-12-09<a class="headerlink" href="#112-2025-12-09" title="Permanent link">&para;</a></h2>
+<h3 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>detail_level</code> parameter</strong> for combat log tools - Controls token usage (~98% reduction with <code>narrative</code>):</li>
+<li><code>narrative</code> (default): Deaths, abilities, items, purchases, buybacks (~500-2,000 tokens)</li>
+<li><code>tactical</code>: Adds hero-to-hero damage and debuffs (~2,000-5,000 tokens)</li>
+<li><code>full</code>: All events including creeps (~50,000+ tokens, debugging only)</li>
+<li>Applied to <code>get_combat_log</code> and <code>get_fight_combat_log</code> tools</li>
+<li><code>max_events</code> parameter added (default 500, max 2000) to prevent overflow</li>
+<li><code>truncated</code> field in response indicates if results were capped</li>
+</ul>
+<h3 id="changed_3">Changed<a class="headerlink" href="#changed_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Removed <code>significant_only</code> parameter</strong> - Replaced by <code>detail_level</code> enum for finer control</li>
+<li>Default behavior now uses <code>narrative</code> detail level (was equivalent to <code>significant_only=True</code>)</li>
+</ul>
+<hr />
+<h2 id="111-2025-12-08">[1.1.1] - 2025-12-08<a class="headerlink" href="#111-2025-12-08" title="Permanent link">&para;</a></h2>
+<h3 id="added_3">Added<a class="headerlink" href="#added_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>get_hero_combat_analysis</code> tool</strong> - Per-hero combat performance analysis across all fights:</li>
+<li>Tracks kills, deaths, assists per fight</li>
+<li>Ability usage with hit rates (total casts vs hero hits)</li>
+<li>Damage dealt and received per fight</li>
+<li>Teamfight vs skirmish classification</li>
+<li><strong>Ground-targeted ability tracking</strong>: Ice Path, Fissure, etc. track hits via MODIFIER_ADD events (stun debuffs applied)</li>
+<li>Hit rate can exceed 100% for AoE abilities hitting multiple heroes per cast</li>
+<li>Aggregate stats across all fights for the hero</li>
+</ul>
+<hr />
+<h2 id="110-2025-12-08">[1.1.0] - 2025-12-08<a class="headerlink" href="#110-2025-12-08" title="Permanent link">&para;</a></h2>
+<h3 id="changed_4">Changed<a class="headerlink" href="#changed_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Major refactor: Tools split into domain-specific modules</strong> (92% code reduction in main entry point)</li>
+<li><code>dota_match_mcp_server.py</code>: 2606 → 206 lines</li>
+<li>New <code>src/tools/</code> directory with modular tool registration:<ul>
+<li><code>replay_tools.py</code> - Replay download tool</li>
+<li><code>combat_tools.py</code> - Deaths, combat log, objectives, runes, couriers</li>
+<li><code>fight_tools.py</code> - Fight detection, teamfights, fight replay</li>
+<li><code>match_tools.py</code> - Match info, timeline, draft, heroes, positions</li>
+<li><code>pro_scene_tools.py</code> - Pro players, teams, leagues, matches</li>
+<li><code>analysis_tools.py</code> - Jungle, lane, farming patterns, rotations</li>
+</ul>
+</li>
+<li>Service injection pattern via <code>register_all_tools(mcp, services)</code> coordinator</li>
+<li>No functional changes - all 30+ tools work identically</li>
+</ul>
+<h3 id="technical">Technical<a class="headerlink" href="#technical" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Clean separation of concerns: each tool module handles one domain</li>
+<li>Services dictionary pattern for dependency injection</li>
+<li>Easier maintenance and testing of individual tool groups</li>
+</ul>
+<hr />
+<h2 id="104-2025-12-08">[1.0.4] - 2025-12-08<a class="headerlink" href="#104-2025-12-08" title="Permanent link">&para;</a></h2>
+<h3 id="added_4">Added<a class="headerlink" href="#added_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Hero counter picks database</strong> integrated into <code>/heroes</code> resource:</li>
+<li>848 counter matchups with mechanical explanations (WHY a hero counters another)</li>
+<li>438 favorable matchups (heroes each hero is good against)</li>
+<li>529 "when_to_pick" conditions describing optimal draft situations</li>
+<li>
+<p>Curated data based on game mechanics: BKB-piercing, silences, roots, mana burn, Blademail, saves, mobility</p>
+</li>
+<li>
+<p>New fields in <code>dota2://heroes/all</code> resource:</p>
+</li>
+<li><code>counters</code>: List of heroes that counter this hero with reasons</li>
+<li><code>good_against</code>: List of heroes this hero counters with reasons</li>
+<li>
+<p><code>when_to_pick</code>: Draft conditions when the hero is strong</p>
+</li>
+<li>
+<p>Pydantic models for counter data in <code>src/models/hero_counters.py</code>:</p>
+</li>
+<li><code>CounterMatchup</code>, <code>HeroCounters</code>, <code>HeroCountersDatabase</code></li>
+<li>
+<p><code>CounterPickResponse</code>, <code>DraftCounterAnalysis</code>, <code>DraftAnalysisResponse</code></p>
+</li>
+<li>
+<p><code>HeroesResource</code> methods for counter data access:</p>
+</li>
+<li><code>get_hero_counters(hero_id)</code>: Get counter data for a specific hero</li>
+<li>
+<p><code>get_all_hero_counters()</code>: Get all hero counter data</p>
+</li>
+<li>
+<p><code>get_match_heroes</code> tool now includes counter picks for each hero:</p>
+</li>
+<li>Enables draft analysis directly from match data</li>
+<li>Each hero includes counters, good_against, when_to_pick</li>
+</ul>
+<h3 id="changed_5">Changed<a class="headerlink" href="#changed_5" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>dota2://heroes/all</code> now includes counter picks data for draft analysis</li>
+<li><code>get_match_heroes</code> enriched with counter picks for draft analysis</li>
+<li>Updated documentation with counter picks examples</li>
+</ul>
+<hr />
+<h2 id="103-2025-12-08">[1.0.3] - 2025-12-08<a class="headerlink" href="#103-2025-12-08" title="Permanent link">&para;</a></h2>
+<h3 id="added_5">Added<a class="headerlink" href="#added_5" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Combat-intensity based fight detection</strong> - Major refactor of fight detection algorithm:</li>
+<li>Fights are now detected based on hero-to-hero combat activity, not just deaths</li>
+<li>Catches teamfights where teams disengage before anyone dies</li>
+<li>Properly captures fight initiation phase (BKB+Blink) before first death</li>
+<li>Uses intensity-based windowing to separate distinct engagements</li>
+<li>Filters out harassment/poke (brief exchanges that aren't real fights)</li>
+<li>
+<p>New <code>detect_fights_from_combat()</code> and <code>get_fight_at_time_from_combat()</code> methods</p>
+</li>
+<li>
+<p>Extended fight highlight detection with new patterns:</p>
+</li>
+<li><strong>BKB + Blink combos</strong>: Detects BKB + Blink → Big Ability (either order), marks first as initiator, rest as follow-ups</li>
+<li><strong>Coordinated ultimates</strong>: Detects when 2+ heroes from the <strong>same team</strong> use big teamfight abilities within 3 seconds. Includes <code>team</code> field (radiant/dire)</li>
+<li><strong>Refresher combos</strong>: Detects when a hero uses Refresher to double-cast an ultimate</li>
+<li><strong>Clutch saves</strong>: Detects self-saves (Outworld Staff, Aeon Disk) and ally saves (Glimmer Cape, Lotus Orb, Force Staff, Shadow Demon Disruption)</li>
+<li>
+<p>Self-save detection includes tracking what ability the hero was saved FROM (e.g., Omnislash)</p>
+</li>
+<li>
+<p>New data models in <code>combat_data.py</code>:</p>
+</li>
+<li><code>BKBBlinkCombo</code>: BKB + Blink combo with <code>is_initiator</code> flag</li>
+<li><code>CoordinatedUltimates</code>: Multiple heroes ulting together with <code>team</code> field and window tracking</li>
+<li><code>RefresherCombo</code>: Refresher double ultimate with cast times</li>
+<li><code>ClutchSave</code>: Save detection with saver, save type, and ability saved from</li>
+<li>
+<p><code>CombatWindow</code>: Internal dataclass for combat-intensity based fight detection</p>
+</li>
+<li>
+<p>Added <code>nevermore_requiem</code> alias to BIG_TEAMFIGHT_ABILITIES (replays use old internal name)</p>
+</li>
+</ul>
+<h3 id="changed_6">Changed<a class="headerlink" href="#changed_6" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>get_fight_combat_log</code> now uses combat-based detection by default (captures initiation)</li>
+<li>Fight detection parameters tuned: 8s combat gap, 3s intensity window, 5 min events per window</li>
+<li>Removed <code>fight_initiator</code> and <code>initiation_ability</code> fields (replaced by <code>bkb_blink_combos</code> with <code>is_initiator</code> flag)</li>
+</ul>
+<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Generic AoE detection now properly filters self-targeting (e.g., Echo Slam damaging caster)</li>
+<li>BKB+Blink detection now accepts either order (BKB→Blink or Blink→BKB)</li>
+<li>Clutch saves now require target to be "in danger" (3+ hero damage hits in 2s) to filter false positives</li>
+<li>Hero deaths include position coordinates and location descriptions from entity snapshots</li>
+<li><code>significant_only</code> filter now excludes non-hero deaths (creep kills) from combat events</li>
+<li>Autoattack kills now show <code>"ability": "attack"</code> instead of <code>"dota_unknown"</code></li>
+<li>Coordinated ultimates now only detects same-team coordination (was incorrectly grouping opposing team abilities)</li>
+<li>Team hero extraction now correctly finds all 10 heroes by scanning entity snapshots after game start</li>
+</ul>
+<hr />
+<h2 id="102-2025-12-08">[1.0.2] - 2025-12-08<a class="headerlink" href="#102-2025-12-08" title="Permanent link">&para;</a></h2>
+<h3 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Fixed <code>get_pro_matches</code> and <code>get_league_matches</code> returning <code>null</code> team names</li>
+<li>OpenDota API doesn't always include team names in match responses</li>
+<li>Now resolves team names from cached teams data when missing</li>
+<li>
+<p>Eliminates need for extra <code>get_team</code> tool calls to resolve team names</p>
+</li>
+<li>
+<p>Fixed <code>get_match_heroes</code> validation error with item fields</p>
+</li>
+<li>Items now return human-readable names (e.g., "Blink Dagger") instead of integer IDs</li>
+<li>Added <code>get_item_name()</code> and <code>convert_item_ids_to_names()</code> to constants_fetcher</li>
+<li>Neutral items also converted to display names</li>
+</ul>
+<h3 id="added_6">Added<a class="headerlink" href="#added_6" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Model validation tests (<code>tests/test_model_validation.py</code>)</li>
+<li>Tests for HeroStats, MatchHeroesResponse, MatchPlayerInfo validation</li>
+<li>Tests for item ID to name conversion</li>
+<li>Ensures Pydantic models reject invalid data types</li>
+</ul>
+<hr />
+<h2 id="101-2025-12-08">[1.0.1] - 2025-12-08<a class="headerlink" href="#101-2025-12-08" title="Permanent link">&para;</a></h2>
+<h3 id="fixed_3">Fixed<a class="headerlink" href="#fixed_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Updated examples documentation to match v1.0.0 Pydantic response models</li>
+<li>Added fight highlights to <code>get_fight_combat_log</code> examples (multi_hero_abilities, kill_streaks, team_wipes)</li>
+<li>Fixed <code>get_farming_pattern</code> example to use <code>camp_sequence</code> and <code>level_timings</code></li>
+<li>Added missing standard fields to all tool response examples</li>
+</ul>
+<hr />
+<h2 id="100-2025-12-08">[1.0.0] - 2025-12-08<a class="headerlink" href="#100-2025-12-08" title="Permanent link">&para;</a></h2>
+<h3 id="added_7">Added<a class="headerlink" href="#added_7" title="Permanent link">&para;</a></h3>
+<h4 id="mcp-resources">MCP Resources<a class="headerlink" href="#mcp-resources" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>dota2://heroes/all</code> - All Dota 2 heroes with stats and abilities</li>
+<li><code>dota2://map</code> - Map geometry with towers, barracks, neutral camps, runes, landmarks</li>
+<li><code>dota2://pro/players</code> - Pro player database with team affiliations</li>
+<li><code>dota2://pro/teams</code> - Pro team database with rosters</li>
+</ul>
+<h4 id="match-analysis-tools">Match Analysis Tools<a class="headerlink" href="#match-analysis-tools" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>download_replay</code> - Pre-cache replay files before analysis (50-400MB files)</li>
+<li><code>get_hero_deaths</code> - All hero deaths with positions and abilities</li>
+<li><code>get_combat_log</code> - Raw combat events with time/hero filters</li>
+<li><code>get_fight_combat_log</code> - Auto-detect fight boundaries with <strong>highlights</strong>:</li>
+<li>Multi-hero abilities (Chronosphere, Black Hole, Ravage hitting 2+ heroes)</li>
+<li>Kill streaks (Double kill through Rampage, 18-second window)</li>
+<li>Team wipes (Aces)</li>
+<li>Fight initiation detection</li>
+<li><code>get_item_purchases</code> - Item purchase timeline</li>
+<li><code>get_objective_kills</code> - Roshan, tormentors, towers, barracks</li>
+<li><code>get_match_timeline</code> - Net worth, XP, KDA over time for all players</li>
+<li><code>get_stats_at_minute</code> - Snapshot of all players at specific minute</li>
+<li><code>get_courier_kills</code> - Courier snipes with positions</li>
+<li><code>get_rune_pickups</code> - Rune pickup tracking</li>
+<li><code>get_match_draft</code> - Complete draft order for Captains Mode</li>
+<li><code>get_match_info</code> - Match metadata (teams, players, winner, duration)</li>
+<li><code>get_match_heroes</code> - 10 heroes with KDA, items, stats</li>
+<li><code>get_match_players</code> - 10 players with names and hero assignments</li>
+</ul>
+<h4 id="game-state-tools">Game State Tools<a class="headerlink" href="#game-state-tools" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>list_fights</code> - All fights with teamfight/skirmish classification</li>
+<li><code>get_teamfights</code> - Major teamfights (3+ deaths)</li>
+<li><code>get_fight</code> - Detailed fight information with positions</li>
+<li><code>get_camp_stacks</code> - Neutral camp stacking events</li>
+<li><code>get_jungle_summary</code> - Stacking efficiency by hero</li>
+<li><code>get_lane_summary</code> - Laning phase winners and hero stats (OpenDota integration)</li>
+<li><code>get_cs_at_minute</code> - CS/gold/level at specific minute</li>
+<li><code>get_hero_positions</code> - Hero positions at specific minute</li>
+<li><code>get_snapshot_at_time</code> - High-resolution game state at specific time</li>
+<li><code>get_position_timeline</code> - Hero movement over time range</li>
+<li><code>get_fight_replay</code> - High-resolution replay data for fights</li>
+</ul>
+<h4 id="farming-rotation-analysis">Farming &amp; Rotation Analysis<a class="headerlink" href="#farming-rotation-analysis" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>get_farming_pattern</code> - Minute-by-minute farming breakdown:</li>
+<li>Lane vs jungle creeps, camp type identification</li>
+<li>Position tracking, key transitions (first jungle, left lane)</li>
+<li>Summary stats: jungle %, GPM, CS/min, camps by type</li>
+<li><code>get_rotation_analysis</code> - Hero rotation tracking:</li>
+<li>Rotation detection when heroes leave assigned lane</li>
+<li>Rune correlation (power runes → rotations)</li>
+<li>Fight outcomes: kill, died, traded, fight, no_engagement</li>
+<li>Power/wisdom rune event tracking</li>
+</ul>
+<h4 id="pro-scene-features">Pro Scene Features<a class="headerlink" href="#pro-scene-features" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>search_pro_player</code> / <code>search_team</code> - Fuzzy search with alias support</li>
+<li><code>get_pro_player</code> / <code>get_pro_player_by_name</code> - Player details</li>
+<li><code>get_team</code> / <code>get_team_by_name</code> - Team details with roster</li>
+<li><code>get_team_matches</code> - Recent matches for a team</li>
+<li><code>get_leagues</code> / <code>get_league_matches</code> - League information</li>
+<li><code>get_pro_matches</code> - Pro matches with filters (tier, team, league, days_back)</li>
+<li>Series grouping for Bo1/Bo3/Bo5 detection</li>
+<li>Player signature heroes and role data</li>
+</ul>
+<h4 id="pydantic-response-models">Pydantic Response Models<a class="headerlink" href="#pydantic-response-models" title="Permanent link">&para;</a></h4>
+<ul>
+<li>40+ typed models with Field descriptions in <code>src/models/tool_responses.py</code></li>
+<li>Timeline: <code>KDASnapshot</code>, <code>PlayerTimeline</code>, <code>TeamGraphs</code></li>
+<li>Fights: <code>FightSummary</code>, <code>FightHighlights</code>, <code>MultiHeroAbility</code>, <code>KillStreak</code></li>
+<li>Game state: <code>HeroSnapshot</code>, <code>HeroPosition</code>, <code>PositionPoint</code></li>
+<li>Better IDE autocomplete and documentation</li>
+</ul>
+<h4 id="developer-experience">Developer Experience<a class="headerlink" href="#developer-experience" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Comprehensive MkDocs documentation with Material theme</li>
+<li>AI Summary sections on all documentation pages</li>
+<li>Parallel-safe tool hints for LLM optimization</li>
+<li>Server instructions with Dota 2 game knowledge</li>
+</ul>
+<h3 id="technical_1">Technical<a class="headerlink" href="#technical_1" title="Permanent link">&para;</a></h3>
+<h4 id="replay-parsing">Replay Parsing<a class="headerlink" href="#replay-parsing" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Single-pass parsing with python-manta v2 API</li>
+<li><code>ReplayService.get_parsed_data(match_id)</code> as main entry point</li>
+<li>Disk caching via diskcache for parsed replay data</li>
+<li>CDOTAMatchMetadataFile extraction for timeline data</li>
+</ul>
+<h4 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Services layer: <code>CombatService</code>, <code>FightService</code>, <code>FarmingService</code>, <code>RotationService</code></li>
+<li>Clean separation: services have no MCP dependencies</li>
+<li>Pydantic models throughout for type safety</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>
