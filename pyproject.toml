@@ -1,3 +1,13 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/models", "src/resources", "src/services", "src/tools", "src/utils"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"dota_match_mcp_server.py" = "dota_match_mcp_server.py"
+
 [project]
 name = "mcp-replay-dota2"
 version = "1.0.6"
