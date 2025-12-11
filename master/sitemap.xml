@@ -1,95 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://deepbluecoding.github.io/mcp_replay_dota2/master/</loc>
+         <loc>https://deepbluecoding.github.io/mcp-replay-dota2/master/</loc>
          <lastmod>2025-12-11</lastmod>
     </url>
     <url>
-         <loc>https://deepbluecoding.github.io/mcp_replay_dota2/master/REPLAY_PARSING_ARCHITECTURE/</loc>
+         <loc>https://deepbluecoding.github.io/mcp-replay-dota2/master/REPLAY_PARSING_ARCHITECTURE/</loc>
          <lastmod>2025-12-11</lastmod>
     </url>
     <url>
-         <loc>https://deepbluecoding.github.io/mcp_replay_dota2/master/changelog/</loc>
+         <loc>https://deepbluecoding.github.io/mcp-replay-dota2/master/changelog/</loc>
          <lastmod>2025-12-11</lastmod>
     </url>
     <url>
-         <loc>https://deepbluecoding.github.io/mcp_replay_dota2/master/api/resources/</loc>
+         <loc>https://deepbluecoding.github.io/mcp-replay-dota2/master/api/resources/</loc>
          <lastmod>2025-12-11</lastmod>
     </url>
     <url>
-         <loc>https://deepbluecoding.github.io/mcp_replay_dota2/master/api/tools/</loc>
+         <loc>https://deepbluecoding.github.io/mcp-replay-dota2/master/api/tools/</loc>
          <lastmod>2025-12-11</lastmod>
     </url>
     <url>
-         <loc>https://deepbluecoding.github.io/mcp_replay_dota2/master/api/tools/farming-rotation/</loc>
+         <loc>https://deepbluecoding.github.io/mcp-replay-dota2/master/api/tools/farming-rotation/</loc>
          <lastmod>2025-12-11</lastmod>
     </url>
     <url>
-         <loc>https://deepbluecoding.github.io/mcp_replay_dota2/master/api/tools/game-state/</loc>
+         <loc>https://deepbluecoding.github.io/mcp-replay-dota2/master/api/tools/game-state/</loc>
          <lastmod>2025-12-11</lastmod>
     </url>
     <url>
-         <loc>https://deepbluecoding.github.io/mcp_replay_dota2/master/api/tools/match-analysis/</loc>
+         <loc>https://deepbluecoding.github.io/mcp-replay-dota2/master/api/tools/match-analysis/</loc>
          <lastmod>2025-12-11</lastmod>
     </url>
     <url>
-         <loc>https://deepbluecoding.github.io/mcp_replay_dota2/master/api/tools/pro-scene/</loc>
+         <loc>https://deepbluecoding.github.io/mcp-replay-dota2/master/api/tools/pro-scene/</loc>
          <lastmod>2025-12-11</lastmod>
     </url>
     <url>
-         <loc>https://deepbluecoding.github.io/mcp_replay_dota2/master/examples/use-cases/</loc>
+         <loc>https://deepbluecoding.github.io/mcp-replay-dota2/master/examples/use-cases/</loc>
          <lastmod>2025-12-11</lastmod>
     </url>
     <url>
-         <loc>https://deepbluecoding.github.io/mcp_replay_dota2/master/getting-started/docker/</loc>
+         <loc>https://deepbluecoding.github.io/mcp-replay-dota2/master/getting-started/docker/</loc>
          <lastmod>2025-12-11</lastmod>
     </url>
     <url>
-         <loc>https://deepbluecoding.github.io/mcp_replay_dota2/master/getting-started/installation/</loc>
+         <loc>https://deepbluecoding.github.io/mcp-replay-dota2/master/getting-started/installation/</loc>
          <lastmod>2025-12-11</lastmod>
     </url>
     <url>
-         <loc>https://deepbluecoding.github.io/mcp_replay_dota2/master/integrations/</loc>
+         <loc>https://deepbluecoding.github.io/mcp-replay-dota2/master/integrations/</loc>
          <lastmod>2025-12-11</lastmod>
     </url>
     <url>
-         <loc>https://deepbluecoding.github.io/mcp_replay_dota2/master/integrations/anthropic-api/</loc>
+         <loc>https://deepbluecoding.github.io/mcp-replay-dota2/master/integrations/anthropic-api/</loc>
          <lastmod>2025-12-11</lastmod>
     </url>
     <url>
-         <loc>https://deepbluecoding.github.io/mcp_replay_dota2/master/integrations/autogen/</loc>
+         <loc>https://deepbluecoding.github.io/mcp-replay-dota2/master/integrations/autogen/</loc>
          <lastmod>2025-12-11</lastmod>
     </url>
     <url>
-         <loc>https://deepbluecoding.github.io/mcp_replay_dota2/master/integrations/claude-code/</loc>
+         <loc>https://deepbluecoding.github.io/mcp-replay-dota2/master/integrations/claude-code/</loc>
          <lastmod>2025-12-11</lastmod>
     </url>
     <url>
-         <loc>https://deepbluecoding.github.io/mcp_replay_dota2/master/integrations/claude-desktop/</loc>
+         <loc>https://deepbluecoding.github.io/mcp-replay-dota2/master/integrations/claude-desktop/</loc>
          <lastmod>2025-12-11</lastmod>
     </url>
     <url>
-         <loc>https://deepbluecoding.github.io/mcp_replay_dota2/master/integrations/crewai/</loc>
+         <loc>https://deepbluecoding.github.io/mcp-replay-dota2/master/integrations/crewai/</loc>
          <lastmod>2025-12-11</lastmod>
     </url>
     <url>
-         <loc>https://deepbluecoding.github.io/mcp_replay_dota2/master/integrations/fastmcp/</loc>
+         <loc>https://deepbluecoding.github.io/mcp-replay-dota2/master/integrations/fastmcp/</loc>
          <lastmod>2025-12-11</lastmod>
     </url>
     <url>
-         <loc>https://deepbluecoding.github.io/mcp_replay_dota2/master/integrations/langchain/</loc>
+         <loc>https://deepbluecoding.github.io/mcp-replay-dota2/master/integrations/langchain/</loc>
          <lastmod>2025-12-11</lastmod>
     </url>
     <url>
-         <loc>https://deepbluecoding.github.io/mcp_replay_dota2/master/integrations/langgraph/</loc>
+         <loc>https://deepbluecoding.github.io/mcp-replay-dota2/master/integrations/langgraph/</loc>
          <lastmod>2025-12-11</lastmod>
     </url>
     <url>
-         <loc>https://deepbluecoding.github.io/mcp_replay_dota2/master/integrations/mcp-sdk/</loc>
+         <loc>https://deepbluecoding.github.io/mcp-replay-dota2/master/integrations/mcp-sdk/</loc>
          <lastmod>2025-12-11</lastmod>
     </url>
     <url>
-         <loc>https://deepbluecoding.github.io/mcp_replay_dota2/master/integrations/openai-api/</loc>
+         <loc>https://deepbluecoding.github.io/mcp-replay-dota2/master/integrations/openai-api/</loc>
          <lastmod>2025-12-11</lastmod>
     </url>
 </urlset>

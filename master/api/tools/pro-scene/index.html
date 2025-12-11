@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://deepbluecoding.github.io/mcp_replay_dota2/master/api/tools/pro-scene/">
+        <link rel="canonical" href="https://deepbluecoding.github.io/mcp-replay-dota2/master/api/tools/pro-scene/">
       
       
         <link rel="prev" href="../match-analysis/">
@@ -192,13 +192,13 @@
     
     
       <div class="md-header__source">
-        <a href="https://github.com/DeepBlueCoding/mcp_replay_dota2" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/DeepBlueCoding/mcp-replay-dota2" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
   </div>
   <div class="md-source__repository">
-    DeepBlueCoding/mcp_replay_dota2
+    DeepBlueCoding/mcp-replay-dota2
   </div>
 </a>
       </div>
@@ -379,13 +379,13 @@
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/DeepBlueCoding/mcp_replay_dota2" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/DeepBlueCoding/mcp-replay-dota2" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
   </div>
   <div class="md-source__repository">
-    DeepBlueCoding/mcp_replay_dota2
+    DeepBlueCoding/mcp-replay-dota2
   </div>
 </a>
     </div>
@@ -1813,9 +1813,14 @@
 <td>Filter by league tier: <code>"premium"</code> (TI, Majors), <code>"professional"</code>, or <code>"amateur"</code></td>
 </tr>
 <tr>
-<td><code>team_name</code></td>
+<td><code>team1_name</code></td>
 <td>string</td>
-<td>Fuzzy match team name (e.g., "OG", "Spirit", "Tundra")</td>
+<td>Filter by first team (fuzzy match). Alone: returns all matches for that team</td>
+</tr>
+<tr>
+<td><code>team2_name</code></td>
+<td>string</td>
+<td>Filter by second team (fuzzy match). With team1: returns head-to-head matches</td>
 </tr>
 <tr>
 <td><code>league_name</code></td>
@@ -1829,7 +1834,12 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Data Blending:</strong> When <code>team_name</code> is provided, this tool automatically blends data from two sources:</p>
+<p><strong>Team Filtering:</strong></p>
+<ul>
+<li><strong>Single team</strong> (<code>team1_name</code> only): Returns all matches involving that team (either radiant or dire)</li>
+<li><strong>Head-to-head</strong> (<code>team1_name</code> + <code>team2_name</code>): Returns only matches where both teams played against each other, regardless of which side (radiant/dire) they were on</li>
+</ul>
+<p><strong>Data Blending:</strong> When team filters are provided, this tool automatically blends data from two sources:</p>
 <ol>
 <li><strong>Team-specific endpoint</strong> (<code>/teams/{id}/matches</code>) - captures matches that OpenDota's <code>/proMatches</code> often misses (e.g., major tournaments like SLAM)</li>
 <li><strong>General pro matches</strong> (<code>/proMatches</code>) - provides broader coverage</li>
@@ -1838,14 +1848,20 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Get top-tier tournament matches only</span>
 <a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="n">get_pro_matches</span><span class="p">(</span><span class="n">tier</span><span class="o">=</span><span class="s2">&quot;premium&quot;</span><span class="p">)</span>
 <a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="c1"># Find matches for a specific team (blends both data sources)</span>
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="n">get_pro_matches</span><span class="p">(</span><span class="n">team_name</span><span class="o">=</span><span class="s2">&quot;Tundra&quot;</span><span class="p">,</span> <span class="n">days_back</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="c1"># Find all matches for a specific team</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="n">get_pro_matches</span><span class="p">(</span><span class="n">team1_name</span><span class="o">=</span><span class="s2">&quot;Tundra&quot;</span><span class="p">,</span> <span class="n">days_back</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
 <a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
-<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="c1"># Find matches in a specific tournament</span>
-<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="n">get_pro_matches</span><span class="p">(</span><span class="n">league_name</span><span class="o">=</span><span class="s2">&quot;SLAM&quot;</span><span class="p">)</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="c1"># Find head-to-head matches between two teams</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="n">get_pro_matches</span><span class="p">(</span><span class="n">team1_name</span><span class="o">=</span><span class="s2">&quot;Team Spirit&quot;</span><span class="p">,</span> <span class="n">team2_name</span><span class="o">=</span><span class="s2">&quot;OG&quot;</span><span class="p">)</span>
 <a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>
-<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="c1"># Combine filters</span>
-<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="n">get_pro_matches</span><span class="p">(</span><span class="n">tier</span><span class="o">=</span><span class="s2">&quot;premium&quot;</span><span class="p">,</span> <span class="n">team_name</span><span class="o">=</span><span class="s2">&quot;Team Spirit&quot;</span><span class="p">,</span> <span class="n">days_back</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="c1"># Head-to-head at a specific tournament</span>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="n">get_pro_matches</span><span class="p">(</span><span class="n">team1_name</span><span class="o">=</span><span class="s2">&quot;Spirit&quot;</span><span class="p">,</span> <span class="n">team2_name</span><span class="o">=</span><span class="s2">&quot;OG&quot;</span><span class="p">,</span> <span class="n">league_name</span><span class="o">=</span><span class="s2">&quot;International&quot;</span><span class="p">)</span>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="c1"># Find matches in a specific tournament</span>
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a><span class="n">get_pro_matches</span><span class="p">(</span><span class="n">league_name</span><span class="o">=</span><span class="s2">&quot;SLAM&quot;</span><span class="p">)</span>
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a><span class="c1"># Combine filters: team matches at premium tournaments</span>
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a><span class="n">get_pro_matches</span><span class="p">(</span><span class="n">tier</span><span class="o">=</span><span class="s2">&quot;premium&quot;</span><span class="p">,</span> <span class="n">team1_name</span><span class="o">=</span><span class="s2">&quot;Team Spirit&quot;</span><span class="p">,</span> <span class="n">days_back</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 </code></pre></div>
 <p><strong>Returns:</strong>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="p">{</span>
