@@ -1,3 +1,9 @@
+## v1.0.6.dev2 (2025-12-11)
+
+### Fix
+
+- use PEP 440 pre-release detection for TestPyPI vs PyPI
+
 ## v1.0.5 (2025-12-11)
 
 ### Feat
