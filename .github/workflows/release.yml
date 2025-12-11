@@ -53,10 +53,29 @@ jobs:
           name: dist
           path: dist/
 
-  publish-testpypi:
+  check-version:
     needs: build
     runs-on: ubuntu-latest
-    if: contains(github.ref, '-')  # Pre-release tags contain hyphen (v1.0.0-rc1, v1.0.0-beta1)
+    outputs:
+      is_prerelease: ${{ steps.check.outputs.is_prerelease }}
+    steps:
+      - name: Check if pre-release
+        id: check
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          # PEP 440 pre-release: dev, a, b, rc (e.g., 1.0.0.dev1, 1.0.0a1, 1.0.0b1, 1.0.0rc1)
+          if [[ "$VERSION" =~ (\.dev|a[0-9]|b[0-9]|rc[0-9]) ]]; then
+            echo "is_prerelease=true" >> $GITHUB_OUTPUT
+            echo "Detected pre-release version: $VERSION"
+          else
+            echo "is_prerelease=false" >> $GITHUB_OUTPUT
+            echo "Detected stable version: $VERSION"
+          fi
+
+  publish-testpypi:
+    needs: [build, check-version]
+    runs-on: ubuntu-latest
+    if: needs.check-version.outputs.is_prerelease == 'true'
     environment:
       name: testpypi
       url: https://test.pypi.org/project/mcp-replay-dota2/
@@ -75,9 +94,9 @@ jobs:
           repository-url: https://test.pypi.org/legacy/
 
   publish-pypi:
-    needs: build
+    needs: [build, check-version]
     runs-on: ubuntu-latest
-    if: ${{ !contains(github.ref, '-') }}  # Release tags don't contain hyphen
+    if: needs.check-version.outputs.is_prerelease == 'false'
     environment:
       name: pypi
       url: https://pypi.org/project/mcp-replay-dota2/
@@ -94,9 +113,9 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
 
   github-release:
-    needs: [build, publish-pypi]
+    needs: [build, check-version, publish-pypi]
     runs-on: ubuntu-latest
-    if: ${{ !contains(github.ref, '-') }}
+    if: needs.check-version.outputs.is_prerelease == 'false'
     permissions:
       contents: write
     steps:
