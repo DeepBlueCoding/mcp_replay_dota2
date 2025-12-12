@@ -63,8 +63,8 @@ jobs:
         id: check
         run: |
           VERSION="${GITHUB_REF#refs/tags/v}"
-          # PEP 440 pre-release: dev, a, b, rc (e.g., 1.0.0.dev1, 1.0.0a1, 1.0.0b1, 1.0.0rc1)
-          if [[ "$VERSION" =~ (\.dev|a[0-9]|b[0-9]|rc[0-9]) ]]; then
+          # PEP 440 pre-release: dev, a, b, rc (e.g., 1.0.0.dev1, 1.0.0-dev1, 1.0.0a1, 1.0.0b1, 1.0.0rc1)
+          if [[ "$VERSION" =~ ([\.-]dev|a[0-9]|b[0-9]|rc[0-9]) ]]; then
             echo "is_prerelease=true" >> $GITHUB_OUTPUT
             echo "Detected pre-release version: $VERSION"
           else
