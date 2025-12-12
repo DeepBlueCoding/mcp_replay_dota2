@@ -204,8 +204,8 @@ class MatchInfoParser:
             )
 
         except Exception as e:
-            logger.error(f"Error parsing draft: {e}")
-            return None
+            logger.error(f"Error parsing draft: {e}", exc_info=True)
+            raise  # Re-raise to show actual error in MCP response
 
     def get_match_info(self, data: ParsedReplayData) -> Optional[MatchInfoResult]:
         """
@@ -303,8 +303,8 @@ class MatchInfoParser:
             )
 
         except Exception as e:
-            logger.error(f"Error parsing match info: {e}")
-            return None
+            logger.error(f"Error parsing match info: {e}", exc_info=True)
+            raise  # Re-raise to show actual error in MCP response
 
 
 match_info_parser = MatchInfoParser()

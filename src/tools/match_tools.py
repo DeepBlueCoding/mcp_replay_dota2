@@ -199,10 +199,15 @@ def register_match_tools(mcp, services):
             return MatchDraftResponse(success=False, match_id=match_id, error=str(e))
 
         hero_positions = await _get_hero_positions_from_opendota(match_id)
-        draft = match_info_parser.get_draft(data, hero_positions=hero_positions)
+        try:
+            draft = match_info_parser.get_draft(data, hero_positions=hero_positions)
+        except Exception as e:
+            return MatchDraftResponse(
+                success=False, match_id=match_id, error=f"Exception parsing draft: {e}"
+            )
         if not draft:
             return MatchDraftResponse(
-                success=False, match_id=match_id, error="Could not parse draft"
+                success=False, match_id=match_id, error="get_draft returned None (no game_info?)"
             )
 
         return MatchDraftResponse(success=True, match_id=match_id, draft=draft)
@@ -223,10 +228,15 @@ def register_match_tools(mcp, services):
         except ValueError as e:
             return MatchInfoResponse(success=False, match_id=match_id, error=str(e))
 
-        match_info = match_info_parser.get_match_info(data)
+        try:
+            match_info = match_info_parser.get_match_info(data)
+        except Exception as e:
+            return MatchInfoResponse(
+                success=False, match_id=match_id, error=f"Exception parsing match info: {e}"
+            )
         if not match_info:
             return MatchInfoResponse(
-                success=False, match_id=match_id, error="Could not parse match info"
+                success=False, match_id=match_id, error="get_match_info returned None (no game_info?)"
             )
 
         pro_names = await _get_pro_names_from_opendota(match_id)

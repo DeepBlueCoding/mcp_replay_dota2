@@ -1,5 +1,7 @@
 """Tests for pro scene resources and fuzzy search."""
 
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
 
 from src.models.pro_scene import (
@@ -1370,6 +1372,359 @@ class TestGetProMatchesFiltering:
         )
 
         assert len(filtered) == 0
+
+
+class TestLeagueNameBidirectionalMatching:
+    """Tests for bidirectional league name matching in get_pro_matches.
+
+    The league_name filter should match in BOTH directions:
+    - "SLAM" matches "SLAM V" (search term in actual)
+    - "Blast Slam V" matches "SLAM V" (actual in search term)
+    """
+
+    def _apply_league_filter(
+        self,
+        matches: list,
+        league_name: str | None,
+    ) -> list:
+        """Apply bidirectional league name filter matching resource implementation."""
+        if not league_name:
+            return matches
+
+        filtered = []
+        for match in matches:
+            actual_league = (match.league_name or "").lower()
+            search_league = league_name.lower()
+            # Skip if no league name or no bidirectional match
+            if not actual_league:
+                continue
+            if search_league in actual_league or actual_league in search_league:
+                filtered.append(match)
+        return filtered
+
+    @pytest.fixture
+    def sample_matches_with_leagues(self) -> list:
+        """Create sample matches with various league names."""
+        return [
+            ProMatchSummary(
+                match_id=1001,
+                radiant_team_id=100,
+                radiant_team_name="Tundra Esports",
+                dire_team_id=200,
+                dire_team_name="Team Yandex",
+                radiant_win=True,
+                duration=2400,
+                start_time=1700000000,
+                league_id=17420,
+                league_name="SLAM V",  # Short official name
+            ),
+            ProMatchSummary(
+                match_id=1002,
+                radiant_team_id=100,
+                radiant_team_name="Tundra Esports",
+                dire_team_id=300,
+                dire_team_name="Team Spirit",
+                radiant_win=False,
+                duration=2200,
+                start_time=1700001000,
+                league_id=15728,
+                league_name="The International 2023",
+            ),
+            ProMatchSummary(
+                match_id=1003,
+                radiant_team_id=400,
+                radiant_team_name="OG",
+                dire_team_id=500,
+                dire_team_name="Gaimin Gladiators",
+                radiant_win=True,
+                duration=2600,
+                start_time=1700002000,
+                league_id=16000,
+                league_name="DreamLeague Season 22",
+            ),
+            ProMatchSummary(
+                match_id=1004,
+                radiant_team_id=100,
+                radiant_team_name="Tundra Esports",
+                dire_team_id=200,
+                dire_team_name="Team Yandex",
+                radiant_win=True,
+                duration=2300,
+                start_time=1700003000,
+                league_id=17420,
+                league_name="SLAM V",
+            ),
+            ProMatchSummary(
+                match_id=1005,
+                radiant_team_id=600,
+                radiant_team_name="Team Secret",
+                dire_team_id=700,
+                dire_team_name="Team Liquid",
+                radiant_win=False,
+                duration=2500,
+                start_time=1700004000,
+                league_id=None,
+                league_name=None,  # Match without league
+            ),
+        ]
+
+    def test_search_term_in_actual_league_name(self, sample_matches_with_leagues):
+        """Test: 'SLAM' matches 'SLAM V' (search in actual)."""
+        filtered = self._apply_league_filter(sample_matches_with_leagues, "SLAM")
+
+        assert len(filtered) == 2
+        match_ids = {m.match_id for m in filtered}
+        assert match_ids == {1001, 1004}
+
+    def test_actual_league_in_search_term(self, sample_matches_with_leagues):
+        """Test: 'Blast Slam V' matches 'SLAM V' (actual in search)."""
+        filtered = self._apply_league_filter(sample_matches_with_leagues, "Blast Slam V")
+
+        assert len(filtered) == 2
+        match_ids = {m.match_id for m in filtered}
+        assert match_ids == {1001, 1004}
+
+    def test_exact_match(self, sample_matches_with_leagues):
+        """Test: 'SLAM V' matches 'SLAM V' exactly."""
+        filtered = self._apply_league_filter(sample_matches_with_leagues, "SLAM V")
+
+        assert len(filtered) == 2
+        match_ids = {m.match_id for m in filtered}
+        assert match_ids == {1001, 1004}
+
+    def test_case_insensitive_match(self, sample_matches_with_leagues):
+        """Test: 'slam v' matches 'SLAM V' case-insensitively."""
+        filtered = self._apply_league_filter(sample_matches_with_leagues, "slam v")
+
+        assert len(filtered) == 2
+
+    def test_partial_match_dreamleague(self, sample_matches_with_leagues):
+        """Test: 'DreamLeague' matches 'DreamLeague Season 22'."""
+        filtered = self._apply_league_filter(sample_matches_with_leagues, "DreamLeague")
+
+        assert len(filtered) == 1
+        assert filtered[0].match_id == 1003
+
+    def test_longer_search_term_matches(self, sample_matches_with_leagues):
+        """Test: 'DreamLeague Season 22 Finals' matches 'DreamLeague Season 22'."""
+        filtered = self._apply_league_filter(
+            sample_matches_with_leagues, "DreamLeague Season 22 Finals"
+        )
+
+        assert len(filtered) == 1
+        assert filtered[0].match_id == 1003
+
+    def test_no_match_returns_empty(self, sample_matches_with_leagues):
+        """Test: 'ESL Pro League' matches nothing."""
+        filtered = self._apply_league_filter(sample_matches_with_leagues, "ESL Pro League")
+
+        assert len(filtered) == 0
+
+    def test_none_league_filter_returns_all(self, sample_matches_with_leagues):
+        """Test: None league filter returns all matches."""
+        filtered = self._apply_league_filter(sample_matches_with_leagues, None)
+
+        assert len(filtered) == 5
+
+    def test_empty_string_filter_treated_as_no_filter(self, sample_matches_with_leagues):
+        """Test: Empty string filter is treated as no filter (returns all)."""
+        filtered = self._apply_league_filter(sample_matches_with_leagues, "")
+
+        # Empty string is falsy, so no filtering is applied
+        assert len(filtered) == 5
+
+    def test_matches_without_league_excluded(self, sample_matches_with_leagues):
+        """Test: Matches without league_name are excluded when filtering."""
+        filtered = self._apply_league_filter(sample_matches_with_leagues, "SLAM")
+
+        # Match 1005 has league_name=None, should be excluded
+        assert 1005 not in {m.match_id for m in filtered}
+
+    def test_international_matches(self, sample_matches_with_leagues):
+        """Test: 'International' matches 'The International 2023'."""
+        filtered = self._apply_league_filter(sample_matches_with_leagues, "International")
+
+        assert len(filtered) == 1
+        assert filtered[0].match_id == 1002
+
+    def test_ti_2023_matches(self, sample_matches_with_leagues):
+        """Test: 'TI 2023' does NOT match 'The International 2023' (no substring)."""
+        filtered = self._apply_league_filter(sample_matches_with_leagues, "TI 2023")
+
+        # "ti 2023" not in "the international 2023" and vice versa
+        assert len(filtered) == 0
+
+
+class TestGetProMatchesWithMockedAPI:
+    """Integration tests for get_pro_matches with mocked OpenDota API."""
+
+    @pytest.fixture
+    def resource(self) -> ProSceneResource:
+        """Create a ProSceneResource instance."""
+        return ProSceneResource()
+
+    @pytest.fixture
+    def mock_pro_matches_response(self) -> list:
+        """Mock response from /proMatches endpoint."""
+        return [
+            {
+                "match_id": 8594217096,
+                "radiant_team_id": 8291895,
+                "radiant_name": "Tundra Esports",
+                "dire_team_id": 9823272,
+                "dire_name": "Team Yandex",
+                "radiant_win": True,
+                "radiant_score": 35,
+                "dire_score": 22,
+                "duration": 2356,
+                "start_time": 1765103486,
+                "leagueid": 17420,
+                "league_name": "SLAM V",
+                "series_id": None,
+                "series_type": None,
+            },
+            {
+                "match_id": 8594108564,
+                "radiant_team_id": 9823272,
+                "radiant_name": "Team Yandex",
+                "dire_team_id": 8291895,
+                "dire_name": "Tundra Esports",
+                "radiant_win": False,
+                "radiant_score": 20,
+                "dire_score": 40,
+                "duration": 2970,
+                "start_time": 1765098154,
+                "leagueid": 17420,
+                "league_name": "SLAM V",
+                "series_id": None,
+                "series_type": None,
+            },
+            {
+                "match_id": 8590000000,
+                "radiant_team_id": 8599101,
+                "radiant_name": "Team Spirit",
+                "dire_team_id": 7391077,
+                "dire_name": "OG",
+                "radiant_win": True,
+                "radiant_score": 30,
+                "dire_score": 25,
+                "duration": 2500,
+                "start_time": 1765000000,
+                "leagueid": 15728,
+                "league_name": "The International 2025",
+                "series_id": None,
+                "series_type": None,
+            },
+        ]
+
+    @pytest.mark.asyncio
+    async def test_league_filter_blast_slam_v_finds_slam_v_matches(
+        self, resource: ProSceneResource, mock_pro_matches_response: list
+    ):
+        """Test that 'Blast Slam V' finds matches with league_name='SLAM V'."""
+        # Mock the OpenDota client context manager
+        mock_client = MagicMock()
+        mock_client.get_pro_matches = AsyncMock(return_value=mock_pro_matches_response)
+        mock_client.__aenter__ = AsyncMock(return_value=mock_client)
+        mock_client.__aexit__ = AsyncMock(return_value=None)
+
+        with patch("src.resources.pro_scene_resources.OpenDota", return_value=mock_client):
+            with patch.object(resource, "_build_team_lookup", new_callable=AsyncMock, return_value={}):
+                with patch.object(resource, "_ensure_initialized", new_callable=AsyncMock):
+                    result = await resource.get_pro_matches(
+                        limit=100,
+                        league_name="Blast Slam V",  # User searches with full name
+                    )
+
+        assert result.success is True
+        assert result.total_matches == 2  # Only SLAM V matches
+
+        match_ids = {m.match_id for m in result.matches}
+        assert 8594217096 in match_ids
+        assert 8594108564 in match_ids
+        assert 8590000000 not in match_ids  # TI match excluded
+
+    @pytest.mark.asyncio
+    async def test_league_filter_slam_finds_slam_v_matches(
+        self, resource: ProSceneResource, mock_pro_matches_response: list
+    ):
+        """Test that 'SLAM' finds matches with league_name='SLAM V'."""
+        mock_client = MagicMock()
+        mock_client.get_pro_matches = AsyncMock(return_value=mock_pro_matches_response)
+        mock_client.__aenter__ = AsyncMock(return_value=mock_client)
+        mock_client.__aexit__ = AsyncMock(return_value=None)
+
+        with patch("src.resources.pro_scene_resources.OpenDota", return_value=mock_client):
+            with patch.object(resource, "_build_team_lookup", new_callable=AsyncMock, return_value={}):
+                with patch.object(resource, "_ensure_initialized", new_callable=AsyncMock):
+                    result = await resource.get_pro_matches(
+                        limit=100,
+                        league_name="SLAM",
+                    )
+
+        assert result.success is True
+        assert result.total_matches == 2
+
+    @pytest.mark.asyncio
+    async def test_league_filter_international_finds_ti_matches(
+        self, resource: ProSceneResource, mock_pro_matches_response: list
+    ):
+        """Test that 'International' finds TI matches."""
+        mock_client = MagicMock()
+        mock_client.get_pro_matches = AsyncMock(return_value=mock_pro_matches_response)
+        mock_client.__aenter__ = AsyncMock(return_value=mock_client)
+        mock_client.__aexit__ = AsyncMock(return_value=None)
+
+        with patch("src.resources.pro_scene_resources.OpenDota", return_value=mock_client):
+            with patch.object(resource, "_build_team_lookup", new_callable=AsyncMock, return_value={}):
+                with patch.object(resource, "_ensure_initialized", new_callable=AsyncMock):
+                    result = await resource.get_pro_matches(
+                        limit=100,
+                        league_name="International",
+                    )
+
+        assert result.success is True
+        assert result.total_matches == 1
+        assert result.matches[0].match_id == 8590000000
+
+    @pytest.mark.asyncio
+    async def test_no_league_filter_returns_all_matches(
+        self, resource: ProSceneResource, mock_pro_matches_response: list
+    ):
+        """Test that no league filter returns all matches."""
+        mock_client = MagicMock()
+        mock_client.get_pro_matches = AsyncMock(return_value=mock_pro_matches_response)
+        mock_client.__aenter__ = AsyncMock(return_value=mock_client)
+        mock_client.__aexit__ = AsyncMock(return_value=None)
+
+        with patch("src.resources.pro_scene_resources.OpenDota", return_value=mock_client):
+            with patch.object(resource, "_build_team_lookup", new_callable=AsyncMock, return_value={}):
+                with patch.object(resource, "_ensure_initialized", new_callable=AsyncMock):
+                    result = await resource.get_pro_matches(limit=100)
+
+        assert result.success is True
+        assert result.total_matches == 3
+
+    @pytest.mark.asyncio
+    async def test_nonexistent_league_returns_empty(
+        self, resource: ProSceneResource, mock_pro_matches_response: list
+    ):
+        """Test that searching for nonexistent league returns no matches."""
+        mock_client = MagicMock()
+        mock_client.get_pro_matches = AsyncMock(return_value=mock_pro_matches_response)
+        mock_client.__aenter__ = AsyncMock(return_value=mock_client)
+        mock_client.__aexit__ = AsyncMock(return_value=None)
+
+        with patch("src.resources.pro_scene_resources.OpenDota", return_value=mock_client):
+            with patch.object(resource, "_build_team_lookup", new_callable=AsyncMock, return_value={}):
+                with patch.object(resource, "_ensure_initialized", new_callable=AsyncMock):
+                    result = await resource.get_pro_matches(
+                        limit=100,
+                        league_name="ESL Pro League",
+                    )
+
+        assert result.success is True
+        assert result.total_matches == 0
 
 
 class TestSignatureHeroes:

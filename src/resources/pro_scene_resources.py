@@ -543,7 +543,10 @@ class ProSceneResource:
                         if match_tier != tier:
                             continue
                     if league_name:
-                        if league_name.lower() not in (m.get("league_name") or "").lower():
+                        actual_league = (m.get("league_name") or "").lower()
+                        search_league = league_name.lower()
+                        # Skip if no league name or no bidirectional match
+                        if not actual_league or not (search_league in actual_league or actual_league in search_league):
                             continue
 
                     is_radiant = m.get("radiant", False)
@@ -581,7 +584,10 @@ class ProSceneResource:
                         continue
 
                 if league_name:
-                    if league_name.lower() not in (m.get("league_name") or "").lower():
+                    actual_league = (m.get("league_name") or "").lower()
+                    search_league = league_name.lower()
+                    # Skip if no league name or no bidirectional match
+                    if not actual_league or not (search_league in actual_league or actual_league in search_league):
                         continue
 
                 match_summary = ProMatchSummary(

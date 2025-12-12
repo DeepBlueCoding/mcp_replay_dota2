@@ -6,6 +6,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.9] - 2025-12-12
+
+### Fixed
+
+- **get_match_info and get_match_draft** returning generic "Could not parse" errors
+- Exception handling now propagates actual error messages instead of swallowing with generic messages
+- **get_pro_matches league_name filter** now uses bidirectional matching (e.g., "Blast Slam V" finds "SLAM V")
+
 ## [1.2.0] - 2025-12-11
 
 ### Added
