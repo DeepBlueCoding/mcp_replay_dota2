@@ -568,6 +568,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#feature-support-by-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Feature Support by Client
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#native-mcp-support" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1413,6 +1424,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/coaching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Coaching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1472,6 +1511,17 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#feature-support-by-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Feature Support by Client
+      
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#native-mcp-support" class="md-nav__link">
@@ -1543,6 +1593,91 @@
 <p>Integration options by difficulty: <strong>Easy</strong> - Claude Desktop (config JSON), Claude Code CLI (.mcp.json), FastMCP Client (Python). <strong>Medium</strong> - LangChain, LangGraph, CrewAI, AutoGen, MCP SDK. <strong>Hard</strong> - Anthropic API, OpenAI API (manual tool loop). For quick chat → Claude Desktop. For Python apps → FastMCP/LangChain. For multi-step agents → LangGraph. For multi-agent → CrewAI.</p>
 </details>
 <p>This MCP server can connect to any LLM that supports the Model Context Protocol or tool calling.</p>
+<h2 id="feature-support-by-client">Feature Support by Client<a class="headerlink" href="#feature-support-by-client" title="Permanent link">&para;</a></h2>
+<p>Different clients support different MCP features. <strong>Coaching Analysis</strong> requires MCP Sampling support.</p>
+<table>
+<thead>
+<tr>
+<th>Client</th>
+<th style="text-align: center;">Tools</th>
+<th style="text-align: center;">Resources</th>
+<th style="text-align: center;">Sampling</th>
+<th style="text-align: center;">Coaching Analysis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Claude Desktop</strong></td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅ Full</td>
+</tr>
+<tr>
+<td><strong>Claude Code CLI</strong></td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅ Full</td>
+</tr>
+<tr>
+<td><strong>Cursor</strong></td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">⚠️ Data only</td>
+</tr>
+<tr>
+<td><strong>Windsurf</strong></td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">⚠️ Data only</td>
+</tr>
+<tr>
+<td><strong>Zed</strong></td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">⚠️ Data only</td>
+</tr>
+<tr>
+<td><strong>Continue.dev</strong></td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">⚠️ Data only</td>
+</tr>
+<tr>
+<td><strong>LangChain</strong></td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">⚠️ Manual</td>
+<td style="text-align: center;">⚠️ Requires setup</td>
+</tr>
+<tr>
+<td><strong>OpenAI API</strong></td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">⚠️ Data only</td>
+</tr>
+<tr>
+<td><strong>Custom MCP SDK</strong></td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">⚠️ Optional</td>
+<td style="text-align: center;">Depends on impl</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Legend:</strong></p>
+<ul>
+<li>✅ Full: Feature fully supported with automatic coaching</li>
+<li>⚠️ Data only: Raw data returned, client LLM interprets it</li>
+<li>⚠️ Manual/Requires setup: Possible but requires custom implementation</li>
+</ul>
+<p>See <a href="../api/coaching/">AI Coaching Features</a> for details on coaching analysis and how to implement sampling in custom clients.</p>
 <h2 id="native-mcp-support">Native MCP Support<a class="headerlink" href="#native-mcp-support" title="Permanent link">&para;</a></h2>
 <p>These clients have built-in MCP support:</p>
 <table>

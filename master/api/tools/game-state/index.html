@@ -1486,6 +1486,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../coaching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Coaching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1690,7 +1718,19 @@
 <h1 id="game-state-tools">Game State Tools<a class="headerlink" href="#game-state-tools" title="Permanent link">&para;</a></h1>
 <p>High-resolution game state analysis tools. Many of these are <strong>parallel-safe</strong> and can be called simultaneously with different parameters.</p>
 <h2 id="list_fights">list_fights<a class="headerlink" href="#list_fights" title="Permanent link">&para;</a></h2>
-<p>List all fights in a match. Fights are grouped by deaths occurring within 15 seconds of each other.</p>
+<p>List all fights/skirmishes in a match with death summaries.</p>
+<div class="admonition warning">
+<p class="admonition-title">When NOT to use</p>
+<ul>
+<li>You already called <code>get_hero_performance</code> → It includes <code>fights[]</code> array</li>
+<li>Asking about specific hero → Use <code>get_hero_performance</code> instead</li>
+</ul>
+</div>
+<p><strong>Use for:</strong></p>
+<ul>
+<li>"How many fights happened?" / "List all teamfights"</li>
+<li>"When were the major fights?" (overview, not hero-specific)</li>
+</ul>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">list_fights</span><span class="p">(</span><span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">)</span>
 </code></pre></div>
 <p><strong>Returns:</strong>
@@ -1712,190 +1752,211 @@
 </code></pre></div></p>
 <hr />
 <h2 id="get_teamfights">get_teamfights<a class="headerlink" href="#get_teamfights" title="Permanent link">&para;</a></h2>
-<p>Get only major teamfights (3+ deaths by default).</p>
+<p>Get major teamfights (3+ deaths) with coaching analysis.</p>
+<div class="admonition warning">
+<p class="admonition-title">When NOT to use</p>
+<ul>
+<li>You already called <code>get_hero_performance</code> → It includes teamfight participation</li>
+<li>Asking about specific hero → Use <code>get_hero_performance</code> instead</li>
+</ul>
+</div>
+<p><strong>Use for:</strong></p>
+<ul>
+<li>"What were the big teamfights?" / "Analyze the teamfights"</li>
+<li>General teamfight overview (not hero-specific)</li>
+</ul>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">get_teamfights</span><span class="p">(</span><span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">,</span> <span class="n">min_deaths</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </code></pre></div>
+<p><strong>Returns:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">&quot;total_teamfights&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nt">&quot;teamfights&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="nt">&quot;coaching_analysis&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AI analysis of the biggest teamfight (if client supports sampling)&quot;</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="p">}</span>
+</code></pre></div></p>
 <hr />
 <h2 id="get_fight">get_fight<a class="headerlink" href="#get_fight" title="Permanent link">&para;</a></h2>
 <p>Get detailed information about a specific fight. <strong>Parallel-safe</strong>: call with multiple fight_ids.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">get_fight</span><span class="p">(</span><span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">,</span> <span class="n">fight_id</span><span class="o">=</span><span class="s2">&quot;fight_5&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">get_fight</span><span class="p">(</span><span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">,</span> <span class="n">fight_id</span><span class="o">=</span><span class="s2">&quot;fight_5&quot;</span><span class="p">)</span>
 </code></pre></div>
 <p><strong>Returns:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">&quot;fight_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fight_5&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nt">&quot;start_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;23:15&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="nt">&quot;end_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;23:42&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="nt">&quot;duration_seconds&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">27</span><span class="p">,</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="nt">&quot;is_teamfight&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span><span class="nt">&quot;total_deaths&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span><span class="nt">&quot;participants&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;medusa&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;earthshaker&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;naga_siren&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;disruptor&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;pangolier&quot;</span><span class="p">],</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">  </span><span class="nt">&quot;deaths&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;game_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;23:18&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;killer&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;medusa&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;victim&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;earthshaker&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;ability&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;medusa_stone_gaze&quot;</span><span class="p">}</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">  </span><span class="p">]</span>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nt">&quot;fight_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fight_5&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="nt">&quot;start_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;23:15&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="nt">&quot;end_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;23:42&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="nt">&quot;duration_seconds&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">27</span><span class="p">,</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="nt">&quot;is_teamfight&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="nt">&quot;total_deaths&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="nt">&quot;participants&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;medusa&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;earthshaker&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;naga_siren&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;disruptor&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;pangolier&quot;</span><span class="p">],</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">  </span><span class="nt">&quot;deaths&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;game_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;23:18&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;killer&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;medusa&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;victim&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;earthshaker&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;ability&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;medusa_stone_gaze&quot;</span><span class="p">}</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="p">}</span>
 </code></pre></div></p>
 <hr />
 <h2 id="get_camp_stacks">get_camp_stacks<a class="headerlink" href="#get_camp_stacks" title="Permanent link">&para;</a></h2>
 <p>Get all neutral camp stacks in the match.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">get_camp_stacks</span><span class="p">(</span><span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">,</span> <span class="n">hero_filter</span><span class="o">=</span><span class="s2">&quot;crystal_maiden&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">get_camp_stacks</span><span class="p">(</span><span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">,</span> <span class="n">hero_filter</span><span class="o">=</span><span class="s2">&quot;crystal_maiden&quot;</span><span class="p">)</span>
 </code></pre></div>
 <p><strong>Returns:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nt">&quot;total_stacks&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="nt">&quot;stacks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;game_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0:53&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;stacker&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;crystal_maiden&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;camp_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;large&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;stack_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">}</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="p">]</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="nt">&quot;total_stacks&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="nt">&quot;stacks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;game_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0:53&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;stacker&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;crystal_maiden&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;camp_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;large&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;stack_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">}</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="p">}</span>
 </code></pre></div></p>
 <hr />
 <h2 id="get_jungle_summary">get_jungle_summary<a class="headerlink" href="#get_jungle_summary" title="Permanent link">&para;</a></h2>
 <p>Overview of jungle activity - stacking efficiency by hero.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">get_jungle_summary</span><span class="p">(</span><span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">get_jungle_summary</span><span class="p">(</span><span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">)</span>
 </code></pre></div>
 <p><strong>Returns:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="nt">&quot;total_stacks&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span><span class="nt">&quot;stacks_by_hero&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;crystal_maiden&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;chen&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;medusa&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">},</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span><span class="nt">&quot;stack_efficiency_per_10min&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;crystal_maiden&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.2</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;chen&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;medusa&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.5</span><span class="p">}</span>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="nt">&quot;total_stacks&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="nt">&quot;stacks_by_hero&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;crystal_maiden&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;chen&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;medusa&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">},</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">  </span><span class="nt">&quot;stack_efficiency_per_10min&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;crystal_maiden&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.2</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;chen&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;medusa&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.5</span><span class="p">}</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="p">}</span>
 </code></pre></div></p>
 <hr />
 <h2 id="get_lane_summary">get_lane_summary<a class="headerlink" href="#get_lane_summary" title="Permanent link">&para;</a></h2>
-<p>Laning phase analysis (first 10 minutes).</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">get_lane_summary</span><span class="p">(</span><span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">)</span>
+<p>Laning phase analysis (first 10 minutes) with coaching analysis.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">get_lane_summary</span><span class="p">(</span><span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">)</span>
 </code></pre></div>
 <p><strong>Returns:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="p">{</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="nt">&quot;lane_winners&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;top&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;mid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;radiant&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;bot&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;even&quot;</span><span class="p">},</span>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">  </span><span class="nt">&quot;team_scores&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;radiant&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.5</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;dire&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.5</span><span class="p">},</span>
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">  </span><span class="nt">&quot;hero_stats&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="p">{</span>
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">      </span><span class="nt">&quot;hero&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;antimage&quot;</span><span class="p">,</span>
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">      </span><span class="nt">&quot;lane&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bot&quot;</span><span class="p">,</span>
-<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">      </span><span class="nt">&quot;role&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;core&quot;</span><span class="p">,</span>
-<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">      </span><span class="nt">&quot;team&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire&quot;</span><span class="p">,</span>
-<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">      </span><span class="nt">&quot;last_hits_5min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">35</span><span class="p">,</span>
-<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="w">      </span><span class="nt">&quot;last_hits_10min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">82</span><span class="p">,</span>
-<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">      </span><span class="nt">&quot;gold_10min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4850</span><span class="p">,</span>
-<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w">      </span><span class="nt">&quot;level_10min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span>
-<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="w">  </span><span class="p">]</span>
-<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="p">{</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span><span class="nt">&quot;lane_winners&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;top&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;mid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;radiant&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;bot&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;even&quot;</span><span class="p">},</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span><span class="nt">&quot;team_scores&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;radiant&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.5</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;dire&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.5</span><span class="p">},</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">  </span><span class="nt">&quot;hero_stats&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">      </span><span class="nt">&quot;hero&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;antimage&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">      </span><span class="nt">&quot;lane&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bot&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">      </span><span class="nt">&quot;role&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;core&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">      </span><span class="nt">&quot;team&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">      </span><span class="nt">&quot;last_hits_5min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">35</span><span class="p">,</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="w">      </span><span class="nt">&quot;last_hits_10min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">82</span><span class="p">,</span>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="w">      </span><span class="nt">&quot;gold_10min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4850</span><span class="p">,</span>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="w">      </span><span class="nt">&quot;level_10min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span>
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="w">  </span><span class="p">],</span>
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="w">  </span><span class="nt">&quot;coaching_analysis&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AI analysis of laning phase (if client supports sampling)&quot;</span>
+<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a><span class="p">}</span>
 </code></pre></div></p>
 <hr />
 <h2 id="get_cs_at_minute">get_cs_at_minute<a class="headerlink" href="#get_cs_at_minute" title="Permanent link">&para;</a></h2>
 <p>Get CS, gold, and level for all heroes at a specific minute. <strong>Parallel-safe</strong>: call for multiple minutes.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">get_cs_at_minute</span><span class="p">(</span><span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">,</span> <span class="n">minute</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">get_cs_at_minute</span><span class="p">(</span><span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">,</span> <span class="n">minute</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 </code></pre></div>
 <p><strong>Returns:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="p">{</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">  </span><span class="nt">&quot;minute&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">  </span><span class="nt">&quot;heroes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;hero&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;antimage&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;team&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;last_hits&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">82</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;denies&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;gold&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4850</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;level&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">}</span>
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">  </span><span class="p">]</span>
-<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="p">{</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">  </span><span class="nt">&quot;minute&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">  </span><span class="nt">&quot;heroes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;hero&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;antimage&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;team&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;last_hits&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">82</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;denies&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;gold&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4850</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;level&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">}</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="p">}</span>
 </code></pre></div></p>
 <hr />
 <h2 id="get_hero_positions">get_hero_positions<a class="headerlink" href="#get_hero_positions" title="Permanent link">&para;</a></h2>
 <p>Get X,Y coordinates for all heroes at a specific minute. <strong>Parallel-safe</strong>: call for multiple minutes.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">get_hero_positions</span><span class="p">(</span><span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">,</span> <span class="n">minute</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">get_hero_positions</span><span class="p">(</span><span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">,</span> <span class="n">minute</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 </code></pre></div>
 <p><strong>Returns:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="p">{</span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">  </span><span class="nt">&quot;minute&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">  </span><span class="nt">&quot;positions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;hero&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;antimage&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;team&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-5200.5</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-4100.2</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;game_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">300</span><span class="p">}</span>
-<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">  </span><span class="p">]</span>
-<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="p">{</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">  </span><span class="nt">&quot;minute&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">  </span><span class="nt">&quot;positions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;hero&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;antimage&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;team&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-5200.5</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-4100.2</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;game_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">300</span><span class="p">}</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="p">}</span>
 </code></pre></div></p>
 <hr />
 <h2 id="get_snapshot_at_time">get_snapshot_at_time<a class="headerlink" href="#get_snapshot_at_time" title="Permanent link">&para;</a></h2>
 <p>High-resolution game state at a specific second. <strong>Parallel-safe</strong>: call for multiple times.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="n">get_snapshot_at_time</span><span class="p">(</span><span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">,</span> <span class="n">game_time</span><span class="o">=</span><span class="mf">300.0</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="n">get_snapshot_at_time</span><span class="p">(</span><span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">,</span> <span class="n">game_time</span><span class="o">=</span><span class="mf">300.0</span><span class="p">)</span>
 </code></pre></div>
 <p><strong>Returns:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="p">{</span>
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">  </span><span class="nt">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">18000</span><span class="p">,</span>
-<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">  </span><span class="nt">&quot;game_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">300.0</span><span class="p">,</span>
-<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">  </span><span class="nt">&quot;game_time_str&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;5:00&quot;</span><span class="p">,</span>
-<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="w">  </span><span class="nt">&quot;radiant_gold&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12500</span><span class="p">,</span>
-<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="w">  </span><span class="nt">&quot;dire_gold&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">11800</span><span class="p">,</span>
-<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="w">  </span><span class="nt">&quot;heroes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="w">    </span><span class="p">{</span>
-<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="w">      </span><span class="nt">&quot;hero&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;antimage&quot;</span><span class="p">,</span>
-<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="w">      </span><span class="nt">&quot;team&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire&quot;</span><span class="p">,</span>
-<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="w">      </span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-5200.5</span><span class="p">,</span>
-<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="w">      </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-4100.2</span><span class="p">,</span>
-<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a><span class="w">      </span><span class="nt">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">720</span><span class="p">,</span>
-<a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a><span class="w">      </span><span class="nt">&quot;max_health&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">720</span><span class="p">,</span>
-<a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a><span class="w">      </span><span class="nt">&quot;mana&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">291</span><span class="p">,</span>
-<a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a><span class="w">      </span><span class="nt">&quot;max_mana&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">291</span><span class="p">,</span>
-<a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a><span class="w">      </span><span class="nt">&quot;level&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span>
-<a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a><span class="w">      </span><span class="nt">&quot;alive&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
-<a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a><span class="w">  </span><span class="p">]</span>
-<a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="p">{</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">  </span><span class="nt">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">18000</span><span class="p">,</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">  </span><span class="nt">&quot;game_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">300.0</span><span class="p">,</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w">  </span><span class="nt">&quot;game_time_str&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;5:00&quot;</span><span class="p">,</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="w">  </span><span class="nt">&quot;radiant_gold&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12500</span><span class="p">,</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="w">  </span><span class="nt">&quot;dire_gold&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">11800</span><span class="p">,</span>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="w">  </span><span class="nt">&quot;heroes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="w">      </span><span class="nt">&quot;hero&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;antimage&quot;</span><span class="p">,</span>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="w">      </span><span class="nt">&quot;team&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire&quot;</span><span class="p">,</span>
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="w">      </span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-5200.5</span><span class="p">,</span>
+<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a><span class="w">      </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-4100.2</span><span class="p">,</span>
+<a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a><span class="w">      </span><span class="nt">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">720</span><span class="p">,</span>
+<a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a><span class="w">      </span><span class="nt">&quot;max_health&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">720</span><span class="p">,</span>
+<a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a><span class="w">      </span><span class="nt">&quot;mana&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">291</span><span class="p">,</span>
+<a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a><span class="w">      </span><span class="nt">&quot;max_mana&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">291</span><span class="p">,</span>
+<a id="__codelineno-17-18" name="__codelineno-17-18" href="#__codelineno-17-18"></a><span class="w">      </span><span class="nt">&quot;level&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span>
+<a id="__codelineno-17-19" name="__codelineno-17-19" href="#__codelineno-17-19"></a><span class="w">      </span><span class="nt">&quot;alive&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<a id="__codelineno-17-20" name="__codelineno-17-20" href="#__codelineno-17-20"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-17-21" name="__codelineno-17-21" href="#__codelineno-17-21"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-17-22" name="__codelineno-17-22" href="#__codelineno-17-22"></a><span class="p">}</span>
 </code></pre></div></p>
 <hr />
 <h2 id="get_position_timeline">get_position_timeline<a class="headerlink" href="#get_position_timeline" title="Permanent link">&para;</a></h2>
 <p>Hero positions over a time range. <strong>Parallel-safe</strong>: call for different ranges or heroes.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="n">get_position_timeline</span><span class="p">(</span>
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>    <span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">,</span>
-<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>    <span class="n">start_time</span><span class="o">=</span><span class="mf">300.0</span><span class="p">,</span>
-<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>    <span class="n">end_time</span><span class="o">=</span><span class="mf">360.0</span><span class="p">,</span>
-<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>    <span class="n">hero_filter</span><span class="o">=</span><span class="s2">&quot;antimage&quot;</span><span class="p">,</span>
-<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>    <span class="n">interval_seconds</span><span class="o">=</span><span class="mf">1.0</span>
-<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">get_position_timeline</span><span class="p">(</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>    <span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">,</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>    <span class="n">start_time</span><span class="o">=</span><span class="mf">300.0</span><span class="p">,</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>    <span class="n">end_time</span><span class="o">=</span><span class="mf">360.0</span><span class="p">,</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>    <span class="n">hero_filter</span><span class="o">=</span><span class="s2">&quot;antimage&quot;</span><span class="p">,</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>    <span class="n">interval_seconds</span><span class="o">=</span><span class="mf">1.0</span>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="p">)</span>
 </code></pre></div>
 <p><strong>Returns:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="p">{</span>
-<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">  </span><span class="nt">&quot;heroes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">    </span><span class="p">{</span>
-<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="w">      </span><span class="nt">&quot;hero&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;antimage&quot;</span><span class="p">,</span>
-<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="w">      </span><span class="nt">&quot;team&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire&quot;</span><span class="p">,</span>
-<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="w">      </span><span class="nt">&quot;positions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="w">        </span><span class="p">{</span><span class="nt">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">18000</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;game_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">300.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-5200.5</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-4100.2</span><span class="p">},</span>
-<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="w">        </span><span class="p">{</span><span class="nt">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">18060</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;game_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">301.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-5180.3</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-4120.1</span><span class="p">}</span>
-<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a><span class="w">      </span><span class="p">]</span>
-<a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a><span class="w">  </span><span class="p">]</span>
-<a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="p">{</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">  </span><span class="nt">&quot;heroes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="w">      </span><span class="nt">&quot;hero&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;antimage&quot;</span><span class="p">,</span>
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="w">      </span><span class="nt">&quot;team&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire&quot;</span><span class="p">,</span>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="w">      </span><span class="nt">&quot;positions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="w">        </span><span class="p">{</span><span class="nt">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">18000</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;game_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">300.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-5200.5</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-4100.2</span><span class="p">},</span>
+<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a><span class="w">        </span><span class="p">{</span><span class="nt">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">18060</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;game_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">301.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-5180.3</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-4120.1</span><span class="p">}</span>
+<a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a><span class="w">      </span><span class="p">]</span>
+<a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a><span class="p">}</span>
 </code></pre></div></p>
 <hr />
 <h2 id="get_fight_replay">get_fight_replay<a class="headerlink" href="#get_fight_replay" title="Permanent link">&para;</a></h2>
 <p>High-resolution replay data for a fight. <strong>Parallel-safe</strong>: call for multiple fights.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">get_fight_replay</span><span class="p">(</span>
-<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>    <span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">,</span>
-<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>    <span class="n">start_time</span><span class="o">=</span><span class="mf">1395.0</span><span class="p">,</span>
-<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>    <span class="n">end_time</span><span class="o">=</span><span class="mf">1420.0</span><span class="p">,</span>
-<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>    <span class="n">interval_seconds</span><span class="o">=</span><span class="mf">0.5</span>
-<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">get_fight_replay</span><span class="p">(</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>    <span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">,</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>    <span class="n">start_time</span><span class="o">=</span><span class="mf">1395.0</span><span class="p">,</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>    <span class="n">end_time</span><span class="o">=</span><span class="mf">1420.0</span><span class="p">,</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>    <span class="n">interval_seconds</span><span class="o">=</span><span class="mf">0.5</span>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="p">)</span>
 </code></pre></div>
 <p><strong>Returns:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="p">{</span>
-<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">  </span><span class="nt">&quot;start_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1395.0</span><span class="p">,</span>
-<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="w">  </span><span class="nt">&quot;end_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1420.0</span><span class="p">,</span>
-<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="w">  </span><span class="nt">&quot;total_snapshots&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
-<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="w">  </span><span class="nt">&quot;snapshots&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="w">    </span><span class="p">{</span>
-<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="w">      </span><span class="nt">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">83700</span><span class="p">,</span>
-<a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a><span class="w">      </span><span class="nt">&quot;game_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1395.0</span><span class="p">,</span>
-<a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a><span class="w">      </span><span class="nt">&quot;game_time_str&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;23:15&quot;</span><span class="p">,</span>
-<a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a><span class="w">      </span><span class="nt">&quot;heroes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a><span class="w">        </span><span class="p">{</span><span class="nt">&quot;hero&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;medusa&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;team&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1200.5</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">800.2</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2100</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;alive&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">}</span>
-<a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a><span class="w">      </span><span class="p">]</span>
-<a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a><span class="w">  </span><span class="p">]</span>
-<a id="__codelineno-20-16" name="__codelineno-20-16" href="#__codelineno-20-16"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="p">{</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">  </span><span class="nt">&quot;start_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1395.0</span><span class="p">,</span>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="w">  </span><span class="nt">&quot;end_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1420.0</span><span class="p">,</span>
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="w">  </span><span class="nt">&quot;total_snapshots&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="w">  </span><span class="nt">&quot;snapshots&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a><span class="w">      </span><span class="nt">&quot;tick&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">83700</span><span class="p">,</span>
+<a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a><span class="w">      </span><span class="nt">&quot;game_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1395.0</span><span class="p">,</span>
+<a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a><span class="w">      </span><span class="nt">&quot;game_time_str&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;23:15&quot;</span><span class="p">,</span>
+<a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a><span class="w">      </span><span class="nt">&quot;heroes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a><span class="w">        </span><span class="p">{</span><span class="nt">&quot;hero&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;medusa&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;team&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1200.5</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">800.2</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2100</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;alive&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">}</span>
+<a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a><span class="w">      </span><span class="p">]</span>
+<a id="__codelineno-21-14" name="__codelineno-21-14" href="#__codelineno-21-14"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-21-15" name="__codelineno-21-15" href="#__codelineno-21-15"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-21-16" name="__codelineno-21-16" href="#__codelineno-21-16"></a><span class="p">}</span>
 </code></pre></div></p>
 
 

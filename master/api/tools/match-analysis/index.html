@@ -1530,6 +1530,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../coaching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Coaching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1801,7 +1829,22 @@
 </code></pre></div></p>
 <hr />
 <h2 id="get_hero_deaths">get_hero_deaths<a class="headerlink" href="#get_hero_deaths" title="Permanent link">&para;</a></h2>
-<p>All hero deaths in the match.</p>
+<p>Chronological list of ALL hero deaths in the match.</p>
+<div class="admonition warning">
+<p class="admonition-title">When NOT to use</p>
+<ul>
+<li>You already called <code>get_hero_performance</code> → It includes deaths per hero</li>
+<li>Asking about specific hero's deaths → Use <code>get_hero_performance</code> instead</li>
+<li>Asking about ability effectiveness → Use <code>get_hero_performance</code> instead</li>
+</ul>
+</div>
+<p><strong>Use for:</strong></p>
+<ul>
+<li>"Show me all deaths in the game" (global death timeline)</li>
+<li>"Who died the most?" (need to count across all heroes)</li>
+<li>"What was first blood?" (earliest death)</li>
+<li>Death pattern analysis across entire match</li>
+</ul>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">get_hero_deaths</span><span class="p">(</span><span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">)</span>
 </code></pre></div>
 <p><strong>Returns:</strong>
@@ -1817,20 +1860,36 @@
 <a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">      </span><span class="nt">&quot;ability&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;disruptor_thunder_strike&quot;</span><span class="p">,</span>
 <a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">      </span><span class="nt">&quot;position&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4200</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1800</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;region&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dire_safelane&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;location&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Dire safelane near tower&quot;</span><span class="p">}</span>
 <a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">  </span><span class="p">]</span>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="p">}</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">  </span><span class="p">],</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">  </span><span class="nt">&quot;coaching_analysis&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AI analysis of death patterns (if client supports sampling)&quot;</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="p">}</span>
 </code></pre></div></p>
 <hr />
 <h2 id="get_hero_performance">get_hero_performance<a class="headerlink" href="#get_hero_performance" title="Permanent link">&para;</a></h2>
-<p><strong>THE PRIMARY TOOL for analyzing a hero's performance in a match.</strong> Use this for ANY question about how a player/hero performed.</p>
-<p><strong>Use this for:</strong></p>
+<p><strong>THE PRIMARY TOOL for hero/ability analysis.</strong> Use this FIRST and ONLY for any question about how a player/hero/ability performed.</p>
+<p><strong>Use for:</strong></p>
 <ul>
-<li>"How did Whitemon's Jakiro perform?"</li>
-<li>"What was Collapse's impact on Mars?"</li>
-<li>"How many Ice Paths landed?"</li>
-<li>"Show me Yatoro's fight participation"</li>
+<li>"How did X hero perform?" / "How many kills did X get?"</li>
+<li>"How many Chronospheres landed?" / "Analyze Lasso effectiveness"</li>
+<li>"Show me fight participation" / "What was X's impact?"</li>
 </ul>
-<p>Returns per-fight statistics including kills, deaths, assists, ability usage with hit rates, and damage dealt/received.</p>
+<p><strong>Response includes (no need for additional tools):</strong></p>
+<ul>
+<li><code>total_kills</code>, <code>total_deaths</code>, <code>total_assists</code> (aggregated)</li>
+<li><code>ability_summary</code>: casts, hero_hits, hit_rate per ability</li>
+<li><code>fights[]</code>: per-fight breakdown with kills/deaths/abilities used</li>
+<li><code>coaching_analysis</code>: AI evaluation (if client supports sampling)</li>
+</ul>
+<div class="admonition danger">
+<p class="admonition-title">DO NOT chain to other tools after this</p>
+<ul>
+<li>❌ Don't call <code>get_fight_combat_log</code> - <code>fights[]</code> already has per-fight data</li>
+<li>❌ Don't call <code>get_hero_deaths</code> - <code>total_deaths</code> already included</li>
+<li>❌ Don't call <code>list_fights</code> - <code>fights[]</code> already lists all fights</li>
+</ul>
+</div>
+<p><strong>For ability questions:</strong> Use <code>ability_filter</code> param (e.g., "flaming_lasso", "chronosphere").
+The response shows: casts, hits on heroes, and kills in fights where ability was used.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">get_hero_performance</span><span class="p">(</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">,</span>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">hero</span><span class="o">=</span><span class="s2">&quot;earthshaker&quot;</span>
@@ -1908,16 +1967,19 @@
 </div>
 <hr />
 <h2 id="get_raw_combat_events">get_raw_combat_events<a class="headerlink" href="#get_raw_combat_events" title="Permanent link">&para;</a></h2>
-<p>Raw combat events for a <strong>SPECIFIC TIME WINDOW ONLY</strong>.</p>
+<p>Raw combat events for a <strong>SPECIFIC TIME WINDOW</strong> (advanced use).</p>
 <div class="admonition warning">
-<p class="admonition-title">When NOT to use this tool</p>
+<p class="admonition-title">When NOT to use</p>
 <ul>
-<li>"How did X hero perform?" → Use <code>get_hero_performance</code></li>
-<li>"Show me the fights" → Use <code>list_fights</code> or <code>get_teamfights</code></li>
-<li>"What happened in the game?" → Use <code>get_match_timeline</code></li>
+<li>Hero/ability performance → Use <code>get_hero_performance</code> instead</li>
+<li>Fight summaries → Use <code>list_fights</code> or <code>get_teamfights</code> instead</li>
 </ul>
 </div>
-<p><strong>Use this only when</strong> you need raw event-by-event details for a specific 30-second to 3-minute window.</p>
+<p><strong>Use when:</strong></p>
+<ul>
+<li>Need raw events in a specific time range (not fight-based)</li>
+<li>Analyzing non-fight moments (e.g., "What happened at Roshan at 18:00?")</li>
+</ul>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Default: narrative detail (recommended for most queries)</span>
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">get_raw_combat_events</span><span class="p">(</span>
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">match_id</span><span class="o">=</span><span class="mi">8461956309</span><span class="p">,</span>
@@ -2123,16 +2185,21 @@
 <p>Event types: <code>DAMAGE</code>, <code>MODIFIER_ADD</code>, <code>MODIFIER_REMOVE</code>, <code>ABILITY</code>, <code>ITEM</code>, <code>DEATH</code>, <code>HEAL</code>, <code>PURCHASE</code>, <code>BUYBACK</code></p>
 <hr />
 <h2 id="get_fight_combat_log">get_fight_combat_log<a class="headerlink" href="#get_fight_combat_log" title="Permanent link">&para;</a></h2>
-<p>Get combat log for <strong>ONE SPECIFIC FIGHT</strong> at a known time.</p>
-<div class="admonition warning">
-<p class="admonition-title">When NOT to use this tool</p>
+<p>Get detailed event-by-event combat log for <strong>ONE SPECIFIC FIGHT</strong>.</p>
+<p><strong>Use when user asks for deep fight analysis:</strong></p>
 <ul>
-<li>"How did X hero perform?" → Use <code>get_hero_performance</code></li>
-<li>"Show me all teamfights" → Use <code>get_teamfights</code></li>
-<li>"List all fights" → Use <code>list_fights</code></li>
+<li>"What exactly happened in the fight at 25:30?"</li>
+<li>"Break down the teamfight where we lost"</li>
+<li>"Show me the sequence of events in that fight"</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">When NOT to use</p>
+<ul>
+<li>You already called <code>get_hero_performance</code> → It has fight summaries</li>
+<li>Asking about hero/ability stats → Use <code>get_hero_performance</code> instead</li>
+<li>Want to see all fights → Use <code>list_fights</code> or <code>get_teamfights</code></li>
 </ul>
 </div>
-<p><strong>Use this when</strong> you have a specific death time and want details about that particular fight.</p>
 <p>Auto-detects fight boundaries around a reference time. Returns combat events plus <strong>fight highlights</strong> including multi-hero abilities, kill streaks, and team wipes.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Default: narrative detail (recommended)</span>
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">get_fight_combat_log</span><span class="p">(</span>
