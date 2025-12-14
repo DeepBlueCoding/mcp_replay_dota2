@@ -19,7 +19,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 COPY src/ /app/src/
 COPY data/ /app/data/
 COPY dota_match_mcp_server.py /app/
-COPY pyproject.toml uv.lock /app/
+COPY pyproject.toml uv.lock README.md /app/
 
 # Install the project itself
 RUN --mount=type=cache,target=/root/.cache/uv \

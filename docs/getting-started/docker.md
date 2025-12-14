@@ -21,7 +21,11 @@ The server will be available at `http://localhost:8081/sse`.
 ### Run with Docker Compose
 
 ```bash
-docker compose up
+# SSE transport (default)
+docker compose up mcp-server
+
+# STDIO transport
+docker compose --profile stdio run --rm mcp-server-stdio
 ```
 
 ## Transport Modes
@@ -62,13 +66,26 @@ docker run -p 8081:8081 \
 
 ## Claude Desktop Configuration
 
-For Claude Desktop with Docker SSE transport:
+### SSE Transport (Recommended)
 
 ```json
 {
   "mcpServers": {
     "dota2": {
       "url": "http://localhost:8081/sse"
+    }
+  }
+}
+```
+
+### STDIO Transport
+
+```json
+{
+  "mcpServers": {
+    "dota2": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "-v", "dota2-replay-cache:/app/.cache/mcp_dota2", "dota2-mcp-server"]
     }
   }
 }

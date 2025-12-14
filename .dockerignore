@@ -37,6 +37,7 @@ build
 # Documentation
 docs
 *.md
+!README.md
 !data/*.md
 
 # Tests (not needed in production image)
