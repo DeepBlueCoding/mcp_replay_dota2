@@ -14,8 +14,6 @@ import requests
 from opendota import OpenDota
 from python_manta import CombatLogType, Parser
 
-from src.models.game_context import GameContext
-
 from ..cache.replay_cache import ReplayCache
 from ..models.replay_data import ParsedReplayData, ProgressCallback
 
@@ -424,16 +422,3 @@ class ReplayService:
 
         # Delete cache
         return self._cache.delete(match_id)
-
-    def get_game_context(self, data: ParsedReplayData) -> GameContext:
-        """Create a GameContext from parsed replay data.
-
-        The context provides version-aware access to map data and constants.
-
-        Args:
-            data: Parsed replay data
-
-        Returns:
-            GameContext with resolved patch version and lazy-loaded versioned data
-        """
-        return GameContext.from_parsed_data(data)
