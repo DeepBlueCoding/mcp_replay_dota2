@@ -1,0 +1,866 @@
+{
+  "map_bounds": {
+    "min_x": -8000,
+    "max_x": 8000,
+    "min_y": -8000,
+    "max_y": 8000,
+    "playable_min_x": -7200,
+    "playable_max_x": 7200,
+    "playable_min_y": -7000,
+    "playable_max_y": 6800
+  },
+  "towers": [
+    {
+      "name": "radiant_t1_top",
+      "team": "radiant",
+      "tier": 1,
+      "lane": "top",
+      "position": {
+        "x": -6336.0,
+        "y": 1856.0
+      }
+    },
+    {
+      "name": "radiant_t1_mid",
+      "team": "radiant",
+      "tier": 1,
+      "lane": "mid",
+      "position": {
+        "x": -1544.0,
+        "y": -1408.0
+      }
+    },
+    {
+      "name": "radiant_t1_bot",
+      "team": "radiant",
+      "tier": 1,
+      "lane": "bot",
+      "position": {
+        "x": 4904.0,
+        "y": -6198.0
+      }
+    },
+    {
+      "name": "radiant_t2_top",
+      "team": "radiant",
+      "tier": 2,
+      "lane": "top",
+      "position": {
+        "x": -6464.0,
+        "y": -872.0
+      }
+    },
+    {
+      "name": "radiant_t2_mid",
+      "team": "radiant",
+      "tier": 2,
+      "lane": "mid",
+      "position": {
+        "x": -3190.0,
+        "y": -2926.0
+      }
+    },
+    {
+      "name": "radiant_t2_bot",
+      "team": "radiant",
+      "tier": 2,
+      "lane": "bot",
+      "position": {
+        "x": -360.0,
+        "y": -6256.0
+      }
+    },
+    {
+      "name": "radiant_t3_top",
+      "team": "radiant",
+      "tier": 3,
+      "lane": "top",
+      "position": {
+        "x": -6592.0,
+        "y": -3408.0
+      }
+    },
+    {
+      "name": "radiant_t3_mid",
+      "team": "radiant",
+      "tier": 3,
+      "lane": "mid",
+      "position": {
+        "x": -4640.0,
+        "y": -4144.0
+      }
+    },
+    {
+      "name": "radiant_t3_bot",
+      "team": "radiant",
+      "tier": 3,
+      "lane": "bot",
+      "position": {
+        "x": -3952.0,
+        "y": -6112.0
+      }
+    },
+    {
+      "name": "radiant_t4_top",
+      "team": "radiant",
+      "tier": 4,
+      "lane": "base",
+      "position": {
+        "x": -5392.0,
+        "y": -5192.0
+      }
+    },
+    {
+      "name": "radiant_t4_bot",
+      "team": "radiant",
+      "tier": 4,
+      "lane": "base",
+      "position": {
+        "x": -5712.0,
+        "y": -4864.0
+      }
+    },
+    {
+      "name": "dire_t1_top",
+      "team": "dire",
+      "tier": 1,
+      "lane": "top",
+      "position": {
+        "x": -5275.0,
+        "y": 5928.0
+      }
+    },
+    {
+      "name": "dire_t1_mid",
+      "team": "dire",
+      "tier": 1,
+      "lane": "mid",
+      "position": {
+        "x": 524.0,
+        "y": 652.0
+      }
+    },
+    {
+      "name": "dire_t1_bot",
+      "team": "dire",
+      "tier": 1,
+      "lane": "bot",
+      "position": {
+        "x": 6269.0,
+        "y": -2240.0
+      }
+    },
+    {
+      "name": "dire_t2_top",
+      "team": "dire",
+      "tier": 2,
+      "lane": "top",
+      "position": {
+        "x": -128.0,
+        "y": 6016.0
+      }
+    },
+    {
+      "name": "dire_t2_mid",
+      "team": "dire",
+      "tier": 2,
+      "lane": "mid",
+      "position": {
+        "x": 2496.0,
+        "y": 2112.0
+      }
+    },
+    {
+      "name": "dire_t2_bot",
+      "team": "dire",
+      "tier": 2,
+      "lane": "bot",
+      "position": {
+        "x": 6400.0,
+        "y": 384.0
+      }
+    },
+    {
+      "name": "dire_t3_top",
+      "team": "dire",
+      "tier": 3,
+      "lane": "top",
+      "position": {
+        "x": 3552.0,
+        "y": 5776.0
+      }
+    },
+    {
+      "name": "dire_t3_mid",
+      "team": "dire",
+      "tier": 3,
+      "lane": "mid",
+      "position": {
+        "x": 4272.0,
+        "y": 3759.0
+      }
+    },
+    {
+      "name": "dire_t3_bot",
+      "team": "dire",
+      "tier": 3,
+      "lane": "bot",
+      "position": {
+        "x": 6336.0,
+        "y": 3032.0
+      }
+    },
+    {
+      "name": "dire_t4_top",
+      "team": "dire",
+      "tier": 4,
+      "lane": "base",
+      "position": {
+        "x": 5280.0,
+        "y": 4432.0
+      }
+    },
+    {
+      "name": "dire_t4_bot",
+      "team": "dire",
+      "tier": 4,
+      "lane": "base",
+      "position": {
+        "x": 4944.0,
+        "y": 4776.0
+      }
+    }
+  ],
+  "barracks": [
+    {
+      "name": "radiant_melee_top",
+      "team": "radiant",
+      "lane": "top",
+      "type": "melee",
+      "position": {
+        "x": -6400.0,
+        "y": -3600.0
+      }
+    },
+    {
+      "name": "radiant_ranged_top",
+      "team": "radiant",
+      "lane": "top",
+      "type": "ranged",
+      "position": {
+        "x": -6200.0,
+        "y": -3800.0
+      }
+    },
+    {
+      "name": "radiant_melee_mid",
+      "team": "radiant",
+      "lane": "mid",
+      "type": "melee",
+      "position": {
+        "x": -4800.0,
+        "y": -4400.0
+      }
+    },
+    {
+      "name": "radiant_ranged_mid",
+      "team": "radiant",
+      "lane": "mid",
+      "type": "ranged",
+      "position": {
+        "x": -4600.0,
+        "y": -4600.0
+      }
+    },
+    {
+      "name": "radiant_melee_bot",
+      "team": "radiant",
+      "lane": "bot",
+      "type": "melee",
+      "position": {
+        "x": -4200.0,
+        "y": -6300.0
+      }
+    },
+    {
+      "name": "radiant_ranged_bot",
+      "team": "radiant",
+      "lane": "bot",
+      "type": "ranged",
+      "position": {
+        "x": -4000.0,
+        "y": -6500.0
+      }
+    },
+    {
+      "name": "dire_melee_top",
+      "team": "dire",
+      "lane": "top",
+      "type": "melee",
+      "position": {
+        "x": 3800.0,
+        "y": 6000.0
+      }
+    },
+    {
+      "name": "dire_ranged_top",
+      "team": "dire",
+      "lane": "top",
+      "type": "ranged",
+      "position": {
+        "x": 4000.0,
+        "y": 6200.0
+      }
+    },
+    {
+      "name": "dire_melee_mid",
+      "team": "dire",
+      "lane": "mid",
+      "type": "melee",
+      "position": {
+        "x": 4500.0,
+        "y": 4000.0
+      }
+    },
+    {
+      "name": "dire_ranged_mid",
+      "team": "dire",
+      "lane": "mid",
+      "type": "ranged",
+      "position": {
+        "x": 4700.0,
+        "y": 4200.0
+      }
+    },
+    {
+      "name": "dire_melee_bot",
+      "team": "dire",
+      "lane": "bot",
+      "type": "melee",
+      "position": {
+        "x": 6500.0,
+        "y": 3300.0
+      }
+    },
+    {
+      "name": "dire_ranged_bot",
+      "team": "dire",
+      "lane": "bot",
+      "type": "ranged",
+      "position": {
+        "x": 6700.0,
+        "y": 3500.0
+      }
+    }
+  ],
+  "ancients": [
+    {
+      "team": "radiant",
+      "position": {
+        "x": -5600.0,
+        "y": -5000.0
+      }
+    },
+    {
+      "team": "dire",
+      "position": {
+        "x": 5100.0,
+        "y": 4600.0
+      }
+    }
+  ],
+  "neutral_camps": [
+    {
+      "name": "radiant_small_camp_1",
+      "side": "radiant",
+      "tier": "small",
+      "position": {
+        "x": -3200.0,
+        "y": -4700.0
+      }
+    },
+    {
+      "name": "radiant_small_camp_2",
+      "side": "radiant",
+      "tier": "small",
+      "position": {
+        "x": -2400.0,
+        "y": -3900.0
+      }
+    },
+    {
+      "name": "radiant_medium_camp_1",
+      "side": "radiant",
+      "tier": "medium",
+      "position": {
+        "x": -4300.0,
+        "y": -3400.0
+      }
+    },
+    {
+      "name": "radiant_medium_camp_2",
+      "side": "radiant",
+      "tier": "medium",
+      "position": {
+        "x": -1100.0,
+        "y": -4200.0
+      }
+    },
+    {
+      "name": "radiant_large_camp_1",
+      "side": "radiant",
+      "tier": "large",
+      "position": {
+        "x": -3600.0,
+        "y": -700.0
+      }
+    },
+    {
+      "name": "radiant_large_camp_2",
+      "side": "radiant",
+      "tier": "large",
+      "position": {
+        "x": -600.0,
+        "y": -3200.0
+      }
+    },
+    {
+      "name": "radiant_ancient_camp",
+      "side": "radiant",
+      "tier": "ancient",
+      "position": {
+        "x": -2900.0,
+        "y": -200.0
+      }
+    },
+    {
+      "name": "dire_small_camp_1",
+      "side": "dire",
+      "tier": "small",
+      "position": {
+        "x": 3700.0,
+        "y": 700.0
+      }
+    },
+    {
+      "name": "dire_small_camp_2",
+      "side": "dire",
+      "tier": "small",
+      "position": {
+        "x": 2000.0,
+        "y": 4100.0
+      }
+    },
+    {
+      "name": "dire_medium_camp_1",
+      "side": "dire",
+      "tier": "medium",
+      "position": {
+        "x": 4300.0,
+        "y": 2200.0
+      }
+    },
+    {
+      "name": "dire_medium_camp_2",
+      "side": "dire",
+      "tier": "medium",
+      "position": {
+        "x": 900.0,
+        "y": 4400.0
+      }
+    },
+    {
+      "name": "dire_large_camp_1",
+      "side": "dire",
+      "tier": "large",
+      "position": {
+        "x": 3700.0,
+        "y": 4800.0
+      }
+    },
+    {
+      "name": "dire_large_camp_2",
+      "side": "dire",
+      "tier": "large",
+      "position": {
+        "x": 1200.0,
+        "y": 2600.0
+      }
+    },
+    {
+      "name": "dire_ancient_camp",
+      "side": "dire",
+      "tier": "ancient",
+      "position": {
+        "x": 3200.0,
+        "y": -500.0
+      }
+    },
+    {
+      "name": "radiant_triangle_large",
+      "side": "radiant",
+      "tier": "large",
+      "position": {
+        "x": 3400.0,
+        "y": -4600.0
+      }
+    },
+    {
+      "name": "radiant_triangle_medium",
+      "side": "radiant",
+      "tier": "medium",
+      "position": {
+        "x": 4600.0,
+        "y": -3400.0
+      }
+    },
+    {
+      "name": "radiant_triangle_ancient",
+      "side": "radiant",
+      "tier": "ancient",
+      "position": {
+        "x": 2000.0,
+        "y": -6000.0
+      }
+    },
+    {
+      "name": "dire_triangle_large",
+      "side": "dire",
+      "tier": "large",
+      "position": {
+        "x": -3700.0,
+        "y": 4200.0
+      }
+    },
+    {
+      "name": "dire_triangle_medium",
+      "side": "dire",
+      "tier": "medium",
+      "position": {
+        "x": -4800.0,
+        "y": 3200.0
+      }
+    },
+    {
+      "name": "dire_triangle_ancient",
+      "side": "dire",
+      "tier": "ancient",
+      "position": {
+        "x": -2200.0,
+        "y": 5800.0
+      }
+    }
+  ],
+  "rune_spawns": [
+    {
+      "name": "power_rune_top",
+      "type": "power",
+      "position": {
+        "x": -1900.0,
+        "y": 1200.0
+      }
+    },
+    {
+      "name": "power_rune_bot",
+      "type": "power",
+      "position": {
+        "x": 2400.0,
+        "y": -1800.0
+      }
+    },
+    {
+      "name": "bounty_radiant_jungle",
+      "type": "bounty",
+      "position": {
+        "x": -4300.0,
+        "y": -1800.0
+      }
+    },
+    {
+      "name": "bounty_radiant_triangle",
+      "type": "bounty",
+      "position": {
+        "x": 4100.0,
+        "y": -4100.0
+      }
+    },
+    {
+      "name": "bounty_dire_jungle",
+      "type": "bounty",
+      "position": {
+        "x": 4100.0,
+        "y": 1400.0
+      }
+    },
+    {
+      "name": "bounty_dire_triangle",
+      "type": "bounty",
+      "position": {
+        "x": -4300.0,
+        "y": 3900.0
+      }
+    },
+    {
+      "name": "wisdom_radiant",
+      "type": "wisdom",
+      "position": {
+        "x": -6200.0,
+        "y": 1000.0
+      }
+    },
+    {
+      "name": "wisdom_dire",
+      "type": "wisdom",
+      "position": {
+        "x": 5800.0,
+        "y": -1400.0
+      }
+    },
+    {
+      "name": "water_rune_1",
+      "type": "water",
+      "position": {
+        "x": -600.0,
+        "y": -200.0
+      }
+    },
+    {
+      "name": "water_rune_2",
+      "type": "water",
+      "position": {
+        "x": 600.0,
+        "y": 200.0
+      }
+    }
+  ],
+  "rune_rules": {
+    "power_runes": {
+      "name": "power",
+      "first_spawn": 360,
+      "interval": 120,
+      "effect": "Random buff: haste, double damage, arcane, invis, regen, or shield",
+      "duration": 45
+    },
+    "bounty_runes": {
+      "name": "bounty",
+      "first_spawn": 0,
+      "interval": 180,
+      "effect": "Grants gold to the hero and all allied heroes",
+      "duration": null
+    },
+    "wisdom_runes": {
+      "name": "wisdom",
+      "first_spawn": 420,
+      "interval": 420,
+      "effect": "Grants experience based on game time",
+      "duration": null
+    },
+    "water_runes": {
+      "name": "water",
+      "first_spawn": 120,
+      "interval": 120,
+      "effect": "Restores health and mana. Only spawns at 2:00 and 4:00",
+      "duration": null
+    },
+    "power_rune_types": [
+      "Haste",
+      "Double Damage",
+      "Arcane",
+      "Invisibility",
+      "Regeneration",
+      "Shield",
+      "Illusion",
+      "Water"
+    ]
+  },
+  "outposts": [
+    {
+      "name": "radiant_outpost",
+      "side": "radiant",
+      "position": {
+        "x": -3000.0,
+        "y": 300.0
+      }
+    },
+    {
+      "name": "dire_outpost",
+      "side": "dire",
+      "position": {
+        "x": 3200.0,
+        "y": 200.0
+      }
+    }
+  ],
+  "shops": [
+    {
+      "name": "radiant_base_shop",
+      "type": "base",
+      "team": "radiant",
+      "position": {
+        "x": -4800.0,
+        "y": -6000.0
+      }
+    },
+    {
+      "name": "dire_base_shop",
+      "type": "base",
+      "team": "dire",
+      "position": {
+        "x": 4400.0,
+        "y": 5400.0
+      }
+    },
+    {
+      "name": "radiant_secret_shop",
+      "type": "secret",
+      "team": "radiant",
+      "position": {
+        "x": -4800.0,
+        "y": -200.0
+      }
+    },
+    {
+      "name": "dire_secret_shop",
+      "type": "secret",
+      "team": "dire",
+      "position": {
+        "x": 4300.0,
+        "y": 1000.0
+      }
+    },
+    {
+      "name": "radiant_side_shop",
+      "type": "side",
+      "team": "radiant",
+      "position": {
+        "x": -6000.0,
+        "y": 2500.0
+      }
+    },
+    {
+      "name": "dire_side_shop",
+      "type": "side",
+      "team": "dire",
+      "position": {
+        "x": 5800.0,
+        "y": -2800.0
+      }
+    }
+  ],
+  "landmarks": [
+    {
+      "name": "roshan_pit",
+      "description": "Roshan's lair - drops Aegis",
+      "position": {
+        "x": -2000.0,
+        "y": 1100.0
+      }
+    },
+    {
+      "name": "radiant_fountain",
+      "description": "Radiant healing fountain",
+      "position": {
+        "x": -6800.0,
+        "y": -6600.0
+      }
+    },
+    {
+      "name": "dire_fountain",
+      "description": "Dire healing fountain",
+      "position": {
+        "x": 6800.0,
+        "y": 6200.0
+      }
+    },
+    {
+      "name": "mid_river",
+      "description": "Center of the river",
+      "position": {
+        "x": 0.0,
+        "y": -200.0
+      }
+    },
+    {
+      "name": "radiant_shrine",
+      "description": "Radiant jungle shrine area",
+      "position": {
+        "x": -2800.0,
+        "y": -2400.0
+      }
+    },
+    {
+      "name": "dire_shrine",
+      "description": "Dire jungle shrine area",
+      "position": {
+        "x": 2600.0,
+        "y": 2000.0
+      }
+    },
+    {
+      "name": "tormentor_radiant",
+      "description": "Radiant Tormentor spawn",
+      "position": {
+        "x": -4100.0,
+        "y": -400.0
+      }
+    },
+    {
+      "name": "tormentor_dire",
+      "description": "Dire Tormentor spawn",
+      "position": {
+        "x": 4100.0,
+        "y": 0.0
+      }
+    },
+    {
+      "name": "radiant_highground_mid",
+      "description": "Radiant mid high ground",
+      "position": {
+        "x": -3800.0,
+        "y": -3800.0
+      }
+    },
+    {
+      "name": "dire_highground_mid",
+      "description": "Dire mid high ground",
+      "position": {
+        "x": 3400.0,
+        "y": 3200.0
+      }
+    },
+    {
+      "name": "radiant_safe_t1_jungle",
+      "description": "Jungle behind Radiant safe T1",
+      "position": {
+        "x": 3000.0,
+        "y": -5500.0
+      }
+    },
+    {
+      "name": "dire_safe_t1_jungle",
+      "description": "Jungle behind Dire safe T1",
+      "position": {
+        "x": -3500.0,
+        "y": 5000.0
+      }
+    }
+  ],
+  "lanes": [
+    {
+      "name": "top",
+      "radiant_name": "offlane",
+      "dire_name": "safelane"
+    },
+    {
+      "name": "mid",
+      "radiant_name": "mid",
+      "dire_name": "mid"
+    },
+    {
+      "name": "bot",
+      "radiant_name": "safelane",
+      "dire_name": "offlane"
+    }
+  ],
+  "patch_version": "7.39"
+}

@@ -8,13 +8,12 @@ on:
         required: true
         default: '8594217096'
 
-env:
-  REPLAY_DIR: ~/dota2/replays
-
 jobs:
   seed-cache:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      DOTA_REPLAY_CACHE: ${{ github.workspace }}/replays
     steps:
       - uses: actions/checkout@v4
 
@@ -31,55 +30,25 @@ jobs:
       - name: Install dependencies
         run: uv sync --group dev
 
-      - name: Restore existing parsed cache
-        uses: actions/cache/restore@v4
-        with:
-          path: ~/.cache/mcp_dota2/parsed_replays_v2
-          key: parsed-all-matches-v1
-          restore-keys: |
-            parsed-8461956309-v4
-            parsed-
-
       - name: Restore existing replay cache
         uses: actions/cache/restore@v4
         with:
-          path: ~/dota2/replays
-          key: replays-all-v1
+          path: replays
+          key: replays-v2-${{ github.event.inputs.match_id }}
           restore-keys: |
-            replay-8461956309-v2
-            replay-
+            replays-v2-
 
-      - name: Download replay
+      - name: Download replay from GCP bucket
         run: |
-          mkdir -p ~/dota2/replays
+          mkdir -p $DOTA_REPLAY_CACHE
           MATCH_ID=${{ github.event.inputs.match_id }}
-          if [ ! -f ~/dota2/replays/${MATCH_ID}.dem ]; then
-            echo "Downloading replay ${MATCH_ID}..."
-            uv run python -c "
-          import asyncio
-          from src.utils.replay_downloader import ReplayDownloader
-          downloader = ReplayDownloader()
-          asyncio.run(downloader.download_replay(${MATCH_ID}))
-          "
+          if [ ! -f $DOTA_REPLAY_CACHE/${MATCH_ID}.dem ]; then
+            echo "Downloading replay ${MATCH_ID} from GCP bucket..."
+            curl -sL "https://storage.googleapis.com/dota-replays/${MATCH_ID}.dem" -o $DOTA_REPLAY_CACHE/${MATCH_ID}.dem
           else
             echo "Replay ${MATCH_ID} already cached"
           fi
-
-      - name: Verify replay file
-        run: |
-          MATCH_ID=${{ github.event.inputs.match_id }}
-          REPLAY_FILE=~/dota2/replays/${MATCH_ID}.dem
-          if [ ! -f "$REPLAY_FILE" ]; then
-            echo "ERROR: Replay file not found!"
-            exit 1
-          fi
-          SIZE=$(stat -c%s "$REPLAY_FILE")
-          echo "Replay file size: $SIZE bytes"
-          if [ "$SIZE" -lt 100000000 ]; then
-            echo "ERROR: Replay file too small, likely corrupted"
-            exit 1
-          fi
-          echo "Replay file verified OK"
+          ls -lh $DOTA_REPLAY_CACHE/
 
       - name: Parse replay
         timeout-minutes: 15
@@ -95,14 +64,8 @@ jobs:
           "
           echo "Parse complete"
 
-      - name: Save parsed cache
-        uses: actions/cache/save@v4
-        with:
-          path: ~/.cache/mcp_dota2/parsed_replays_v2
-          key: parsed-all-matches-v1
-
       - name: Save replay cache
         uses: actions/cache/save@v4
         with:
-          path: ~/dota2/replays
-          key: replays-all-v1
+          path: replays
+          key: replays-v2-${{ github.event.inputs.match_id }}

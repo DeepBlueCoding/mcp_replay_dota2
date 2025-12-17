@@ -1,0 +1,176 @@
+{
+  "patch_version": "7.39",
+  "description": "Neutral item tiers extracted from dotaconstants items.json",
+  "items": {
+    "poor_mans_shield": {
+      "tier": 2,
+      "dname": "Poor Man's Shield",
+      "status": "active"
+    },
+    "desolator_2": {
+      "tier": 5,
+      "dname": "Stygian Desolator",
+      "status": "active"
+    },
+    "spider_legs": {
+      "tier": 5,
+      "dname": "Spider Legs",
+      "status": "active"
+    },
+    "helm_of_the_undying": {
+      "tier": 5,
+      "dname": "Helm of the Undying",
+      "status": "active"
+    },
+    "spark_of_courage": {
+      "tier": 1,
+      "dname": "Spark of Courage",
+      "status": "active"
+    },
+    "essence_ring": {
+      "tier": 2,
+      "dname": "Essence Ring",
+      "status": "active"
+    },
+    "demonicon": {
+      "tier": 5,
+      "dname": "Book of the Dead",
+      "status": "active"
+    },
+    "fallen_sky": {
+      "tier": 5,
+      "dname": "Fallen Sky",
+      "status": "active"
+    },
+    "minotaur_horn": {
+      "tier": 5,
+      "dname": "Minotaur Horn",
+      "status": "active"
+    },
+    "chipped_vest": {
+      "tier": 1,
+      "dname": "Chipped Vest",
+      "status": "active"
+    },
+    "psychic_headband": {
+      "tier": 3,
+      "dname": "Psychic Headband",
+      "status": "active"
+    },
+    "misericorde": {
+      "tier": 2,
+      "dname": "Brigand's Blade",
+      "status": "active"
+    },
+    "pogo_stick": {
+      "tier": 2,
+      "dname": "Tumbler's Toy",
+      "status": "active"
+    },
+    "occult_bracelet": {
+      "tier": 1,
+      "dname": "Occult Bracelet",
+      "status": "active"
+    },
+    "whisper_of_the_dread": {
+      "tier": 3,
+      "dname": "Whisper of the Dread",
+      "status": "active"
+    },
+    "unrelenting_eye": {
+      "tier": 5,
+      "dname": "Unrelenting Eye",
+      "status": "active"
+    },
+    "mana_draught": {
+      "tier": 2,
+      "dname": "Mana Draught",
+      "status": "active"
+    },
+    "rippers_lash": {
+      "tier": 1,
+      "dname": "Ripper's Lash",
+      "status": "active"
+    },
+    "crippling_crossbow": {
+      "tier": 4,
+      "dname": "Crippling Crossbow",
+      "status": "active"
+    },
+    "gale_guard": {
+      "tier": 3,
+      "dname": "Gale Guard",
+      "status": "active"
+    },
+    "gunpowder_gauntlets": {
+      "tier": 3,
+      "dname": "Gunpowder Gauntlet",
+      "status": "active"
+    },
+    "searing_signet": {
+      "tier": 2,
+      "dname": "Searing Signet",
+      "status": "active"
+    },
+    "serrated_shiv": {
+      "tier": 3,
+      "dname": "Serrated Shiv",
+      "status": "active"
+    },
+    "polliwog_charm": {
+      "tier": 1,
+      "dname": "Pollywog Charm",
+      "status": "active"
+    },
+    "magnifying_monocle": {
+      "tier": 4,
+      "dname": "Magnifying Monocle",
+      "status": "active"
+    },
+    "pyrrhic_cloak": {
+      "tier": 4,
+      "dname": "Pyrrhic Cloak",
+      "status": "active"
+    },
+    "kobold_cup": {
+      "tier": 1,
+      "dname": "Kobold Cup",
+      "status": "active"
+    },
+    "dormant_curio": {
+      "tier": 1,
+      "dname": "Dormant Curio",
+      "status": "active"
+    },
+    "sisters_shroud": {
+      "tier": 1,
+      "dname": "Sister's Shroud",
+      "status": "active"
+    },
+    "jidi_pollen_bag": {
+      "tier": 3,
+      "dname": "Jidi Pollen Bag",
+      "status": "active"
+    },
+    "outworld_staff": {
+      "tier": 4,
+      "dname": "Outworld Staff",
+      "status": "active"
+    },
+    "dezun_bloodrite": {
+      "tier": 4,
+      "dname": "Dezun Bloodrite",
+      "status": "active"
+    },
+    "giant_maul": {
+      "tier": 4,
+      "dname": "Giant's Maul",
+      "status": "active"
+    },
+    "divine_regalia": {
+      "tier": 5,
+      "dname": "Divine Regalia",
+      "status": "active"
+    }
+  }
+}

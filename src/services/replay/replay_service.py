@@ -7,6 +7,7 @@ NO MCP DEPENDENCIES - progress is reported via callback protocol.
 
 import bz2
 import logging
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -19,7 +20,15 @@ from ..models.replay_data import ParsedReplayData, ProgressCallback
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_REPLAY_DIR = Path.home() / "dota2" / "replays"
+
+def _get_default_replay_dir() -> Path:
+    """Get replay directory, checking DOTA_REPLAY_CACHE env var first."""
+    if env_cache := os.environ.get("DOTA_REPLAY_CACHE"):
+        return Path(env_cache).expanduser()
+    return Path.home() / "dota2" / "replays"
+
+
+DEFAULT_REPLAY_DIR = _get_default_replay_dir()
 
 
 class ReplayService:

@@ -5,6 +5,7 @@ Uses v2 services exclusively. Parses replay data ONCE at session start.
 """
 
 import asyncio
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -16,9 +17,17 @@ from src.services.combat.fight_service import FightService
 from src.services.models.replay_data import ParsedReplayData
 from src.services.replay.replay_service import ReplayService
 
+
+def _get_replay_dir() -> Path:
+    """Get replay directory, checking DOTA_REPLAY_CACHE env var first."""
+    if env_cache := os.environ.get("DOTA_REPLAY_CACHE"):
+        return Path(env_cache).expanduser()
+    return Path.home() / "dota2" / "replays"
+
+
 # Test match ID with known verified data
 TEST_MATCH_ID = 8461956309
-REPLAY_PATH = Path.home() / "dota2" / "replays" / f"{TEST_MATCH_ID}.dem"
+REPLAY_PATH = _get_replay_dir() / f"{TEST_MATCH_ID}.dem"
 
 # Verified data from Dotabuff for match 8461956309
 FIRST_BLOOD_TIME = 288.0  # 4:48 in seconds
@@ -27,7 +36,7 @@ FIRST_BLOOD_KILLER = "disruptor"
 
 # Second test match - 8594217096 (OG vs Team - Radiant win)
 TEST_MATCH_ID_2 = 8594217096
-REPLAY_PATH_2 = Path.home() / "dota2" / "replays" / f"{TEST_MATCH_ID_2}.dem"
+REPLAY_PATH_2 = _get_replay_dir() / f"{TEST_MATCH_ID_2}.dem"
 
 # Verified data for match 8594217096
 MATCH_2_FIRST_BLOOD_TIME = 84.0  # 1:24 in seconds

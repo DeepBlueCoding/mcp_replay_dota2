@@ -87,9 +87,8 @@ dota2/
 # Cached constants - committed to repo for CI
 # data/constants/*.json
 
-# Temp/test files
-test_*.py
-!tests/test_*.py
+# Temp/test files (standalone scripts, not in tests/ directory)
+/test_*.py
 scratch/
 tmp/
 
