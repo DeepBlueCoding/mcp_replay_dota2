@@ -45,12 +45,6 @@ jobs:
           path: ~/dota2/replays
           key: replays
 
-      - name: Restore parsed cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/mcp_dota2/parsed_replays_v2
-          key: parsed-manta-1.4.7
-
       - name: Download missing replays
         run: |
           mkdir -p ~/dota2/replays
@@ -85,41 +79,27 @@ jobs:
           done
           echo "All replay files verified OK"
 
-      - name: Check and parse missing matches
-        timeout-minutes: 15
+      - name: Parse replays
+        timeout-minutes: 20
         run: |
-          echo "Checking which matches need parsing..."
+          echo "Parsing replays..."
           uv run python << 'EOF'
           import asyncio
-          import os
-          from diskcache import Cache
+          import sys
+          print("Starting replay parsing...", flush=True)
 
-          cache_dir = os.path.expanduser('~/.cache/mcp_dota2/parsed_replays_v2')
-          os.makedirs(cache_dir, exist_ok=True)
+          from src.services.replay.replay_service import ReplayService
+          print("Imported ReplayService", flush=True)
 
-          matches_to_parse = []
-          try:
-              cache = Cache(cache_dir)
-              for match_id in [8461956309, 8594217096]:
-                  if match_id not in cache:
-                      print(f"Match {match_id} not in cache, will parse")
-                      matches_to_parse.append(match_id)
-                  else:
-                      print(f"Match {match_id} already cached")
-              cache.close()
-          except Exception as e:
-              print(f"Cache error: {e}")
-              matches_to_parse = [8461956309, 8594217096]
+          rs = ReplayService()
+          print("Created ReplayService instance", flush=True)
 
-          if matches_to_parse:
-              from src.services.replay.replay_service import ReplayService
-              rs = ReplayService()
-              for match_id in matches_to_parse:
-                  print(f"Parsing match {match_id}...")
-                  data = asyncio.run(rs.get_parsed_data(match_id))
-                  print(f"Parsed {len(data.combat_log_entries)} combat log entries")
-          else:
-              print("All matches already cached!")
+          for match_id in [8461956309, 8594217096]:
+              print(f"Parsing match {match_id}...", flush=True)
+              data = asyncio.run(rs.get_parsed_data(match_id))
+              print(f"Parsed {len(data.combat_log_entries)} combat log entries", flush=True)
+
+          print("All replays parsed!", flush=True)
           EOF
 
       - name: Run tests
