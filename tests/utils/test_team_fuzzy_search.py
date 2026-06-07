@@ -71,11 +71,16 @@ class TestTeamAliases:
         return search
 
     def test_bb_alias_finds_betboom(self, team_search: TeamFuzzySearch):
-        """'bb' alias finds BetBoom Team."""
+        """'bb' alias finds BetBoom Team.
+
+        Identity via team_id only: the org's display name is mutable in
+        OpenDota (already rebranded "BetBoom Team" -> "BB"), so don't
+        golden-master it.
+        """
         result = team_search.find_best_match("bb")
         assert result is not None
-        assert "BetBoom" in result.name
         assert result.id == 8255888
+        assert isinstance(result.name, str) and len(result.name) > 0
 
     def test_tl_alias_finds_team_liquid(self, team_search: TeamFuzzySearch):
         """'tl' alias finds Team Liquid."""

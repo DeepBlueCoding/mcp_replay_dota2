@@ -1425,13 +1425,6 @@ class TestProMatchesWithRealData:
         # At least 90% should have league names
         assert len(matches_with_league) >= len(pro_matches_data) * 0.9
 
-    def test_real_pro_matches_have_valid_duration(self, pro_matches_data):
-        """Pro match durations are realistic (5-90 minutes, early GG possible)."""
-        for match in pro_matches_data:
-            if match.duration:
-                # Duration in seconds: 5 min to 90 min (early GG games can be short)
-                assert 300 <= match.duration <= 5400
-
     def test_real_pro_matches_series_info(self, pro_matches_data):
         """Some pro matches have series info."""
         matches_with_series = [

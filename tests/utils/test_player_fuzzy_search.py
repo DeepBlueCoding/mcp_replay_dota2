@@ -18,10 +18,16 @@ class TestPlayerFuzzySearchWithRealData:
         return search
 
     def test_search_yatoro(self, player_search: PlayerFuzzySearch):
-        """Find Yatoro (Team Spirit carry) in real data."""
+        """Find Yatoro (Team Spirit carry) in real data.
+
+        Identity is asserted via account_id (stable key); the curated display
+        name is mutable in OpenDota (it has already flipped Yatoro -> yatoro),
+        so only match it case-insensitively.
+        """
         results = player_search.search("Yatoro")
         assert len(results) >= 1
-        assert results[0].name == "Yatoro"
+        assert results[0].id == 134658652
+        assert results[0].name.lower() == "yatoro"
         assert results[0].similarity == 1.0
 
     def test_search_collapse(self, player_search: PlayerFuzzySearch):
@@ -39,10 +45,11 @@ class TestPlayerFuzzySearchWithRealData:
         assert results[0].name == "Miracle-"
 
     def test_search_case_insensitive(self, player_search: PlayerFuzzySearch):
-        """Search is case insensitive."""
+        """Search is case insensitive (assert identity by account_id, not name case)."""
         results = player_search.search("yatoro")
         assert len(results) >= 1
-        assert results[0].name == "Yatoro"
+        assert results[0].id == 134658652
+        assert results[0].name.lower() == "yatoro"
 
     def test_fuzzy_match_with_typo(self, player_search: PlayerFuzzySearch):
         """Fuzzy matching handles typos."""
@@ -57,10 +64,11 @@ class TestPlayerFuzzySearchWithRealData:
         assert len(results) == 0
 
     def test_find_best_match_returns_single_result(self, player_search: PlayerFuzzySearch):
-        """find_best_match returns single best result."""
+        """find_best_match returns single best result (identity via account_id)."""
         result = player_search.find_best_match("Yatoro")
         assert result is not None
-        assert result.name == "Yatoro"
+        assert result.id == 134658652
+        assert result.name.lower() == "yatoro"
 
     def test_find_best_match_no_match(self, player_search: PlayerFuzzySearch):
         """find_best_match returns None for very specific non-matching query."""
